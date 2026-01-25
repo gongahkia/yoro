@@ -7,12 +7,15 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (A) Refine preexisting keybinds being used here
 (A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
 (A) Add various important and relevant colorschemes
-(A) Add go to home command
+(A) Add go to home command within the command palette
+(A) Add softwrapping and hardwrapping
+(A) Add config.toml that lets users define their entire config within a toml file stored within localbrowser
+(A) Add various personal wiki features
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
+
 === PRIORITY 2A: COMMAND PALETTE ===
 (A) Add commands: font settings, editor preferences
-(A) Add commands: insert table, insert code block, insert horizontal rule
 (A) Add commands: toggle spellcheck
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access

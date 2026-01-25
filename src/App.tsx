@@ -175,6 +175,25 @@ function App() {
                 }
             },
             category: 'Export'
+        },
+        // Editor Insert Commands
+        {
+            id: 'insert-table',
+            label: 'Insert Table',
+            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-table' } })),
+            category: 'Editor'
+        },
+        {
+            id: 'insert-code-block',
+            label: 'Insert Code Block',
+            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-code-block' } })),
+            category: 'Editor'
+        },
+        {
+            id: 'insert-hr',
+            label: 'Insert Horizontal Rule',
+            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-horizontal-rule' } })),
+            category: 'Editor'
         }
     ] : [])
   ];

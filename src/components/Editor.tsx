@@ -30,6 +30,36 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode, focusMode }) => {
+    const editorRef = React.useRef<any>(null);
+
+    React.useEffect(() => {
+        const handleCommand = (e: CustomEvent) => {
+            if (!editorRef.current?.view) return;
+            const view = editorRef.current.view;
+            const { command } = e.detail;
+
+            if (command === 'insert-table') {
+                const tableTemplate = `
+| Header 1 | Header 2 |
+| :--- | :--- |
+| Cell 1 | Cell 2 |
+`;
+                view.dispatch(view.state.replaceSelection(tableTemplate));
+            } else if (command === 'insert-code-block') {
+                const codeBlock = "```language\n\n```";
+                view.dispatch(view.state.replaceSelection(codeBlock));
+                // Move cursor inside?
+                const cursor = view.state.selection.main.head;
+                view.dispatch({ selection: { anchor: cursor - 4 } });
+            } else if (command === 'insert-horizontal-rule') {
+                view.dispatch(view.state.replaceSelection('\n---\n'));
+            }
+        };
+
+        window.addEventListener('yoro-editor-cmd' as any, handleCommand);
+        return () => window.removeEventListener('yoro-editor-cmd' as any, handleCommand);
+    }, []);
+
     return (
         <div className={`editor-container ${focusMode ? 'focus-mode' : ''}`}>
             <div className="editor-content">
@@ -41,6 +71,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, v
                     placeholder="Untitled"
                 />
                 <CodeMirror
+                    ref={editorRef}
                     value={note.content}
                     height="100%"
                     extensions={[
