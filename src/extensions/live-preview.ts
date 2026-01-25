@@ -1,10 +1,10 @@
 import {
     Decoration,
-    DecorationSet,
     EditorView,
     ViewPlugin,
-    ViewUpdate,
+    WidgetType,
 } from '@codemirror/view';
+import type { DecorationSet, ViewUpdate } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/state';
 
