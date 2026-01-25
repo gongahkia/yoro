@@ -7,6 +7,26 @@ import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
 import './App.css';
 
+interface NoteEditorWrapperProps {
+  notes: Note[];
+  onUpdateNote: (id: string, updates: Partial<Note>) => void;
+}
+
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote }) => {
+  const { id } = useParams<{ id: string }>();
+  const note = notes.find(n => n.id === id);
+
+  if (!note) return <div>Note not found</div>;
+
+  return (
+    <Editor
+      note={note}
+      onChange={(content) => onUpdateNote(note.id, { content })}
+      onTitleChange={(title) => onUpdateNote(note.id, { title })}
+    />
+  );
+};
+
 function App() {
   const [data, setData] = useState<AppState>(storage.get());
   const navigate = useNavigate();
@@ -90,21 +110,6 @@ function App() {
     navigate(`/note/${id}`);
   };
 
-  const EditorRoute = () => {
-    const { id } = useParams<{ id: string }>();
-    const note = data.notes.find(n => n.id === id);
-
-    if (!note) return <div>Note not found</div>;
-
-    return (
-      <Editor
-        note={note}
-        onChange={(content) => handleUpdateNote(note.id, { content })}
-        onTitleChange={(title) => handleUpdateNote(note.id, { title })}
-      />
-    );
-  };
-
   return (
     <div className="app-container">
       <Routes>
@@ -123,7 +128,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<EditorRoute />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} />} />
       </Routes>
     </div>
   );
