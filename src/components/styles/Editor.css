@@ -93,6 +93,18 @@
     font-size: 0.9em;
 }
 
+.cm-link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.cm-hr {
+    border: none;
+    border-top: 2px solid #eee;
+    margin: 1rem 0;
+}
+
 .cm-strikethrough {
     text-decoration: line-through;
     opacity: 0.8;

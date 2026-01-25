@@ -65,6 +65,14 @@ class ImageWidget extends WidgetType {
     }
 }
 
+class HRWidget extends WidgetType {
+    toDOM() {
+        const hr = document.createElement('hr');
+        hr.className = 'cm-hr';
+        return hr;
+    }
+}
+
 class LivePreviewPlugin {
     decorations: DecorationSet;
 
@@ -206,6 +214,12 @@ class LivePreviewPlugin {
 
                     if (node.name === 'LinkText') {
                         widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'HorizontalRule') {
+                        widgets.push(Decoration.replace({
+                            widget: new HRWidget()
+                        }).range(node.from, node.to));
                     }
                 }
             });
