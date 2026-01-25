@@ -4,6 +4,7 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
 import { livePreview } from '../extensions/live-preview';
+import { handleImageEvents } from '../extensions/images';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -33,17 +34,15 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                             codeLanguages: languages,
                             extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
                         }),
-import { handleImageEvents} from '../extensions/images';
-                // ...
-                livePreview,
-                handleImageEvents
+                        livePreview,
+                        handleImageEvents
                     ]}
-                onChange={onChange}
-                className="editor-cm-wrapper"
-                basicSetup={{
-                    lineNumbers: false,
-                    foldGutter: false,
-                }}
+                    onChange={onChange}
+                    className="editor-cm-wrapper"
+                    basicSetup={{
+                        lineNumbers: false,
+                        foldGutter: false,
+                    }}
                 />
             </div>
         </div>

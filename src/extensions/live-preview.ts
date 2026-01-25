@@ -29,19 +29,9 @@ class CheckboxWidget extends WidgetType {
         input.onclick = () => {
             const pos = view.posAtDOM(input);
             if (pos === null) return;
-
-            // The widget replaces [ ] or [x]. Length is 3.
-            // But we need to verify what exactly it replaced.
-            // Actually posAtDOM returns the position BEFORE the widget?
-            // Decorations replace ranges.
-            // Let's rely on finding the position and replacing the content.
-
             const newChar = this.checked ? ' ' : 'x'; // Toggle
             view.dispatch({
                 changes: { from: pos + 1, to: pos + 2, insert: newChar }
-                // Marker is "[ ]", char at index 1 is " " or "x".
-                // Wait, if widget replaces invalid range, pos is start.
-                // Assuming [x] or [ ] format.
             });
             return true;
         }
@@ -49,6 +39,30 @@ class CheckboxWidget extends WidgetType {
     }
 
     ignoreEvent() { return false; }
+}
+
+class ImageWidget extends WidgetType {
+    readonly src: string;
+    readonly alt: string;
+
+    constructor(src: string, alt: string) {
+        super();
+        this.src = src;
+        this.alt = alt;
+    }
+
+    eq(other: ImageWidget) {
+        return other.src === this.src && other.alt === this.alt;
+    }
+
+    toDOM() {
+        const img = document.createElement('img');
+        img.src = this.src;
+        img.alt = this.alt;
+        img.className = 'cm-image-widget';
+        img.style.maxWidth = '100%';
+        return img;
+    }
 }
 
 class LivePreviewPlugin {
@@ -88,7 +102,6 @@ class LivePreviewPlugin {
                     }
 
                     if (node.name === 'CodeMark') {
-                        // Only hide if not focused
                         if (!this.isFocused(selection, node.from, node.to)) {
                             widgets.push(Decoration.replace({}).range(node.from, node.to));
                         } else {
@@ -137,7 +150,6 @@ class LivePreviewPlugin {
                     }
 
                     if (node.name === 'TaskMarker') {
-                        // Check text content to see if checked
                         const text = state.sliceDoc(node.from, node.to);
                         const checked = text.includes('x') || text.includes('X');
                         widgets.push(Decoration.replace({
@@ -145,101 +157,67 @@ class LivePreviewPlugin {
                         }).range(node.from, node.to));
                     }
 
-                    class ImageWidget extends WidgetType {
-                        constructor(readonly src: string, readonly alt: string) {
-                            super();
-                        }
+                    if (node.name === 'Blockquote') {
+                        widgets.push(Decoration.mark({ class: 'cm-blockquote' }).range(node.from, node.to));
+                    }
 
-                        eq(other: ImageWidget) {
-                            return other.src === this.src && other.alt === this.alt;
-                        }
+                    if (node.name === 'QuoteMark') {
+                        widgets.push(Decoration.mark({ class: 'cm-quote-mark' }).range(node.from, node.to));
+                    }
 
-                        toDOM() {
-                            const img = document.createElement('img');
-                            img.src = this.src;
-                            img.alt = this.alt;
-                            img.className = 'cm-image-widget';
-                            img.style.maxWidth = '100%';
-                            return img;
+                    if (node.name === 'Image') {
+                        if (!this.isFocused(selection, node.from, node.to)) {
+                            const text = state.sliceDoc(node.from, node.to);
+                            const match = text.match(/!\[(.*?)\]\((.*?)\)/);
+                            if (match) {
+                                const alt = match[1];
+                                const src = match[2];
+                                widgets.push(Decoration.replace({
+                                    widget: new ImageWidget(src, alt)
+                                }).range(node.from, node.to));
+                            }
                         }
                     }
 
-                    class LivePreviewPlugin {
-                        decorations: DecorationSet;
-                        // ... (existing code)
+                    if (node.name === 'LinkMark') {
+                        if (!this.isFocused(selection, node.from, node.to)) {
+                            widgets.push(Decoration.replace({}).range(node.from, node.to));
+                        } else {
+                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                        }
+                    }
 
-                        if(node.name === 'Image') {
-                if (!this.isFocused(selection, node.from, node.to)) {
-                    // Extract src and alt
-                    const text = state.doc.sliceString(node.from, node.to);
-                    const match = text.match(/!\[(.*?)\]\((.*?)\)/);
-                    if (match) {
-                        const alt = match[1];
-                        const src = match[2];
-                        widgets.push(Decoration.replace({
-                            widget: new ImageWidget(src, alt)
-                        }).range(node.from, node.to));
+                    if (node.name === 'URL') {
+                        // Hide URL unless focused
+                        // Note: Image URLs might be covered by Image logic above if 'Image' node is used (it replaces children).
+                        // But if Image node logic fails or we are in a simple Link...
+                        if (!this.isFocused(selection, node.from, node.to)) {
+                            // If inside Image, we might double replace?
+                            // CM6 handles overlapping decorations gracefully usually (last one wins or merge?).
+                            // Or error.
+                            // But Image processing replaces parent node. So children are gone.
+                            // So we are safe.
+
+                            widgets.push(Decoration.replace({}).range(node.from, node.to));
+                        } else {
+                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                        }
+                    }
+
+                    if (node.name === 'LinkText') {
+                        widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
                     }
                 }
-            }
-
-            if (node.name === 'Link') {
-                // ...
-                // We don't style the wrapper, we handle children
-            }
-
-            if (node.name === 'URL') {
-                if (!this.isFocused(selection, node.from, node.to)) {
-                    // Check if parent is Link?
-                    // URL can be standalone (autolink).
-                    // Assuming inside Link for now.
-                    // We also need to hide the markers ]( and ).
-                }
-            }
-
-            // Actually, getting granular children (LinkMark) inside 'Link' via iterate is tricky 
-            // because iterate visits top-down. 
-            // We can check node.name for specific parts.
-
-            // Simple Link approach:
-            // Style LinkText with .cm-link
-            // Hide everything else IF not focused.
-
-            // Complication: The iterator hits 'Link' then children.
-            // If we encounter 'Link', we can't easily instruct "hide children except LinkText".
-
-            // BETTER: Match 'LinkMark' and 'URL' and hide them.
-
-            if (node.name === 'LinkMark') {
-                if (!this.isFocused(selection, node.from, node.to)) {
-                    widgets.push(Decoration.replace({}).range(node.from, node.to));
-                } else {
-                    widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                }
-            }
-
-            if (node.name === 'URL') {
-                if (!this.isFocused(selection, node.from, node.to)) {
-                    widgets.push(Decoration.replace({}).range(node.from, node.to));
-                } else {
-                    widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                }
-            }
-
-            if (node.name === 'LinkText') {
-                // Style as link
-                widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
-            }
-        });
-    }
+            });
+        }
 
         return Decoration.set(widgets.sort((a, b) => a.from - b.from));
     }
 
-isFocused(selection: { from: number, to: number }, from: number, to: number) {
-    return (selection.from >= from && selection.from <= to) ||
-        (selection.to >= from && selection.to <= to);
-}
+    isFocused(selection: { from: number, to: number }, from: number, to: number) {
+        return (selection.from >= from && selection.from <= to) ||
+            (selection.to >= from && selection.to <= to);
+    }
 }
 
 export const livePreview = ViewPlugin.fromClass(LivePreviewPlugin, {
