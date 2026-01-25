@@ -4,13 +4,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Add config.toml that lets users define their entire config within a toml file stored within localbrowser
 (A) Add various personal wiki features
-(A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ``` ``` with spec of codeblock type and file extension
-(A) Allow users to specify where they want cursor to appear from (left, centred (default), right)
-(A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
-
-(A) Have vim commands appear on the bottom left/right/up/down in a translucent font decoration to allow them to be seen but not be obstrusive/instrusive
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 

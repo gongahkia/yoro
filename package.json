@@ -25,6 +25,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
+    "smol-toml": "^1.6.0",
     "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {

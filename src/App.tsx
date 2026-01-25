@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import JSZip from 'jszip';
 import LZString from 'lz-string';
+import { parse, stringify } from 'smol-toml';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
@@ -82,12 +83,74 @@ function App() {
       }
   }, [location.search, navigate]);
 
-  const handleUpdatePreferences = (updates: Partial<AppState['preferences']>) => {
-    setData(prev => ({
-      ...prev,
-      preferences: { ...prev.preferences, ...updates }
-    }));
+  const handleUpdatePreferences = (updates: Partial<AppState['preferences']>, syncToConfig = true) => {
+    setData(prev => {
+      const newPrefs = { ...prev.preferences, ...updates };
+      let newNotes = prev.notes;
+
+      if (syncToConfig) {
+          const configIndex = newNotes.findIndex(n => n.title === 'config.toml');
+          if (configIndex >= 0) {
+              try {
+                  // Only sync allowed keys
+                  const configObj = {
+                      theme: newPrefs.theme,
+                      vimMode: newPrefs.vimMode,
+                      sidebarVisible: newPrefs.sidebarVisible,
+                      showLineNumbers: newPrefs.showLineNumbers,
+                      focusMode: newPrefs.focusMode,
+                      lineWrapping: newPrefs.lineWrapping
+                  };
+                  const newContent = stringify(configObj);
+                  if (newNotes[configIndex].content.trim() !== newContent.trim()) {
+                      newNotes = [...newNotes];
+                      newNotes[configIndex] = {
+                          ...newNotes[configIndex],
+                          content: newContent,
+                          updatedAt: Date.now()
+                      };
+                  }
+              } catch (e) {
+                  console.error('Failed to sync config to note:', e);
+              }
+          }
+      }
+
+      return {
+        ...prev,
+        notes: newNotes,
+        preferences: newPrefs
+      };
+    });
   };
+
+  // Sync from config.toml note to preferences
+  useEffect(() => {
+      const configNote = data.notes.find(n => n.title === 'config.toml');
+      if (configNote) {
+          try {
+              const parsed = parse(configNote.content) as any;
+              const updates: Partial<AppState['preferences']> = {};
+              let hasUpdates = false;
+              const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping'];
+
+              for (const key of keys) {
+                  if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
+                      updates[key] = parsed[key];
+                      hasUpdates = true;
+                  }
+              }
+
+              if (hasUpdates) {
+                  handleUpdatePreferences(updates, false); // Don't sync back to note to avoid loop/overwrite
+              }
+          } catch (e) {
+              // ignore parse errors while typing
+          }
+      }
+  }, [data.notes]); // Careful: data.notes changes when we update pref (if we update note). 
+  // If handleUpdatePreferences updates note, this effect fires.
+  // It parses note. matches prefs. hasUpdates = false. Loop breaks. Correct.
 
   const getCurrentNoteId = () => {
     const match = location.pathname.match(/\/note\/(.+)/);
@@ -102,9 +165,45 @@ function App() {
       action: () => handleCreateNote(),
       category: 'General'
     },
-    {
-      id: 'toggle-vim',
-      label: 'Toggle Vim Mode',
+        {
+            id: 'open-config',
+            label: 'Open Configuration (config.toml)',
+            action: () => {
+                const existing = data.notes.find(n => n.title === 'config.toml');
+                if (existing) {
+                    handleSelectNote(existing.id);
+                } else {
+                    // Create config note with current defaults
+                    const newId = crypto.randomUUID();
+                    const configObj = {
+                        theme: data.preferences.theme,
+                        vimMode: data.preferences.vimMode,
+                        sidebarVisible: data.preferences.sidebarVisible,
+                        showLineNumbers: data.preferences.showLineNumbers,
+                        focusMode: data.preferences.focusMode,
+                        lineWrapping: data.preferences.lineWrapping
+                    };
+                    const newNote: Note = {
+                        id: newId,
+                        title: 'config.toml',
+                        content: stringify(configObj),
+                        format: 'markdown', // acts as text
+                        tags: ['config'],
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                        isFavorite: false,
+                    };
+                    setData(prev => ({
+                        ...prev,
+                        notes: [newNote, ...prev.notes]
+                    }));
+                    handleSelectNote(newId);
+                }
+            },
+            category: 'General'
+        },
+        {
+            id: 'toggle-vim',      label: 'Toggle Vim Mode',
       action: () => handleUpdatePreferences({ vimMode: !data.preferences.vimMode }),
       category: 'Editor'
     },
