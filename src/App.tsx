@@ -45,6 +45,10 @@ function App() {
   }, [data]);
 
   useEffect(() => {
+      document.body.setAttribute('data-theme', data.preferences.theme);
+  }, [data.preferences.theme]);
+
+  useEffect(() => {
       const params = new URLSearchParams(location.search);
       const shareData = params.get('share');
       if (shareData) {
@@ -142,6 +146,24 @@ function App() {
         id: 'theme-dracula',
         label: 'Theme: Dracula',
         action: () => handleUpdatePreferences({ theme: 'dracula' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-nord',
+        label: 'Theme: Nord',
+        action: () => handleUpdatePreferences({ theme: 'nord' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-solarized-light',
+        label: 'Theme: Solarized Light',
+        action: () => handleUpdatePreferences({ theme: 'solarized-light' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-solarized-dark',
+        label: 'Theme: Solarized Dark',
+        action: () => handleUpdatePreferences({ theme: 'solarized-dark' }),
         category: 'Theme'
     },
     {

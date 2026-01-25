@@ -4,12 +4,12 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Add various important and relevant colorschemes
 (A) Add softwrapping and hardwrapping
 (A) Add config.toml that lets users define their entire config within a toml file stored within localbrowser
 (A) Add various personal wiki features
-(A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ```
-
+(A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ``` ``` with spec of codeblock type and file extension
+(A) Allow users to specify where they want cursor to appear from (left, centred (default), right)
+(A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 
@@ -48,7 +48,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Implement minimap for navigation
 (C) Add mindmap export as image or structured format
 (C) Support importing from other mindmap tools
-(C) Add AI-assisted mindmap generation from text notes
 
 === PRIORITY 3: EXCALIDRAW INTEGRATION ===
 (B) Embed Excalidraw library as a drawing mode within notes

@@ -11,7 +11,7 @@ export interface Note {
     isFavorite: boolean;
 }
 
-export type Theme = 'light' | 'dark' | 'sepia' | 'dracula';
+export type Theme = 'light' | 'dark' | 'sepia' | 'dracula' | 'nord' | 'solarized-light' | 'solarized-dark';
 
 export interface UserPreferences {
     theme: Theme;

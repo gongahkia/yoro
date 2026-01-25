@@ -1,0 +1,84 @@
+:root {
+  /* Default (Light) */
+  --bg-primary: #ffffff;
+  --text-primary: #333333;
+  --primary: #007bff;
+  --primary-light: #f0f7ff;
+  --primary-light-active: #e0efff;
+  --bg-tooltip: #ffffff;
+  --highlight: rgba(255, 255, 0, 0.4);
+  --highlight-dim: rgba(255, 255, 0, 0.2);
+  --border-color: #eeeeee;
+}
+
+[data-theme='dark'] {
+  --bg-primary: #1e1e1e;
+  --text-primary: #d4d4d4;
+  --primary: #3794ff;
+  --primary-light: #2d2d2d;
+  --primary-light-active: #3d3d3d;
+  --bg-tooltip: #252526;
+  --highlight: rgba(255, 255, 0, 0.2);
+  --highlight-dim: rgba(255, 255, 0, 0.1);
+  --border-color: #333333;
+}
+
+[data-theme='sepia'] {
+  --bg-primary: #f4ecd8;
+  --text-primary: #5b4636;
+  --primary: #d28e5d;
+  --primary-light: #eaddcf;
+  --primary-light-active: #dec8b9;
+  --bg-tooltip: #fdf6e3;
+  --highlight: rgba(255, 200, 0, 0.3);
+  --highlight-dim: rgba(255, 200, 0, 0.15);
+  --border-color: #e3d5c0;
+}
+
+[data-theme='dracula'] {
+  --bg-primary: #282a36;
+  --text-primary: #f8f8f2;
+  --primary: #bd93f9;
+  --primary-light: #44475a;
+  --primary-light-active: #6272a4;
+  --bg-tooltip: #282a36;
+  --highlight: rgba(255, 184, 108, 0.3);
+  --highlight-dim: rgba(255, 184, 108, 0.15);
+  --border-color: #44475a;
+}
+
+[data-theme='nord'] {
+  --bg-primary: #2e3440;
+  --text-primary: #d8dee9;
+  --primary: #88c0d0;
+  --primary-light: #3b4252;
+  --primary-light-active: #434c5e;
+  --bg-tooltip: #3b4252;
+  --highlight: rgba(136, 192, 208, 0.2);
+  --highlight-dim: rgba(136, 192, 208, 0.1);
+  --border-color: #4c566a;
+}
+
+[data-theme='solarized-light'] {
+  --bg-primary: #fdf6e3;
+  --text-primary: #657b83;
+  --primary: #268bd2;
+  --primary-light: #eee8d5;
+  --primary-light-active: #e2d9c2;
+  --bg-tooltip: #eee8d5;
+  --highlight: rgba(181, 137, 0, 0.2);
+  --highlight-dim: rgba(181, 137, 0, 0.1);
+  --border-color: #eee8d5;
+}
+
+[data-theme='solarized-dark'] {
+  --bg-primary: #002b36;
+  --text-primary: #839496;
+  --primary: #268bd2;
+  --primary-light: #073642;
+  --primary-light-active: #586e75;
+  --bg-tooltip: #073642;
+  --highlight: rgba(181, 137, 0, 0.2);
+  --highlight-dim: rgba(181, 137, 0, 0.1);
+  --border-color: #073642;
+}
