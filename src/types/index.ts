@@ -12,7 +12,15 @@ export interface Note {
     viewMode?: 'editor' | 'mindmap';
 }
 
-export type Theme = 'light' | 'dark' | 'sepia' | 'dracula' | 'nord' | 'solarized-light' | 'solarized-dark';
+export type Theme =
+    | 'light' | 'dark'
+    | 'sepia-light' | 'sepia-dark'
+    | 'dracula-light' | 'dracula-dark'
+    | 'nord-light' | 'nord-dark'
+    | 'solarized-light' | 'solarized-dark'
+    | 'gruvbox-light' | 'gruvbox-dark'
+    | 'everforest-light' | 'everforest-dark'
+    | 'catppuccin-light' | 'catppuccin-dark';
 
 export interface UserPreferences {
     theme: Theme;
