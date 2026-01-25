@@ -8,6 +8,7 @@ interface NoteListProps {
     onSelectNote: (id: string) => void;
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
+    onRestoreNote?: (id: string, e: React.MouseEvent) => void;
 }
 
 export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote }) => {
@@ -35,14 +36,35 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
 
     const allTags = useMemo(() => {
         const tags = new Set<string>();
-        notes.forEach(note => note.tags.forEach(tag => tags.add(tag)));
-        return Array.from(tags).sort();
+        let hasDeleted = false;
+        notes.forEach(note => {
+            if (note.deletedAt) {
+                hasDeleted = true;
+            } else {
+                note.tags.forEach(tag => tags.add(tag));
+            }
+        });
+        const sorted = Array.from(tags).sort();
+        if (hasDeleted) {
+            sorted.push('bin'); // Add phantom tag for bin
+        }
+        return sorted;
     }, [notes]);
 
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
+            if (selectedTag === 'bin') {
+                // Bin View: Only show deleted notes
+                if (!note.deletedAt) return false;
+            } else {
+                // Normal View: Hide deleted notes
+                if (note.deletedAt) return false;
+            }
+
             const matchesSearch = (note.title + note.content).toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesTag = selectedTag ? note.tags.includes(selectedTag) : true;
+            // Filter by tag if selected and not 'bin' (bin is handled above as a mode)
+            const matchesTag = (selectedTag && selectedTag !== 'bin') ? note.tags.includes(selectedTag) : true;
+
             return matchesSearch && matchesTag;
         });
     }, [notes, searchQuery, selectedTag]);
@@ -86,6 +108,7 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
                             onClick={onSelectNote}
                             onDelete={(e) => onDeleteNote(note.id, e)}
                             onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                            onRestore={(e) => onRestoreNote?.(note.id, e)}
                         />
                     ))
                 ) : (

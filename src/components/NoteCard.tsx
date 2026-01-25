@@ -7,17 +7,24 @@ interface NoteCardProps {
     onClick: (id: string) => void;
     onDelete: (e: React.MouseEvent) => void;
     onDuplicate: (e: React.MouseEvent) => void;
+    onRestore?: (e: React.MouseEvent) => void;
 }
 
-export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate }) => {
+export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate, onRestore }) => {
     return (
         <div className="note-card" onClick={() => onClick(note.id)}>
             <div className="note-card-actions">
-                <button className="action-btn" onClick={onDuplicate} title="Duplicate">
-                    copy
-                </button>
-                <button className="action-btn delete" onClick={onDelete} title="Delete">
-                    del
+                {note.deletedAt ? (
+                    <button className="action-btn" onClick={onRestore} title="Restore">
+                        ref
+                    </button>
+                ) : (
+                    <button className="action-btn" onClick={onDuplicate} title="Duplicate">
+                        copy
+                    </button>
+                )}
+                <button className="action-btn delete" onClick={onDelete} title={note.deletedAt ? "Delete Forever" : "Move to Bin"}>
+                    {note.deletedAt ? 'kill' : 'del'}
                 </button>
             </div>
             <h3 className="note-title">{note.title || 'Untitled'}</h3>

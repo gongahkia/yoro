@@ -10,6 +10,7 @@ export interface Note {
     updatedAt: number;
     isFavorite: boolean;
     viewMode?: 'editor' | 'mindmap';
+    deletedAt?: number;
 }
 
 export type Theme =

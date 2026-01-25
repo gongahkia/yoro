@@ -300,13 +300,13 @@ function App() {
         },
         {
             id: 'theme-light',
-            label: 'Theme: Light',
+            label: 'Theme: Yoro Light',
             action: () => handleUpdatePreferences({ theme: 'light' }),
             category: 'Theme'
         },
         {
             id: 'theme-dark',
-            label: 'Theme: Dark',
+            label: 'Theme: Yoro Dark',
             action: () => handleUpdatePreferences({ theme: 'dark' }),
             category: 'Theme'
         },
