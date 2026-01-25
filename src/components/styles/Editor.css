@@ -71,6 +71,19 @@
     font-style: italic;
 }
 
+.cm-blockquote {
+    display: block;
+    /* Decorations are inline usually, but we can try inline-block or just color */
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+.cm-quote-mark {
+    color: #ccc;
+}
+
 .cm-strikethrough {
     text-decoration: line-through;
     opacity: 0.8;

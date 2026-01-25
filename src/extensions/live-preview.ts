@@ -73,9 +73,18 @@ class LivePreviewPlugin {
                         } else {
                             widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
                         }
-                        if (node.name === 'ListMark') {
-                            widgets.push(Decoration.mark({ class: 'cm-list-mark' }).range(node.from, node.to));
-                        }
+                    }
+
+                    if (node.name === 'ListMark') {
+                        widgets.push(Decoration.mark({ class: 'cm-list-mark' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'Blockquote') {
+                        widgets.push(Decoration.mark({ class: 'cm-blockquote' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'QuoteMark') {
+                        widgets.push(Decoration.mark({ class: 'cm-quote-mark' }).range(node.from, node.to));
                     }
                 });
         }
