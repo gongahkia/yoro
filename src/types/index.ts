@@ -4,6 +4,7 @@ export interface Note {
     id: NoteId;
     title: string;
     content: string;
+    format: 'markdown' | 'canvas';
     tags: string[];
     createdAt: number;
     updatedAt: number;
