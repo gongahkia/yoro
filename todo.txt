@@ -6,6 +6,9 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 2A: COMMAND PALETTE ===
 
 (A) Add commands: font settings, editor preferences
+
+(A) Have the notes frontend be rendered differently, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
+
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access
@@ -27,6 +30,8 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (D) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
 
 (D) Update manual within command palette
+
+(A) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Mindmap features were midway through implementation before being interrupted. First read the existing implementation and thoroughly understand what has already been incorporated, then update me what has yet to be done to ensure a working build and clarify as required, before adding the remaining 50% implementation to todo.txt
