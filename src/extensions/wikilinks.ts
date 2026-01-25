@@ -34,16 +34,19 @@ export const getWikilinkCompletion = (notes: Note[]) => {
 
 export const getMentionCompletion = (notes: Note[]) => {
     return (context: CompletionContext): CompletionResult | null => {
-        const word = context.matchBefore(/@[^ \]]*/);
+        const word = context.matchBefore(/@[\w\d\s\-_]*/);
         if (!word) return null;
-        if (word.from === word.to && !context.explicit) return null;
+        if (word.text === '@' && !context.explicit) {
+            // Optional: Don't trigger on just '@' if you feel it's annoying, 
+            // but user wants it to pop up. So we allow it.
+            // allow implicit trigger.
+        }
 
         const query = word.text.slice(1).toLowerCase();
         const options = notes
             .filter(n => (n.title || 'Untitled').toLowerCase().includes(query))
             .map(n => ({
                 label: n.title || 'Untitled',
-                // Use a relative path so it works in clicks if we implement standard link handling
                 apply: `[${n.title || 'Untitled'}](/note/${n.id})`,
                 detail: 'Link',
                 boost: 99
@@ -51,7 +54,8 @@ export const getMentionCompletion = (notes: Note[]) => {
 
         return {
             from: word.from,
-            options
+            options,
+            filter: false // Allow fuzzy matching or spaces handled by options?
         };
     };
 };

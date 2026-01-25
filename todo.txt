@@ -5,8 +5,9 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 === PRIORITY 2A: COMMAND PALETTE ===
 
+(A) Have the @ also allow users to immediately follow up with a url link (no space between the @ and the link) and pressing enter will immediately render that as [url title from html tag if can be retrieved](url link)
+(A) Have the notes frontend be rendered differently on the homepage, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
 (A) Add commands: font settings, editor preferences
-(A) Have the notes frontend be rendered differently, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
 (A) Rework how config.toml works and how it can be edited (should it be saved as a local note?)
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
 (A) Show keyboard shortcut hints alongside each command
