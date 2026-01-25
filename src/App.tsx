@@ -175,7 +175,6 @@ function App() {
         {
             id: 'new-note',
             label: 'Create New Note',
-            shortcut: 'Cmd+N',
             action: () => handleCreateNote(),
             category: 'General'
         },
@@ -608,11 +607,7 @@ function App() {
             <Routes>
                 <Route path="/" element={
                     <>
-                        <div className="app-header">
-                            <button className="btn-primary" onClick={handleCreateNote}>
-                                + New Note
-                            </button>
-                        </div>
+
                         <NoteList
                             notes={data.notes}
                             onSelectNote={handleSelectNote}
