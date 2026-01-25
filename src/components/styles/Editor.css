@@ -153,3 +153,55 @@
     background-color: var(--highlight-dim, rgba(255, 255, 0, 0.2));
     color: inherit;
 }
+
+/* Callouts */
+.cm-callout-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-weight: 600;
+    user-select: none;
+    margin-bottom: 4px;
+}
+
+.cm-callout-icon {
+    font-size: 1.1em;
+}
+
+/* Base callout line styling */
+.cm-callout-line .cm-blockquote {
+    border-left-width: 4px !important;
+    border-radius: 0 4px 4px 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    font-style: normal;
+    color: inherit;
+}
+
+.cm-callout-note .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
+.cm-callout-tip .cm-blockquote { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
+.cm-callout-important .cm-blockquote { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
+.cm-callout-warning .cm-blockquote { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
+.cm-callout-caution .cm-blockquote { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
+.cm-callout-info .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
+.cm-callout-success .cm-blockquote { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
+.cm-callout-danger .cm-blockquote { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
+.cm-callout-question .cm-blockquote { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
+.cm-callout-abstract .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
+.cm-callout-example .cm-blockquote { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
+.cm-callout-quote .cm-blockquote { border-left-color: #666; background: rgba(100, 100, 100, 0.05); }
+
+/* Apply header colors */
+.cm-callout-header-note { color: #0969da; }
+.cm-callout-header-tip { color: #1a7f37; }
+.cm-callout-header-important { color: #8250df; }
+.cm-callout-header-warning { color: #9a6700; }
+.cm-callout-header-caution { color: #d1242f; }
+.cm-callout-header-info { color: #0969da; }
+.cm-callout-header-success { color: #1a7f37; }
+.cm-callout-header-danger { color: #d1242f; }
+.cm-callout-header-question { color: #9a6700; }
+.cm-callout-header-abstract { color: #0969da; }
+.cm-callout-header-example { color: #8250df; }
+.cm-callout-header-quote { color: #666; }

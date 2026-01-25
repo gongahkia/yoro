@@ -5,7 +5,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
 
-(B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 (C) Add markdown templates for common study formats
 (C) Support emoji shortcodes with autocomplete (:smile: etc)
 (C) Add Vim keybinding mode as an option
