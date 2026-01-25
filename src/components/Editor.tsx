@@ -1,6 +1,7 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { keymap } from '@codemirror/view';
+import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
@@ -40,7 +41,8 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         }),
                         livePreview,
                         handleImageEvents,
-                        frontmatterFold
+                        frontmatterFold,
+                        keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"

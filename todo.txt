@@ -5,7 +5,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
 
-(B) Implement smart list continuation (Enter continues list, Enter on empty item exits)
 (B) Support footnotes with rendered popup/inline preview
 (B) Add math/LaTeX rendering with KaTeX for inline ($...$) and block ($$...$$)
 (B) Implement auto-pairing for markdown syntax (**, `, _, etc)
