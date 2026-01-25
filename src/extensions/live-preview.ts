@@ -221,6 +221,14 @@ class LivePreviewPlugin {
                             widget: new HRWidget()
                         }).range(node.from, node.to));
                     }
+
+                    if (node.name === 'FootnoteReference') {
+                        widgets.push(Decoration.mark({ class: 'cm-footnote-ref' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'Footnote') {
+                         widgets.push(Decoration.mark({ class: 'cm-footnote-def' }).range(node.from, node.to));
+                    }
                 }
             });
         }

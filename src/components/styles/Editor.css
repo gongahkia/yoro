@@ -115,3 +115,29 @@
    Actually, CodeMirror allows line attributes.
    But my plugin currently doesn't do line attributes.
    I'll add specific handling for ATXHeading in my plugin to style it big. */
+
+/* Footnotes */
+.cm-footnote-ref {
+    vertical-align: super;
+    font-size: 0.8em;
+    color: var(--primary, #007bff);
+    cursor: help;
+}
+
+.cm-footnote-def {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.cm-footnote-tooltip {
+    padding: 8px 12px;
+    background: var(--bg-tooltip, #fff);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    max-width: 300px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: normal;
+}

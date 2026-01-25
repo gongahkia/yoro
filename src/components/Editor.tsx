@@ -10,6 +10,8 @@ import { handleImageEvents } from '../extensions/images';
 import { frontmatterFold } from '../extensions/frontmatter';
 import { mathPreview } from '../extensions/math';
 import { markdownPairs } from '../extensions/markdown-pairs';
+import { footnoteTooltip } from '../extensions/footnotes';
+import { FootnoteExtension } from '../extensions/markdown-footnotes';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -38,7 +40,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                             content: markdown({
                                 base: markdownLanguage,
                                 codeLanguages: languages,
-                                extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
+                                extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList, FootnoteExtension]
                             })
                         }),
                         livePreview,
@@ -46,6 +48,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         frontmatterFold,
                         mathPreview,
                         markdownPairs,
+                        footnoteTooltip,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
