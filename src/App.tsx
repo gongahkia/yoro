@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { storage } from './utils/storage';
 import type { AppState, Note } from './types';
 import { NoteList } from './components/NoteList';
+import { Editor } from './components/Editor';
 import './App.css';
 
 function App() {
   const [data, setData] = useState<AppState>(storage.get());
+  const navigate = useNavigate();
 
   useEffect(() => {
     storage.set(data);
@@ -21,17 +24,14 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [data.notes]); // Dependency on data.notes might be needed if handleCreateNote depends on it, but handleCreateNote uses functional update.
-  // Actually handleCreateNote is defined inside component and uses functional update setData(prev => ...), so it is stable? No, it's recreated every render unless wrapped in useCallback.
-  // However, handleCreateNote itself doesn't read 'data' from closure for creation logic, but setData(prev => ...).
-  // Safest to just add handleCreateNote to dependency or wrap it.
-
-  // Let's wrap handleCreateNote in useCallback for cleanliness before adding effect. Or allow re-binding. Re-binding is fine.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreateNote = () => {
+    const newId = crypto.randomUUID();
     const newNote: Note = {
-      id: crypto.randomUUID(),
-      title: 'Untitled Note',
+      id: newId,
+      title: '',
       content: '',
       format: 'markdown',
       tags: [],
@@ -43,6 +43,7 @@ function App() {
       ...prev,
       notes: [newNote, ...prev.notes]
     }));
+    navigate(`/note/${newId}`);
   };
 
   const handleDeleteNote = (id: string, e: React.MouseEvent) => {
@@ -66,6 +67,7 @@ function App() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
+
       setData(prev => ({
         ...prev,
         notes: [newNote, ...prev.notes]
@@ -73,24 +75,52 @@ function App() {
     }
   };
 
+  const handleUpdateNote = (id: string, updates: Partial<Note>) => {
+    setData(prev => ({
+      ...prev,
+      notes: prev.notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n)
+    }));
+  };
+
   const handleSelectNote = (id: string) => {
-    console.log('Selected note:', id);
-    // TODO: Navigate to note editor
+    navigate(`/note/${id}`);
+  };
+
+  const EditorRoute = () => {
+    const { id } = useParams<{ id: string }>();
+    const note = data.notes.find(n => n.id === id);
+
+    if (!note) return <div>Note not found</div>;
+
+    return (
+      <Editor
+        note={note}
+        onChange={(content) => handleUpdateNote(note.id, { content })}
+        onTitleChange={(title) => handleUpdateNote(note.id, { title })}
+      />
+    );
   };
 
   return (
     <div className="app-container">
-      <div className="app-header">
-        <button className="btn-primary" onClick={handleCreateNote}>
-          + New Note
-        </button>
-      </div>
-      <NoteList
-        notes={data.notes}
-        onSelectNote={handleSelectNote}
-        onDeleteNote={handleDeleteNote}
-        onDuplicateNote={handleDuplicateNote}
-      />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <div className="app-header">
+              <button className="btn-primary" onClick={handleCreateNote}>
+                + New Note
+              </button>
+            </div>
+            <NoteList
+              notes={data.notes}
+              onSelectNote={handleSelectNote}
+              onDeleteNote={handleDeleteNote}
+              onDuplicateNote={handleDuplicateNote}
+            />
+          </>
+        } />
+        <Route path="/note/:id" element={<EditorRoute />} />
+      </Routes>
     </div>
   );
 }
