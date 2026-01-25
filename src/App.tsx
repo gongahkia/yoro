@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import JSZip from 'jszip';
+import LZString from 'lz-string';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
@@ -43,6 +44,38 @@ function App() {
     storage.set(data);
   }, [data]);
 
+  useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const shareData = params.get('share');
+      if (shareData) {
+          try {
+              const decompressed = LZString.decompressFromEncodedURIComponent(shareData);
+              if (decompressed) {
+                  const { title, content } = JSON.parse(decompressed);
+                  const newNote: Note = {
+                      id: crypto.randomUUID(),
+                      title: title || 'Shared Note',
+                      content: content || '',
+                      format: 'markdown',
+                      tags: ['shared'],
+                      createdAt: Date.now(),
+                      updatedAt: Date.now(),
+                      isFavorite: false,
+                  };
+                  setData(prev => ({
+                      ...prev,
+                      notes: [newNote, ...prev.notes]
+                  }));
+                  // Clean URL and navigate
+                  navigate(`/note/${newNote.id}`, { replace: true });
+              }
+          } catch (e) {
+              console.error('Failed to import shared note:', e);
+              alert('Failed to load shared note. The link might be corrupted.');
+          }
+      }
+  }, [location.search, navigate]);
+
   const handleUpdatePreferences = (updates: Partial<AppState['preferences']>) => {
     setData(prev => ({
       ...prev,
@@ -55,7 +88,7 @@ function App() {
     return match ? match[1] : null;
   };
 
-  const commands: Command[] = [
+  const commands: Command[] = useMemo(() => [
     {
       id: 'new-note',
       label: 'Create New Note',
@@ -110,6 +143,12 @@ function App() {
         label: 'Theme: Dracula',
         action: () => handleUpdatePreferences({ theme: 'dracula' }),
         category: 'Theme'
+    },
+    {
+        id: 'go-home',
+        label: 'Go to Home',
+        action: () => navigate('/'),
+        category: 'Navigation'
     },
     // Note Navigation Commands
     ...data.notes.map(note => ({
@@ -176,6 +215,23 @@ function App() {
             },
             category: 'Export'
         },
+        {
+            id: 'share-note',
+            label: 'Share Note (Copy Link)',
+            action: () => {
+                const id = getCurrentNoteId();
+                const note = data.notes.find(n => n.id === id);
+                if (note) {
+                    const dataToCompress = JSON.stringify({ title: note.title, content: note.content });
+                    const compressed = LZString.compressToEncodedURIComponent(dataToCompress);
+                    const url = `${window.location.origin}/?share=${compressed}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('Share link copied to clipboard!');
+                    });
+                }
+            },
+            category: 'Share'
+        },
         // Editor Insert Commands
         {
             id: 'insert-table',
@@ -196,24 +252,45 @@ function App() {
             category: 'Editor'
         }
     ] : [])
-  ];
+  ], [data, location.pathname]);
+
+  const matchShortcut = (e: KeyboardEvent, shortcut: string) => {
+      const parts = shortcut.split('+');
+      const key = parts[parts.length - 1].toLowerCase();
+      const needsCmd = parts.includes('Cmd') || parts.includes('Ctrl');
+      const needsShift = parts.includes('Shift');
+      const needsAlt = parts.includes('Alt');
+
+      return (
+          e.key.toLowerCase() === key &&
+          ((e.metaKey || e.ctrlKey) === needsCmd) &&
+          (e.shiftKey === needsShift) &&
+          (e.altKey === needsAlt)
+      );
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-        e.preventDefault();
-        handleCreateNote();
-      }
+      // Global shortcuts not in commands list (yet)
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
         e.preventDefault();
         setIsPaletteOpen(prev => !prev);
+        return;
+      }
+
+      // Check commands
+      for (const cmd of commands) {
+          if (cmd.shortcut && matchShortcut(e, cmd.shortcut)) {
+              e.preventDefault();
+              cmd.action();
+              return;
+          }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]); // Add data to dep array if commands use it closure-wise, or use refs/functional updates
+  }, [commands]);
 
   const handleCreateNote = () => {
     const newId = crypto.randomUUID();

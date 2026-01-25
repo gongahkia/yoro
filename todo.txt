@@ -4,15 +4,18 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Refine preexisting keybinds being used here
-(A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
 (A) Add various important and relevant colorschemes
-(A) Add go to home command within the command palette
 (A) Add softwrapping and hardwrapping
 (A) Add config.toml that lets users define their entire config within a toml file stored within localbrowser
 (A) Add various personal wiki features
+(A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ```
+
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
+
+(D) Add export notes to docx, pdf, md
+(D) Add add notes to google drive that automatically handles the docx export
+(D) Add import notes from google drive 
 
 === PRIORITY 2A: COMMAND PALETTE ===
 (A) Add commands: font settings, editor preferences
