@@ -4,8 +4,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Implement code blocks with syntax highlighting (highlight.js or Shiki)
-(A) Support inline code with distinct monospace styling
+
 (A) Support task lists with interactive checkboxes [ ] and [x]
 (A) Implement tables with Doom Emacs-style interaction:
     - Tab to move between cells
