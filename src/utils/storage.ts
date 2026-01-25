@@ -1,4 +1,4 @@
-import { AppState } from '../types';
+import type { AppState } from '../types';
 
 const STORAGE_KEY = 'yoro_app_state';
 
@@ -14,8 +14,11 @@ const initialState: AppState = {
 };
 
 export class StorageError extends Error {
-    constructor(message: string, public code: 'QUOTA_EXCEEDED' | 'UNKNOWN') {
+    code: 'QUOTA_EXCEEDED' | 'UNKNOWN';
+
+    constructor(message: string, code: 'QUOTA_EXCEEDED' | 'UNKNOWN') {
         super(message);
+        this.code = code;
         this.name = 'StorageError';
     }
 }
