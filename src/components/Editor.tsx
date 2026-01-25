@@ -1,6 +1,7 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { markdown } from '@codemirror/lang-markdown';
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
 import { livePreview } from '../extensions/live-preview';
 import type { Note } from '../types';
@@ -28,6 +29,8 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                     height="100%"
                     extensions={[
                         markdown({
+                            base: markdownLanguage,
+                            codeLanguages: languages,
                             extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
                         }),
                         livePreview

@@ -4,11 +4,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Support GitHub Flavored Markdown as the base syntax spec
-(A) Support bold, italic, underline, strikethrough with inline live preview
-(A) Add heading levels H1-H6 rendered inline with proper sizing and weight
-(A) Implement bulleted and numbered lists with nesting, rendered inline
-(A) Add blockquotes rendered with styled left border and muted text
 (A) Implement code blocks with syntax highlighting (highlight.js or Shiki)
 (A) Support inline code with distinct monospace styling
 (A) Support task lists with interactive checkboxes [ ] and [x]

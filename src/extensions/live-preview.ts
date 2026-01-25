@@ -39,6 +39,19 @@ class LivePreviewPlugin {
                         }
                     }
 
+                    if (node.name === 'InlineCode') {
+                        widgets.push(Decoration.mark({ class: 'cm-inline-code' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'CodeMark') {
+                        // Only hide if not focused
+                        if (!this.isFocused(selection, node.from, node.to)) {
+                            widgets.push(Decoration.replace({}).range(node.from, node.to));
+                        } else {
+                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                        }
+                    }
+
                     if (node.name === 'HeaderMark') {
                         if (!this.isFocused(selection, node.from, node.to)) {
                             widgets.push(Decoration.replace({}).range(node.from, node.to));

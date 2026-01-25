@@ -84,6 +84,15 @@
     color: #ccc;
 }
 
+.cm-inline-code {
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 0 4px;
+    border-radius: 4px;
+    color: #d00;
+    font-size: 0.9em;
+}
+
 .cm-strikethrough {
     text-decoration: line-through;
     opacity: 0.8;
