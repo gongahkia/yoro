@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { storage } from './utils/storage';
+import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
@@ -43,6 +44,7 @@ function App() {
       ...prev,
       notes: [newNote, ...prev.notes]
     }));
+    analytics.track('create_note');
     navigate(`/note/${newId}`);
   };
 
@@ -53,6 +55,7 @@ function App() {
         ...prev,
         notes: prev.notes.filter(n => n.id !== id)
       }));
+      analytics.track('delete_note');
     }
   };
 
@@ -72,6 +75,7 @@ function App() {
         ...prev,
         notes: [newNote, ...prev.notes]
       }));
+      analytics.track('duplicate_note');
     }
   };
 

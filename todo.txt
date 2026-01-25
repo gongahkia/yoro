@@ -14,7 +14,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 
-(B) Implement service worker for offline functionality
+
 (C) Add analytics events (privacy-focused, no tracking) for feature usage
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
