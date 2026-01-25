@@ -17,7 +17,13 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Cmd+K or Ctrl+K to focus search
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+            // Slash to focus search (only if not already focused)
+            if (e.key === '/' && document.activeElement !== searchInputRef.current) {
                 e.preventDefault();
                 searchInputRef.current?.focus();
             }
@@ -47,7 +53,7 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
                 <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search notes..."
+                    placeholder="/ to search notes"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="search-input"

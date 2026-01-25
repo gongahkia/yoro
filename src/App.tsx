@@ -9,6 +9,7 @@ import type { AppState, Note } from './types';
 import { CommandPalette, type Command } from './components/CommandPalette';
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
+import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import './App.css';
 
@@ -19,10 +20,11 @@ interface NoteEditorWrapperProps {
     vimMode: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
+    showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping, editorAlignment }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -42,6 +44,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             vimMode={vimMode}
             focusMode={focusMode}
             lineWrapping={lineWrapping}
+            showLineNumbers={showLineNumbers}
             editorAlignment={editorAlignment}
         />
     );
@@ -596,6 +599,10 @@ function App() {
         navigate(`/note/${id}`);
     };
 
+    const handleSidebarCommand = (command: string) => {
+        window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command } }));
+    };
+
     return (
         <div className="app-container">
             <Routes>
@@ -614,7 +621,21 @@ function App() {
                         />
                     </>
                 } />
-                <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} onNavigate={handleSelectNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} editorAlignment={data.preferences.editorAlignment} />} />
+                <Route path="/note/:id" element={
+                    <div className="main-editor-layout" style={{ display: 'flex', height: '100%', width: '100%' }}>
+                        <NoteEditorWrapper
+                            notes={data.notes}
+                            onUpdateNote={handleUpdateNote}
+                            onNavigate={handleSelectNote}
+                            vimMode={data.preferences.vimMode}
+                            focusMode={data.preferences.focusMode}
+                            lineWrapping={data.preferences.lineWrapping}
+                            showLineNumbers={data.preferences.showLineNumbers}
+                            editorAlignment={data.preferences.editorAlignment}
+                        />
+                        <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
+                    </div>
+                } />
             </Routes>
             <CommandPalette
                 isOpen={isPaletteOpen}

@@ -1,247 +1,14 @@
 .editor-container {
+    flex: 1;
+    overflow: hidden;
+    height: 100vh;
     display: flex;
     justify-content: center;
-    height: 100vh;
-    width: 100%;
-    background: var(--bg-primary, #ffffff);
-    color: var(--text-primary, #333);
-    overflow-y: auto;
-    /* Allow scrolling entire container if needed, but CM has internal scroll */
+    /* Default center, overridden by specific classes */
+    background-color: var(--bg-primary);
+    transition: background-color 0.3s;
 }
 
-.editor-content {
-    width: 100%;
-    max-width: 800px;
-    padding: 4rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    height: 100%;
-}
-
-.editor-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: inherit;
-    width: 100%;
-    font-family: inherit;
-    flex-shrink: 0;
-}
-
-.editor-cm-wrapper {
-    flex-grow: 1;
-    font-size: 1.1rem;
-    font-family: inherit;
-    width: 100%;
-}
-
-.cm-editor {
-    height: 100%;
-    outline: none !important;
-    background-color: transparent !important;
-}
-
-.cm-editor.cm-focused {
-    outline: none !important;
-}
-
-.cm-scroller {
-    font-family: inherit;
-}
-
-.cm-content {
-    font-family: inherit;
-    padding: 0 !important;
-}
-
-.cm-line {
-    padding: 0 !important;
-}
-
-.cm-formatting-visible {
-    color: #ccc;
-    font-weight: normal;
-}
-
-.cm-list-mark {
-    color: var(--primary, #007bff);
-    font-weight: bold;
-}
-
-.cm-italic {
-    font-style: italic;
-}
-
-.cm-blockquote {
-    display: block;
-    /* Decorations are inline usually, but we can try inline-block or just color */
-    border-left: 3px solid #ccc;
-    padding-left: 10px;
-    color: #666;
-    font-style: italic;
-}
-
-.cm-quote-mark {
-    color: #ccc;
-}
-
-.cm-inline-code {
-    font-family: monospace;
-    background: #f0f0f0;
-    padding: 0 4px;
-    border-radius: 4px;
-    color: #d00;
-    font-size: 0.9em;
-}
-
-.cm-link {
-    color: #007bff;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.cm-hr {
-    border: none;
-    border-top: 2px solid #eee;
-    margin: 1rem 0;
-}
-
-.cm-strikethrough {
-    text-decoration: line-through;
-    opacity: 0.8;
-}
-
-/* Headings: We need to style the CONTENT since we can't easily tag the line container 
-   via Decoration.mark unless we use line decoration which wraps content or injects DOM.
-   Actually, CodeMirror allows line attributes.
-   But my plugin currently doesn't do line attributes.
-   I'll add specific handling for ATXHeading in my plugin to style it big. */
-
-/* Footnotes */
-.cm-footnote-ref {
-    vertical-align: super;
-    font-size: 0.8em;
-    color: var(--primary, #007bff);
-    cursor: help;
-}
-
-.cm-footnote-def {
-    color: #888;
-    font-size: 0.9em;
-}
-
-.cm-footnote-tooltip {
-    padding: 8px 12px;
-    background: var(--bg-tooltip, #fff);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    max-width: 300px;
-    z-index: 1000;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    white-space: normal;
-}
-
-/* Highlight */
-.cm-highlight {
-    background-color: var(--highlight, rgba(255, 255, 0, 0.4));
-    border-radius: 2px;
-    padding: 0 2px;
-}
-
-.cm-highlight-focused {
-    background-color: var(--highlight-dim, rgba(255, 255, 0, 0.2));
-    color: inherit;
-}
-
-/* Callouts */
-.cm-callout-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
-    font-weight: 600;
-    user-select: none;
-    margin-bottom: 4px;
-}
-
-.cm-callout-icon {
-    font-size: 1.1em;
-}
-
-/* Base callout line styling */
-.cm-callout-line .cm-blockquote {
-    border-left-width: 4px !important;
-    border-radius: 0 4px 4px 0;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    font-style: normal;
-    color: inherit;
-}
-
-.cm-callout-note .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
-.cm-callout-tip .cm-blockquote { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
-.cm-callout-important .cm-blockquote { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
-.cm-callout-warning .cm-blockquote { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
-.cm-callout-caution .cm-blockquote { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
-.cm-callout-info .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
-.cm-callout-success .cm-blockquote { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
-.cm-callout-danger .cm-blockquote { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
-.cm-callout-question .cm-blockquote { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
-.cm-callout-abstract .cm-blockquote { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
-.cm-callout-example .cm-blockquote { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
-.cm-callout-quote .cm-blockquote { border-left-color: #666; background: rgba(100, 100, 100, 0.05); }
-
-/* Apply header colors */
-.cm-callout-header-note { color: #0969da; }
-.cm-callout-header-tip { color: #1a7f37; }
-.cm-callout-header-important { color: #8250df; }
-.cm-callout-header-warning { color: #9a6700; }
-.cm-callout-header-caution { color: #d1242f; }
-.cm-callout-header-info { color: #0969da; }
-.cm-callout-header-success { color: #1a7f37; }
-.cm-callout-header-danger { color: #d1242f; }
-.cm-callout-header-question { color: #9a6700; }
-.cm-callout-header-abstract { color: #0969da; }
-.cm-callout-header-example { color: #8250df; }
-.cm-callout-header-quote { color: #666; }
-
-/* Focus Mode */
-.focus-mode .cm-content .cm-line {
-    opacity: 0.2;
-    transition: opacity 0.3s ease;
-}
-
-.focus-mode .cm-content .cm-active-line-visible {
-    opacity: 1 !important;
-}
-
-.focus-mode .editor-title {
-    opacity: 0.2;
-    transition: opacity 0.3s ease;
-}
-
-.focus-mode .editor-title:focus {
-    opacity: 1;
-}
-
-/* Wikilinks */
-.cm-wikilink {
-    color: var(--primary, #007bff);
-    text-decoration: none;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.cm-wikilink:hover {
-    text-decoration: underline;
-}
-
-/* Editor Alignment */
 .editor-align-left {
     justify-content: flex-start;
 }
@@ -254,36 +21,70 @@
     justify-content: flex-end;
 }
 
-/* Ensure padding on sides when not centered? Or adjust max-width? */
-.editor-align-left .editor-content {
-    margin-left: 10%; /* Some spacing */
+.editor-content {
+    width: 100%;
+    max-width: 900px;
+    /* Max width for readability */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+    /* Padding for small screens */
+    box-sizing: border-box;
 }
 
-.editor-align-right .editor-content {
-    margin-right: 10%;
+.editor-title {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 20px 0;
+    color: var(--text-primary);
+    outline: none;
 }
 
-/* Vim Panel Styling */
-.cm-vim-panel, .cm-panel {
+.editor-cm-wrapper {
+    flex: 1;
+    overflow: auto;
+    font-size: 1.1rem;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+/* Focus Mode */
+.focus-mode .editor-title {
+    opacity: 0.8;
+}
+
+.focus-mode .cm-editor {
+    /* Hide non-active lines logic handled in extension usually, but we can add basic dimming here if needed */
+}
+
+/* Vim Mode Panel - Fixed to bottom right of screen */
+.cm-vim-panel {
     position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    top: auto !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    color: white !important;
-    padding: 5px 10px !important;
-    border-radius: 4px !important;
-    font-family: monospace !important;
-    z-index: 9999 !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    min-width: 200px;
+    bottom: 10px;
+    right: 20px;
+    z-index: 1000;
+    padding: 6px 12px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    display: flex;
+    align-items: center;
 }
 
-.cm-vim-panel input, .cm-panel input {
-    background: transparent !important;
-    color: white !important;
-    border: none !important;
-    outline: none !important;
-    font-family: monospace !important;
+.cm-vim-panel input {
+    background: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+    flex: 1;
+    margin-left: 8px;
+    font-family: inherit;
 }
