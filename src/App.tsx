@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
+import JSZip from 'jszip';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
@@ -117,6 +118,26 @@ function App() {
         action: () => handleSelectNote(note.id),
         category: 'Navigation'
     })),
+    // Global Export
+    {
+        id: 'export-all',
+        label: 'Export All Notes (ZIP)',
+        action: async () => {
+            const zip = new JSZip();
+            data.notes.forEach(note => {
+                const filename = `${note.title || 'Untitled'}-${note.id.slice(0, 6)}.md`;
+                zip.file(filename, note.content);
+            });
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `yoro-export-${new Date().toISOString().slice(0, 10)}.zip`;
+            a.click();
+            URL.revokeObjectURL(url);
+        },
+        category: 'Export'
+    },
     // Current Note Actions
     ...(getCurrentNoteId() ? [
         {

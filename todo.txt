@@ -12,7 +12,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 === PRIORITY 2A: COMMAND PALETTE ===
 (A) Add commands: font settings, editor preferences
-(A) Add commands: export all notes
 (A) Add commands: insert table, insert code block, insert horizontal rule
 (A) Add commands: toggle spellcheck
 (A) Show keyboard shortcut hints alongside each command
