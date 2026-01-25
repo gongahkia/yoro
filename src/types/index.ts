@@ -29,7 +29,7 @@ export interface UserPreferences {
     showLineNumbers: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
-    editorAlignment: 'natural' | 'left' | 'center' | 'right';
+    editorAlignment: 'left' | 'center' | 'right';
 }
 
 export interface AppState {

@@ -9,18 +9,9 @@
     transition: background-color 0.3s;
 }
 
-.editor-align-natural {
-    justify-content: center;
-    /* Centered View, Left Text */
-}
-
-.editor-align-natural .cm-content {
-    text-align: left;
-}
-
 .editor-align-left {
-    justify-content: flex-start;
-    /* Left View, Left Text */
+    justify-content: center;
+    /* Centered View, Left Text (Natural) */
 }
 
 .editor-align-left .cm-content {
@@ -29,22 +20,20 @@
 
 .editor-align-center {
     justify-content: center;
-    /* Centered View */
+    /* Centered View, Center Text */
 }
 
 .editor-align-center .cm-content {
     text-align: center;
-    /* Center Text */
 }
 
 .editor-align-right {
-    justify-content: flex-end;
-    /* Right View */
+    justify-content: center;
+    /* Centered View, Right Text */
 }
 
 .editor-align-right .cm-content {
     text-align: right;
-    /* Right Text */
 }
 
 .editor-content {
