@@ -2,10 +2,51 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
+    WidgetType,
 } from '@codemirror/view';
 import type { DecorationSet, ViewUpdate } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/state';
+
+class CheckboxWidget extends WidgetType {
+    constructor(readonly checked: boolean) {
+        super();
+    }
+
+    eq(other: CheckboxWidget) {
+        return other.checked === this.checked;
+    }
+
+    toDOM(view: EditorView) {
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = this.checked;
+        input.className = 'cm-task-checkbox';
+
+        input.onclick = (e) => {
+            const pos = view.posAtDOM(input);
+            if (pos === null) return;
+
+            // The widget replaces [ ] or [x]. Length is 3.
+            // But we need to verify what exactly it replaced.
+            // Actually posAtDOM returns the position BEFORE the widget?
+            // Decorations replace ranges.
+            // Let's rely on finding the position and replacing the content.
+
+            const newChar = this.checked ? ' ' : 'x'; // Toggle
+            view.dispatch({
+                changes: { from: pos + 1, to: pos + 2, insert: newChar }
+                // Marker is "[ ]", char at index 1 is " " or "x".
+                // Wait, if widget replaces invalid range, pos is start.
+                // Assuming [x] or [ ] format.
+            });
+            return true;
+        }
+        return input;
+    }
+
+    ignoreEvent() { return false; }
+}
 
 class LivePreviewPlugin {
     decorations: DecorationSet;
@@ -90,6 +131,15 @@ class LivePreviewPlugin {
 
                     if (node.name === 'ListMark') {
                         widgets.push(Decoration.mark({ class: 'cm-list-mark' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'TaskMarker') {
+                        // Check text content to see if checked
+                        const text = state.sliceDoc(node.from, node.to);
+                        const checked = text.includes('x') || text.includes('X');
+                        widgets.push(Decoration.replace({
+                            widget: new CheckboxWidget(checked)
+                        }).range(node.from, node.to));
                     }
 
                     if (node.name === 'Blockquote') {
