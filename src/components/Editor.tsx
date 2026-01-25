@@ -53,6 +53,18 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     }, [vimMode, navigate]);
 
     React.useEffect(() => {
+        // Reset cursor to top-left when note changes
+        if (editorRef.current?.view) {
+            const view = editorRef.current.view;
+            view.focus();
+            view.dispatch({
+                selection: { anchor: 0, head: 0 },
+                scrollIntoView: true
+            });
+        }
+    }, [note.id]);
+
+    React.useEffect(() => {
         const handleCommand = (e: CustomEvent) => {
             if (!editorRef.current?.view) return;
             const view = editorRef.current.view;
