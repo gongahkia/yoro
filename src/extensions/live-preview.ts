@@ -1,4 +1,3 @@
-```
 import {
     Decoration,
     EditorView,
@@ -35,7 +34,7 @@ class LivePreviewPlugin {
                         const level = parseInt(node.name.slice(10));
                         if (!isNaN(level)) {
                             widgets.push(Decoration.mark({
-                                class: `cm - heading - ${ level } `
+                                class: `cm - heading - ${level} `
                             }).range(node.from, node.to));
                         }
                     }
