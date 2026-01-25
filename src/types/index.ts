@@ -19,6 +19,7 @@ export interface UserPreferences {
     vimMode: boolean;
     showLineNumbers: boolean;
     focusMode: boolean;
+    lineWrapping: boolean;
 }
 
 export interface AppState {

@@ -15,9 +15,10 @@ interface NoteEditorWrapperProps {
   onUpdateNote: (id: string, updates: Partial<Note>) => void;
   vimMode: boolean;
   focusMode: boolean;
+  lineWrapping: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode, focusMode }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode, focusMode, lineWrapping }) => {
   const { id } = useParams<{ id: string }>();
   const note = notes.find(n => n.id === id);
 
@@ -30,6 +31,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
       onTitleChange={(title) => onUpdateNote(note.id, { title })}
       vimMode={vimMode}
       focusMode={focusMode}
+      lineWrapping={lineWrapping}
     />
   );
 };
@@ -123,6 +125,18 @@ function App() {
         label: 'Toggle Focus Mode',
         action: () => handleUpdatePreferences({ focusMode: !data.preferences.focusMode }),
         category: 'View'
+    },
+    {
+        id: 'toggle-line-wrapping',
+        label: 'Toggle Line Wrapping (Soft)',
+        action: () => handleUpdatePreferences({ lineWrapping: !data.preferences.lineWrapping }),
+        category: 'View'
+    },
+    {
+        id: 'hard-wrap',
+        label: 'Hard Wrap Text (80 cols)',
+        action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
+        category: 'Editor'
     },
     {
         id: 'theme-light',
@@ -394,7 +408,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} />} />
       </Routes>
       <CommandPalette 
         isOpen={isPaletteOpen} 

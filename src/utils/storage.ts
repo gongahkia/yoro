@@ -11,6 +11,7 @@ const initialState: AppState = {
         vimMode: false,
         showLineNumbers: true,
         focusMode: false,
+        lineWrapping: true,
     },
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { keymap, highlightActiveLine } from '@codemirror/view';
+import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
@@ -27,9 +27,10 @@ interface EditorProps {
     onTitleChange: (title: string) => void;
     vimMode: boolean;
     focusMode: boolean;
+    lineWrapping: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode, focusMode }) => {
+export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode, focusMode, lineWrapping }) => {
     const editorRef = React.useRef<any>(null);
 
     React.useEffect(() => {
@@ -48,17 +49,53 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, v
             } else if (command === 'insert-code-block') {
                 const codeBlock = "```language\n\n```";
                 view.dispatch(view.state.replaceSelection(codeBlock));
-                // Move cursor inside?
                 const cursor = view.state.selection.main.head;
                 view.dispatch({ selection: { anchor: cursor - 4 } });
             } else if (command === 'insert-horizontal-rule') {
                 view.dispatch(view.state.replaceSelection('\n---\n'));
+            } else if (command === 'hard-wrap') {
+                // Basic hard wrap at 80 chars
+                // Wraps current selection or current line
+                const { from, to } = view.state.selection.main;
+                let text = view.state.sliceDoc(from, to);
+                if (from === to) {
+                    // Select current line
+                    const line = view.state.doc.lineAt(from);
+                    text = line.text;
+                    const wrapped = wrapText(text, 80);
+                    view.dispatch({
+                        changes: { from: line.from, to: line.to, insert: wrapped }
+                    });
+                } else {
+                    const wrapped = wrapText(text, 80);
+                    view.dispatch(view.state.replaceSelection(wrapped));
+                }
             }
         };
 
         window.addEventListener('yoro-editor-cmd' as any, handleCommand);
         return () => window.removeEventListener('yoro-editor-cmd' as any, handleCommand);
     }, []);
+
+    const wrapText = (text: string, width: number): string => {
+        // Very basic wrapper preserving paragraphs
+        return text.split('\n').map(line => {
+            if (line.length <= width) return line;
+            const words = line.split(' ');
+            let currentLine = '';
+            let result = '';
+            
+            words.forEach(word => {
+                if ((currentLine + word).length > width) {
+                    result += currentLine.trim() + '\n';
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            });
+            result += currentLine.trim();
+            return result;
+        }).join('\n');
+    };
 
     return (
         <div className={`editor-container ${focusMode ? 'focus-mode' : ''}`}>
@@ -76,6 +113,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, v
                     height="100%"
                     extensions={[
                         vimMode ? vim() : [],
+                        lineWrapping ? EditorView.lineWrapping : [],
                         yamlFrontmatter({
                             content: markdown({
                                 base: markdownLanguage,
