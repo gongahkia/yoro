@@ -6,7 +6,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 (A) Resolve issue where when editing both the header and the text content, after typing 1 character the cursor goes out of focus and i am unable to keep typing, must reclick with the cursor to contine typing. please fix this behaviour
 
-(B) Support footnotes with rendered popup/inline preview
 (B) Support text highlight/mark syntax (==highlight==)
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 (C) Add markdown templates for common study formats
