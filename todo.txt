@@ -26,6 +26,8 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 (D) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
 
+(D) Update manual within command palette
+
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Mindmap features were midway through implementation before being interrupted. First read the existing implementation and thoroughly understand what has already been incorporated, then update me what has yet to be done to ensure a working build and clarify as required, before adding the remaining 50% implementation to todo.txt
 (A) Build native mindmap component with node-edge graph
