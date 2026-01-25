@@ -145,66 +145,101 @@ class LivePreviewPlugin {
                         }).range(node.from, node.to));
                     }
 
-                    if (node.name === 'Blockquote') {
-                        widgets.push(Decoration.mark({ class: 'cm-blockquote' }).range(node.from, node.to));
-                    }
+                    class ImageWidget extends WidgetType {
+                        constructor(readonly src: string, readonly alt: string) {
+                            super();
+                        }
 
-                    if (node.name === 'Link') {
-                        // We don't style the wrapper, we handle children
-                    }
+                        eq(other: ImageWidget) {
+                            return other.src === this.src && other.alt === this.alt;
+                        }
 
-                    if (node.name === 'URL') {
-                        if (!this.isFocused(selection, node.from, node.to)) {
-                            // Check if parent is Link?
-                            // URL can be standalone (autolink).
-                            // Assuming inside Link for now.
-                            // We also need to hide the markers ]( and ).
+                        toDOM() {
+                            const img = document.createElement('img');
+                            img.src = this.src;
+                            img.alt = this.alt;
+                            img.className = 'cm-image-widget';
+                            img.style.maxWidth = '100%';
+                            return img;
                         }
                     }
 
-                    // Actually, getting granular children (LinkMark) inside 'Link' via iterate is tricky 
-                    // because iterate visits top-down. 
-                    // We can check node.name for specific parts.
+                    class LivePreviewPlugin {
+                        decorations: DecorationSet;
+                        // ... (existing code)
 
-                    // Simple Link approach:
-                    // Style LinkText with .cm-link
-                    // Hide everything else IF not focused.
-
-                    // Complication: The iterator hits 'Link' then children.
-                    // If we encounter 'Link', we can't easily instruct "hide children except LinkText".
-
-                    // BETTER: Match 'LinkMark' and 'URL' and hide them.
-
-                    if (node.name === 'LinkMark') {
-                        if (!this.isFocused(selection, node.from, node.to)) {
-                            widgets.push(Decoration.replace({}).range(node.from, node.to));
-                        } else {
-                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                        }
+                        if(node.name === 'Image') {
+                if (!this.isFocused(selection, node.from, node.to)) {
+                    // Extract src and alt
+                    const text = state.doc.sliceString(node.from, node.to);
+                    const match = text.match(/!\[(.*?)\]\((.*?)\)/);
+                    if (match) {
+                        const alt = match[1];
+                        const src = match[2];
+                        widgets.push(Decoration.replace({
+                            widget: new ImageWidget(src, alt)
+                        }).range(node.from, node.to));
                     }
+                }
+            }
 
-                    if (node.name === 'URL') {
-                        if (!this.isFocused(selection, node.from, node.to)) {
-                            widgets.push(Decoration.replace({}).range(node.from, node.to));
-                        } else {
-                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                        }
-                    }
+            if (node.name === 'Link') {
+                // ...
+                // We don't style the wrapper, we handle children
+            }
 
-                    if (node.name === 'LinkText') {
-                        // Style as link
-                        widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
-                    }
-                });
-        }
+            if (node.name === 'URL') {
+                if (!this.isFocused(selection, node.from, node.to)) {
+                    // Check if parent is Link?
+                    // URL can be standalone (autolink).
+                    // Assuming inside Link for now.
+                    // We also need to hide the markers ]( and ).
+                }
+            }
+
+            // Actually, getting granular children (LinkMark) inside 'Link' via iterate is tricky 
+            // because iterate visits top-down. 
+            // We can check node.name for specific parts.
+
+            // Simple Link approach:
+            // Style LinkText with .cm-link
+            // Hide everything else IF not focused.
+
+            // Complication: The iterator hits 'Link' then children.
+            // If we encounter 'Link', we can't easily instruct "hide children except LinkText".
+
+            // BETTER: Match 'LinkMark' and 'URL' and hide them.
+
+            if (node.name === 'LinkMark') {
+                if (!this.isFocused(selection, node.from, node.to)) {
+                    widgets.push(Decoration.replace({}).range(node.from, node.to));
+                } else {
+                    widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                }
+            }
+
+            if (node.name === 'URL') {
+                if (!this.isFocused(selection, node.from, node.to)) {
+                    widgets.push(Decoration.replace({}).range(node.from, node.to));
+                } else {
+                    widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                }
+            }
+
+            if (node.name === 'LinkText') {
+                // Style as link
+                widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
+            }
+        });
+    }
 
         return Decoration.set(widgets.sort((a, b) => a.from - b.from));
     }
 
-    isFocused(selection: { from: number, to: number }, from: number, to: number) {
-        return (selection.from >= from && selection.from <= to) ||
-            (selection.to >= from && selection.to <= to);
-    }
+isFocused(selection: { from: number, to: number }, from: number, to: number) {
+    return (selection.from >= from && selection.from <= to) ||
+        (selection.to >= from && selection.to <= to);
+}
 }
 
 export const livePreview = ViewPlugin.fromClass(LivePreviewPlugin, {

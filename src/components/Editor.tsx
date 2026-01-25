@@ -33,14 +33,17 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                             codeLanguages: languages,
                             extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
                         }),
-                        livePreview
+import { handleImageEvents} from '../extensions/images';
+                // ...
+                livePreview,
+                handleImageEvents
                     ]}
-                    onChange={onChange}
-                    className="editor-cm-wrapper"
-                    basicSetup={{
-                        lineNumbers: false,
-                        foldGutter: false,
-                    }}
+                onChange={onChange}
+                className="editor-cm-wrapper"
+                basicSetup={{
+                    lineNumbers: false,
+                    foldGutter: false,
+                }}
                 />
             </div>
         </div>
