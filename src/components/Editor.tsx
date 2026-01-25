@@ -8,6 +8,7 @@ import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@le
 import { livePreview } from '../extensions/live-preview';
 import { handleImageEvents } from '../extensions/images';
 import { frontmatterFold } from '../extensions/frontmatter';
+import { mathPreview } from '../extensions/math';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -42,6 +43,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         livePreview,
                         handleImageEvents,
                         frontmatterFold,
+                        mathPreview,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
