@@ -262,3 +262,28 @@
 .editor-align-right .editor-content {
     margin-right: 10%;
 }
+
+/* Vim Panel Styling */
+.cm-vim-panel, .cm-panel {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    top: auto !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    color: white !important;
+    padding: 5px 10px !important;
+    border-radius: 4px !important;
+    font-family: monospace !important;
+    z-index: 9999 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    min-width: 200px;
+}
+
+.cm-vim-panel input, .cm-panel input {
+    background: transparent !important;
+    color: white !important;
+    border: none !important;
+    outline: none !important;
+    font-family: monospace !important;
+}

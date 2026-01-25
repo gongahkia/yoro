@@ -18,8 +18,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (C) Add more colorschemes
 (C) Add vim binds that can be used to be keyboard only even in home
 
-(A) Have vim commands appear on the bottom left/right/up/down in a translucent font decoration to allow them to be seen but not be obstrusive/instrusive
-
 (D) Add export notes to docx, pdf, md
 (D) Add add notes to google drive that automatically handles the docx export
 (D) Add import notes from google drive 
