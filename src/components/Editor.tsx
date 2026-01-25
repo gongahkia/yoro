@@ -23,6 +23,7 @@ import { createWikilinkPlugin, getWikilinkCompletion } from '../extensions/wikil
 import { focusModeExtension } from '../extensions/focus-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
+import './styles/EditorThemeOverrides.css';
 
 interface EditorProps {
     note: Note;
