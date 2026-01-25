@@ -4,11 +4,11 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
+(A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
+(A) Add various important and relevant colorschemes
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 === PRIORITY 2A: COMMAND PALETTE ===
-(A) Build command palette overlay triggered by Ctrl+Shift+P / Cmd+Shift+P
-(A) Palette appears centered on screen with fuzzy search input
 (A) All application settings accessible exclusively through the command palette
 (A) Implement fuzzy matching for command search with ranked results
 (A) Add commands: theme switching, font settings, editor preferences

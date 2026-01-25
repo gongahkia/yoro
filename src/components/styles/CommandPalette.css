@@ -1,0 +1,86 @@
+.command-palette-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 15vh;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.command-palette-modal {
+    width: 100%;
+    max-width: 600px;
+    background: var(--bg-primary, #ffffff);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 60vh;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.command-palette-search {
+    padding: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.command-palette-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    padding: 8px;
+    background: transparent;
+    color: var(--text-primary, #333);
+}
+
+.command-palette-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.command-palette-item {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-primary, #333);
+    transition: background-color 0.1s ease;
+}
+
+.command-palette-item.selected {
+    background-color: var(--primary-light, #f0f7ff);
+    color: var(--primary, #007bff);
+}
+
+.command-palette-item:active {
+    background-color: var(--primary-light-active, #e0efff);
+}
+
+.command-shortcut {
+    font-size: 0.8em;
+    color: #888;
+    background: rgba(0,0,0,0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.command-palette-empty {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}

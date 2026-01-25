@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
+import { CommandPalette, type Command } from './components/CommandPalette';
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
 import './App.css';
@@ -31,11 +32,71 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
 
 function App() {
   const [data, setData] = useState<AppState>(storage.get());
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     storage.set(data);
   }, [data]);
+
+  const handleUpdatePreferences = (updates: Partial<AppState['preferences']>) => {
+    setData(prev => ({
+      ...prev,
+      preferences: { ...prev.preferences, ...updates }
+    }));
+  };
+
+  const commands: Command[] = [
+    {
+      id: 'new-note',
+      label: 'Create New Note',
+      shortcut: 'Cmd+N',
+      action: () => handleCreateNote(),
+      category: 'General'
+    },
+    {
+      id: 'toggle-vim',
+      label: 'Toggle Vim Mode',
+      action: () => handleUpdatePreferences({ vimMode: !data.preferences.vimMode }),
+      category: 'Editor'
+    },
+    {
+        id: 'toggle-sidebar',
+        label: 'Toggle Sidebar',
+        action: () => handleUpdatePreferences({ sidebarVisible: !data.preferences.sidebarVisible }),
+        category: 'View'
+    },
+    {
+        id: 'toggle-line-numbers',
+        label: 'Toggle Line Numbers',
+        action: () => handleUpdatePreferences({ showLineNumbers: !data.preferences.showLineNumbers }),
+        category: 'View'
+    },
+    {
+        id: 'theme-light',
+        label: 'Theme: Light',
+        action: () => handleUpdatePreferences({ theme: 'light' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-dark',
+        label: 'Theme: Dark',
+        action: () => handleUpdatePreferences({ theme: 'dark' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-sepia',
+        label: 'Theme: Sepia',
+        action: () => handleUpdatePreferences({ theme: 'sepia' }),
+        category: 'Theme'
+    },
+    {
+        id: 'theme-dracula',
+        label: 'Theme: Dracula',
+        action: () => handleUpdatePreferences({ theme: 'dracula' }),
+        category: 'Theme'
+    }
+  ];
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,12 +104,16 @@ function App() {
         e.preventDefault();
         handleCreateNote();
       }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        setIsPaletteOpen(prev => !prev);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data]); // Add data to dep array if commands use it closure-wise, or use refs/functional updates
 
   const handleCreateNote = () => {
     const newId = crypto.randomUUID();
@@ -132,6 +197,11 @@ function App() {
         } />
         <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} />} />
       </Routes>
+      <CommandPalette 
+        isOpen={isPaletteOpen} 
+        onClose={() => setIsPaletteOpen(false)} 
+        commands={commands} 
+      />
     </div>
   );
 }
