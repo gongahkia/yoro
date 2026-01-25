@@ -21,6 +21,7 @@ import { callouts } from '../extensions/callouts';
 import { emojiCompletion } from '../extensions/emojis';
 import { createWikilinkPlugin, getWikilinkCompletion } from '../extensions/wikilinks';
 import { focusModeExtension } from '../extensions/focus-mode';
+import { inlineCode } from '../extensions/inline-code';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';

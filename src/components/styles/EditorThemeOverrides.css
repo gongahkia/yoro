@@ -1,3 +1,38 @@
+/* Styling for inline code when backticks are hidden */
+.cm-inline-code-styled {
+    background-color: rgba(150, 150, 150, 0.15);
+    border-radius: 4px;
+    padding: 0.1em 0.3em;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    color: var(--primary);
+    /* Optional: make it pop or keep text-primary */
+}
+
+/* Styling for active inline code (cursor inside) */
+.cm-inline-code-active {
+    background-color: rgba(150, 150, 150, 0.1);
+    border-radius: 4px;
+}
+
+/* Ensure code blocks have a background and distinct look */
+.cm-content .cm-codeblock {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Gutter styling (line numbers) */
+.editor-cm-wrapper .cm-gutters {
+    background-color: var(--editor-gutter-bg, var(--bg-primary)) !important;
+    color: var(--editor-gutter-text, #999) !important;
+    border-right: 1px solid var(--border-color);
+}
+
+.editor-cm-wrapper .cm-activeLineGutter {
+    background-color: var(--primary-light) !important;
+    color: var(--text-primary) !important;
+}
+
 .editor-cm-wrapper .cm-editor {
     height: 100%;
     background-color: var(--editor-bg, var(--bg-primary)) !important;
@@ -13,18 +48,6 @@
     caret-color: var(--caret-color, var(--text-primary)) !important;
     min-width: 100%;
     /* Ensure content takes full width */
-}
-
-/* Gutter styling (line numbers) */
-.editor-cm-wrapper .cm-gutters {
-    background-color: var(--editor-gutter-bg, var(--bg-primary)) !important;
-    color: var(--editor-gutter-text, #999) !important;
-    border-right: 1px solid var(--border-color);
-}
-
-.editor-cm-wrapper .cm-activeLineGutter {
-    background-color: var(--primary-light) !important;
-    color: var(--text-primary) !important;
 }
 
 .editor-cm-wrapper .cm-activeLine {
