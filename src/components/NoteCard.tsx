@@ -30,7 +30,14 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onD
                 ))}
             </div>
             <div className="note-meta">
-                {new Date(note.updatedAt).toLocaleDateString()}
+                {new Date(note.updatedAt).toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                })}
             </div>
         </div>
     );

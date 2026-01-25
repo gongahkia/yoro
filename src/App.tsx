@@ -406,6 +406,19 @@ function App() {
             action: () => handleSelectNote(note.id),
             category: 'Navigation'
         })),
+        // Note Operations
+        ...data.notes.map(note => ({
+            id: `duplicate-note-${note.id}`,
+            label: `Duplicate Note: ${note.title || 'Untitled'}`,
+            action: () => handleDuplicateNote(note.id),
+            category: 'Note Operations'
+        })),
+        ...data.notes.map(note => ({
+            id: `delete-note-${note.id}`,
+            label: `Delete Note: ${note.title || 'Untitled'}`,
+            action: () => handleDeleteNote(note.id),
+            category: 'Note Operations'
+        })),
         // Global Export
         {
             id: 'export-all',
@@ -561,8 +574,8 @@ function App() {
         navigate(`/note/${newId}`);
     };
 
-    const handleDeleteNote = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDeleteNote = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
         if (confirm('Are you sure you want to delete this note?')) {
             setData(prev => ({
                 ...prev,
@@ -572,8 +585,8 @@ function App() {
         }
     };
 
-    const handleDuplicateNote = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDuplicateNote = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
         const noteToDuplicate = data.notes.find(n => n.id === id);
         if (noteToDuplicate) {
             const newNote: Note = {
