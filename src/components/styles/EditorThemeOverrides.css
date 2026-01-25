@@ -11,6 +11,8 @@
 
 .editor-cm-wrapper .cm-content {
     caret-color: var(--caret-color, var(--text-primary)) !important;
+    min-width: 100%;
+    /* Ensure content takes full width */
 }
 
 /* Gutter styling (line numbers) */
@@ -27,6 +29,15 @@
 
 .editor-cm-wrapper .cm-activeLine {
     background-color: var(--primary-light-active) !important;
+    width: 100% !important;
+    /* Force active line to be full width */
+    display: inline-block;
+    /* Ensure block-like geometry for background */
+}
+
+/* Fix for centered text having full width background */
+.editor-align-center .cm-line {
+    text-align: center;
 }
 
 .editor-cm-wrapper .cm-cursor {
