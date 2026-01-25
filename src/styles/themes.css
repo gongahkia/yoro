@@ -13,6 +13,19 @@
    --editor-gutter-bg: #f7f7f7;
    --editor-gutter-text: #999;
    --caret-color: #000;
+
+   /* Syntax Highlighting (Light) */
+   --syntax-keyword: #d73a49;
+   --syntax-variable: #24292e;
+   --syntax-function: #6f42c1;
+   --syntax-string: #032f62;
+   --syntax-constant: #005cc5;
+   --syntax-type: #24292e;
+   --syntax-comment: #6a737d;
+   --syntax-operator: #d73a49;
+   --syntax-link: #0366d6;
+   --syntax-heading: #24292e;
+   --syntax-invalid: #cb2431;
  }
 
  [data-theme='dark'] {
@@ -29,6 +42,19 @@
    --editor-gutter-bg: #222;
    --editor-gutter-text: #666;
    --caret-color: #fff;
+
+   /* Syntax Highlighting (Dark+) */
+   --syntax-keyword: #569cd6;
+   --syntax-variable: #9cdcfe;
+   --syntax-function: #dcdcaa;
+   --syntax-string: #ce9178;
+   --syntax-constant: #4fc1ff;
+   --syntax-type: #4ec9b0;
+   --syntax-comment: #6a9955;
+   --syntax-operator: #d4d4d4;
+   --syntax-link: #3794ff;
+   --syntax-heading: #d4d4d4;
+   --syntax-invalid: #f44747;
  }
 
  /* Sepia */
@@ -46,6 +72,19 @@
    --editor-gutter-bg: #eaddcf;
    --editor-gutter-text: #8b7666;
    --caret-color: #5b4636;
+
+   /* Syntax Sepia */
+   --syntax-keyword: #885f37;
+   --syntax-variable: #5b4636;
+   --syntax-function: #9e7e58;
+   --syntax-string: #2a6c40;
+   --syntax-constant: #9e5b38;
+   --syntax-type: #5b4636;
+   --syntax-comment: #928374;
+   --syntax-operator: #885f37;
+   --syntax-link: #d28e5d;
+   --syntax-heading: #5b4636;
+   --syntax-invalid: #cb2431;
  }
 
  [data-theme='sepia-dark'] {
@@ -62,6 +101,18 @@
    --editor-gutter-bg: #3a2e1d;
    --editor-gutter-text: #a89178;
    --caret-color: #f4ecd8;
+
+   --syntax-keyword: #d28e5d;
+   --syntax-variable: #f4ecd8;
+   --syntax-function: #eaddcf;
+   --syntax-string: #98be65;
+   --syntax-constant: #d28e5d;
+   --syntax-type: #eaddcf;
+   --syntax-comment: #7f6a55;
+   --syntax-operator: #d28e5d;
+   --syntax-link: #d28e5d;
+   --syntax-heading: #f4ecd8;
+   --syntax-invalid: #ec5f67;
  }
 
  /* Dracula */
@@ -79,6 +130,18 @@
    --editor-gutter-bg: #282a36;
    --editor-gutter-text: #6272a4;
    --caret-color: #f8f8f2;
+
+   --syntax-keyword: #ff79c6;
+   --syntax-variable: #f8f8f2;
+   --syntax-function: #50fa7b;
+   --syntax-string: #f1fa8c;
+   --syntax-constant: #bd93f9;
+   --syntax-type: #8be9fd;
+   --syntax-comment: #6272a4;
+   --syntax-operator: #ff79c6;
+   --syntax-link: #8be9fd;
+   --syntax-heading: #bd93f9;
+   --syntax-invalid: #ff5555;
  }
 
  [data-theme='dracula-light'] {
@@ -95,6 +158,19 @@
    --editor-gutter-bg: #f0f0f0;
    --editor-gutter-text: #999;
    --caret-color: #282a36;
+
+   --syntax-keyword: #d03e94;
+   --syntax-variable: #282a36;
+   --syntax-function: #2aa198;
+   /* approximate for contrast */
+   --syntax-string: #b58900;
+   --syntax-constant: #6c71c4;
+   --syntax-type: #268bd2;
+   --syntax-comment: #93a1a1;
+   --syntax-operator: #d03e94;
+   --syntax-link: #268bd2;
+   --syntax-heading: #6c71c4;
+   --syntax-invalid: #dc322f;
  }
 
  /* Nord */
@@ -112,6 +188,18 @@
    --editor-gutter-bg: #3b4252;
    --editor-gutter-text: #616e88;
    --caret-color: #d8dee9;
+
+   --syntax-keyword: #81a1c1;
+   --syntax-variable: #d8dee9;
+   --syntax-function: #88c0d0;
+   --syntax-string: #a3be8c;
+   --syntax-constant: #b48ead;
+   --syntax-type: #8fbcbb;
+   --syntax-comment: #4c566a;
+   --syntax-operator: #81a1c1;
+   --syntax-link: #88c0d0;
+   --syntax-heading: #88c0d0;
+   --syntax-invalid: #bf616a;
  }
 
  [data-theme='nord-light'] {
@@ -129,6 +217,20 @@
    --editor-gutter-bg: #e5e9f0;
    --editor-gutter-text: #9aa8ba;
    --caret-color: #2e3440;
+
+   --syntax-keyword: #81a1c1;
+   --syntax-variable: #2e3440;
+   --syntax-function: #5e81ac;
+   --syntax-string: #a3be8c;
+   --syntax-constant: #b48ead;
+   --syntax-type: #8fbcbb;
+   --syntax-comment: #d8dee9;
+   /* Too light? */
+   --syntax-comment: #999;
+   --syntax-operator: #81a1c1;
+   --syntax-link: #5e81ac;
+   --syntax-heading: #5e81ac;
+   --syntax-invalid: #bf616a;
  }
 
  /* Solarized */
@@ -146,6 +248,18 @@
    --editor-gutter-bg: #eee8d5;
    --editor-gutter-text: #93a1a1;
    --caret-color: #657b83;
+
+   --syntax-keyword: #859900;
+   --syntax-variable: #657b83;
+   --syntax-function: #268bd2;
+   --syntax-string: #2aa198;
+   --syntax-constant: #cb4b16;
+   --syntax-type: #b58900;
+   --syntax-comment: #93a1a1;
+   --syntax-operator: #859900;
+   --syntax-link: #268bd2;
+   --syntax-heading: #cb4b16;
+   --syntax-invalid: #dc322f;
  }
 
  [data-theme='solarized-dark'] {
@@ -162,6 +276,18 @@
    --editor-gutter-bg: #073642;
    --editor-gutter-text: #586e75;
    --caret-color: #839496;
+
+   --syntax-keyword: #859900;
+   --syntax-variable: #839496;
+   --syntax-function: #268bd2;
+   --syntax-string: #2aa198;
+   --syntax-constant: #cb4b16;
+   --syntax-type: #b58900;
+   --syntax-comment: #586e75;
+   --syntax-operator: #859900;
+   --syntax-link: #268bd2;
+   --syntax-heading: #cb4b16;
+   --syntax-invalid: #dc322f;
  }
 
  /* Gruvbox */
@@ -180,6 +306,18 @@
    --editor-gutter-bg: #32302f;
    --editor-gutter-text: #928374;
    --caret-color: #ebdbb2;
+
+   --syntax-keyword: #fb4934;
+   --syntax-variable: #ebdbb2;
+   --syntax-function: #b8bb26;
+   --syntax-string: #b8bb26;
+   --syntax-constant: #d3869b;
+   --syntax-type: #fabd2f;
+   --syntax-comment: #928374;
+   --syntax-operator: #fe8019;
+   --syntax-link: #83a598;
+   --syntax-heading: #fb4934;
+   --syntax-invalid: #fb4934;
  }
 
  [data-theme='gruvbox-light'] {
@@ -196,6 +334,18 @@
    --editor-gutter-bg: #ebdbb2;
    --editor-gutter-text: #928374;
    --caret-color: #3c3836;
+
+   --syntax-keyword: #9d0006;
+   --syntax-variable: #3c3836;
+   --syntax-function: #79740e;
+   --syntax-string: #79740e;
+   --syntax-constant: #8f3f71;
+   --syntax-type: #b57614;
+   --syntax-comment: #928374;
+   --syntax-operator: #af3a03;
+   --syntax-link: #076678;
+   --syntax-heading: #9d0006;
+   --syntax-invalid: #9d0006;
  }
 
  /* Everforest */
@@ -214,6 +364,18 @@
    --editor-gutter-bg: #374247;
    --editor-gutter-text: #859289;
    --caret-color: #d3c6aa;
+
+   --syntax-keyword: #e67e80;
+   --syntax-variable: #d3c6aa;
+   --syntax-function: #a7c080;
+   --syntax-string: #a7c080;
+   --syntax-constant: #dbbc7f;
+   --syntax-type: #dbbc7f;
+   --syntax-comment: #859289;
+   --syntax-operator: #e67e80;
+   --syntax-link: #7fbbb3;
+   --syntax-heading: #e67e80;
+   --syntax-invalid: #e67e80;
  }
 
  [data-theme='everforest-light'] {
@@ -230,6 +392,18 @@
    --editor-gutter-bg: #efebd4;
    --editor-gutter-text: #a6b0a0;
    --caret-color: #5c6a72;
+
+   --syntax-keyword: #f85552;
+   --syntax-variable: #5c6a72;
+   --syntax-function: #8da101;
+   --syntax-string: #8da101;
+   --syntax-constant: #dfa000;
+   --syntax-type: #dfa000;
+   --syntax-comment: #939f91;
+   --syntax-operator: #f85552;
+   --syntax-link: #3a94c5;
+   --syntax-heading: #f85552;
+   --syntax-invalid: #f85552;
  }
 
  /* Catppuccin */
@@ -249,6 +423,18 @@
    --editor-gutter-bg: #313244;
    --editor-gutter-text: #6c7086;
    --caret-color: #cdd6f4;
+
+   --syntax-keyword: #cba6f7;
+   --syntax-variable: #cdd6f4;
+   --syntax-function: #89b4fa;
+   --syntax-string: #a6e3a1;
+   --syntax-constant: #fab387;
+   --syntax-type: #f9e2af;
+   --syntax-comment: #6c7086;
+   --syntax-operator: #89dceb;
+   --syntax-link: #89b4fa;
+   --syntax-heading: #cba6f7;
+   --syntax-invalid: #f38ba8;
  }
 
  [data-theme='catppuccin-light'] {
@@ -267,6 +453,18 @@
    --editor-gutter-bg: #e6e9ef;
    --editor-gutter-text: #9ca0b0;
    --caret-color: #4c4f69;
+
+   --syntax-keyword: #8839ef;
+   --syntax-variable: #4c4f69;
+   --syntax-function: #1e66f5;
+   --syntax-string: #40a02b;
+   --syntax-constant: #fe640b;
+   --syntax-type: #df8e1d;
+   --syntax-comment: #9ca0b0;
+   --syntax-operator: #04a5e5;
+   --syntax-link: #1e66f5;
+   --syntax-heading: #8839ef;
+   --syntax-invalid: #d20f39;
  }
 
  /* Rose Pine */
@@ -288,6 +486,18 @@
    --editor-gutter-text: #908caa;
    /* Subtle */
    --caret-color: #ebbcba;
+
+   --syntax-keyword: #ebbcba;
+   --syntax-variable: #e0def4;
+   --syntax-function: #c4a7e7;
+   --syntax-string: #f6c177;
+   --syntax-constant: #eb6f92;
+   --syntax-type: #9ccfd8;
+   --syntax-comment: #6e6a86;
+   --syntax-operator: #31748f;
+   --syntax-link: #ebbcba;
+   --syntax-heading: #c4a7e7;
+   --syntax-invalid: #eb6f92;
  }
 
  [data-theme='rose-pine-light'] {
@@ -306,6 +516,18 @@
    --editor-gutter-bg: #fffaf3;
    --editor-gutter-text: #9893a5;
    --caret-color: #575279;
+
+   --syntax-keyword: #d7827e;
+   --syntax-variable: #575279;
+   --syntax-function: #907aa9;
+   --syntax-string: #ea9a97;
+   --syntax-constant: #b4637a;
+   --syntax-type: #56949f;
+   --syntax-comment: #9893a5;
+   --syntax-operator: #286983;
+   --syntax-link: #d7827e;
+   --syntax-heading: #907aa9;
+   --syntax-invalid: #b4637a;
  }
 
  /* Tokyo Night */
@@ -323,6 +545,18 @@
    --editor-gutter-bg: #1a1b26;
    --editor-gutter-text: #565f89;
    --caret-color: #a9b1d6;
+
+   --syntax-keyword: #bb9af7;
+   --syntax-variable: #a9b1d6;
+   --syntax-function: #7aa2f7;
+   --syntax-string: #9ece6a;
+   --syntax-constant: #ff9e64;
+   --syntax-type: #7dcfff;
+   --syntax-comment: #565f89;
+   --syntax-operator: #89ddff;
+   --syntax-link: #73daca;
+   --syntax-heading: #7aa2f7;
+   --syntax-invalid: #db4b4b;
  }
 
  [data-theme='tokyo-night-light'] {
@@ -339,6 +573,18 @@
    --editor-gutter-bg: #d5d6db;
    --editor-gutter-text: #9699a3;
    --caret-color: #343b58;
+
+   --syntax-keyword: #5a4a78;
+   --syntax-variable: #343b58;
+   --syntax-function: #34548a;
+   --syntax-string: #485e30;
+   --syntax-constant: #8c5a15;
+   --syntax-type: #0f4b6e;
+   --syntax-comment: #9699a3;
+   --syntax-operator: #0f4b6e;
+   --syntax-link: #33635c;
+   --syntax-heading: #34548a;
+   --syntax-invalid: #8c4351;
  }
 
  /* Kanagawa */
@@ -357,6 +603,18 @@
    --editor-gutter-bg: #1f1f28;
    --editor-gutter-text: #727169;
    --caret-color: #dcd7ba;
+
+   --syntax-keyword: #ffa066;
+   --syntax-variable: #dcd7ba;
+   --syntax-function: #7e9cd8;
+   --syntax-string: #98bb6c;
+   --syntax-constant: #d27e99;
+   --syntax-type: #7fb4ca;
+   --syntax-comment: #727169;
+   --syntax-operator: #dcd7ba;
+   --syntax-link: #7fb4ca;
+   --syntax-heading: #7fb4ca;
+   --syntax-invalid: #ff5d62;
  }
 
  [data-theme='kanagawa-light'] {
@@ -376,4 +634,16 @@
    --editor-gutter-bg: #f2ecbc;
    --editor-gutter-text: #716e61;
    --caret-color: #545464;
+
+   --syntax-keyword: #d55fde;
+   --syntax-variable: #545464;
+   --syntax-function: #43559a;
+   --syntax-string: #6f894e;
+   --syntax-constant: #d27e99;
+   --syntax-type: #597b91;
+   --syntax-comment: #716e61;
+   --syntax-operator: #545464;
+   --syntax-link: #597b91;
+   --syntax-heading: #597b91;
+   --syntax-invalid: #c34043;
  }

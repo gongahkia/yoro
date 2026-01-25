@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CodeMirror from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
-import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
+import { themeSyntaxHighlighting } from '../extensions/theme-highlighting';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
@@ -217,7 +217,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                     extensions={[
                         vimMode ? vim() : [],
                         lineWrapping ? EditorView.lineWrapping : [],
-                        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+                        themeSyntaxHighlighting,
                         yamlFrontmatter({
                             content: markdown({
                                 base: markdownLanguage,

@@ -16,6 +16,10 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Add commands: flashcard mode, pomodoro timer, study stats
 (B) Add commands: note linking, tag management, search and replace
 
+(B) fix how images are rendered
+(B) fix how links are rendered
+(B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
+
 (D) Add export notes to docx, pdf, md
 (D) Add add notes to google drive that automatically handles the docx export
 (D) Add import notes from google drive 
