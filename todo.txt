@@ -6,7 +6,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 2A: COMMAND PALETTE ===
 
 (A) Add commands: font settings, editor preferences
-(A) Add commands: toggle spellcheck
+(A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access
 (B) Implement command categories/grouping for organized browsing
