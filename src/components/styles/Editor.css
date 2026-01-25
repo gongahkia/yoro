@@ -1,0 +1,45 @@
+.editor-container {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-primary, #333);
+}
+
+.editor-content {
+    width: 100%;
+    max-width: 800px;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.editor-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    width: 100%;
+    font-family: inherit;
+}
+
+.editor-textarea {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    width: 100%;
+}
+
+.editor-textarea::placeholder {
+    color: #ccc;
+}
