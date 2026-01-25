@@ -4,19 +4,17 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
+(A) Refine preexisting keybinds being used here
 (A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
 (A) Add various important and relevant colorschemes
+(A) Add go to home command
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 === PRIORITY 2A: COMMAND PALETTE ===
-(A) All application settings accessible exclusively through the command palette
-(A) Implement fuzzy matching for command search with ranked results
-(A) Add commands: theme switching, font settings, editor preferences
-(A) Add commands: new note, open note, delete note, duplicate note
-(A) Add commands: export current note, export all notes
-(A) Add commands: toggle focus mode, toggle sidebar, toggle line numbers
+(A) Add commands: font settings, editor preferences
+(A) Add commands: export all notes
 (A) Add commands: insert table, insert code block, insert horizontal rule
-(A) Add commands: toggle vim mode, toggle spellcheck
+(A) Add commands: toggle spellcheck
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access
 (B) Add commands: note linking, tag management, search and replace

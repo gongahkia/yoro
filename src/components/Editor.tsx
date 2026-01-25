@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { keymap } from '@codemirror/view';
+import { keymap, highlightActiveLine } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
@@ -17,6 +17,7 @@ import { FootnoteExtension } from '../extensions/markdown-footnotes';
 import { textHighlight } from '../extensions/text-highlight';
 import { callouts } from '../extensions/callouts';
 import { emojiCompletion } from '../extensions/emojis';
+import { focusModeExtension } from '../extensions/focus-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -25,11 +26,12 @@ interface EditorProps {
     onChange: (content: string) => void;
     onTitleChange: (title: string) => void;
     vimMode: boolean;
+    focusMode: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode }) => {
+export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode, focusMode }) => {
     return (
-        <div className="editor-container">
+        <div className={`editor-container ${focusMode ? 'focus-mode' : ''}`}>
             <div className="editor-content">
                 <input
                     type="text"
@@ -59,6 +61,8 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, v
                         textHighlight,
                         callouts,
                         autocompletion({ override: [emojiCompletion] }),
+                        highlightActiveLine(),
+                        focusMode ? focusModeExtension : [],
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}

@@ -205,3 +205,22 @@
 .cm-callout-header-abstract { color: #0969da; }
 .cm-callout-header-example { color: #8250df; }
 .cm-callout-header-quote { color: #666; }
+
+/* Focus Mode */
+.focus-mode .cm-content .cm-line {
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+
+.focus-mode .cm-content .cm-active-line-visible {
+    opacity: 1 !important;
+}
+
+.focus-mode .editor-title {
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+
+.focus-mode .editor-title:focus {
+    opacity: 1;
+}

@@ -10,6 +10,7 @@ const initialState: AppState = {
         sidebarVisible: false,
         vimMode: false,
         showLineNumbers: true,
+        focusMode: false,
     },
 };
 

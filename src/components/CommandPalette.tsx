@@ -21,9 +21,43 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
 
-    const filteredCommands = commands.filter(cmd => 
-        cmd.label.toLowerCase().includes(query.toLowerCase())
-    );
+    const filteredCommands = React.useMemo(() => {
+        if (!query) return commands;
+        
+        const lowerQuery = query.toLowerCase();
+        return commands
+            .map(cmd => {
+                const label = cmd.label.toLowerCase();
+                let score = 0;
+                let qIdx = 0;
+                let lIdx = 0;
+                
+                // Simple subsequence matching
+                while (qIdx < lowerQuery.length && lIdx < label.length) {
+                    if (lowerQuery[qIdx] === label[lIdx]) {
+                        score += 10; // Match
+                        // Bonus for consecutive matches? 
+                        // Bonus for start of word?
+                        if (lIdx === 0 || label[lIdx - 1] === ' ') score += 5;
+                        qIdx++;
+                    } else {
+                        score -= 1; // Penalty for gap
+                    }
+                    lIdx++;
+                }
+                
+                // If we didn't match the whole query, reject
+                if (qIdx < lowerQuery.length) return null;
+                
+                // Adjust score by length difference (penalty for long unused strings)
+                score -= (label.length - lowerQuery.length) * 0.1;
+
+                return { cmd, score };
+            })
+            .filter((item): item is { cmd: Command, score: number } => item !== null)
+            .sort((a, b) => b.score - a.score)
+            .map(item => item.cmd);
+    }, [commands, query]);
 
     useEffect(() => {
         if (isOpen) {

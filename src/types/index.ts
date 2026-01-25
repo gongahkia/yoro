@@ -18,6 +18,7 @@ export interface UserPreferences {
     sidebarVisible: boolean;
     vimMode: boolean;
     showLineNumbers: boolean;
+    focusMode: boolean;
 }
 
 export interface AppState {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
@@ -12,9 +12,10 @@ interface NoteEditorWrapperProps {
   notes: Note[];
   onUpdateNote: (id: string, updates: Partial<Note>) => void;
   vimMode: boolean;
+  focusMode: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode, focusMode }) => {
   const { id } = useParams<{ id: string }>();
   const note = notes.find(n => n.id === id);
 
@@ -26,6 +27,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
       onChange={(content) => onUpdateNote(note.id, { content })}
       onTitleChange={(title) => onUpdateNote(note.id, { title })}
       vimMode={vimMode}
+      focusMode={focusMode}
     />
   );
 };
@@ -34,6 +36,7 @@ function App() {
   const [data, setData] = useState<AppState>(storage.get());
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     storage.set(data);
@@ -44,6 +47,11 @@ function App() {
       ...prev,
       preferences: { ...prev.preferences, ...updates }
     }));
+  };
+
+  const getCurrentNoteId = () => {
+    const match = location.pathname.match(/\/note\/(.+)/);
+    return match ? match[1] : null;
   };
 
   const commands: Command[] = [
@@ -73,6 +81,12 @@ function App() {
         category: 'View'
     },
     {
+        id: 'toggle-focus-mode',
+        label: 'Toggle Focus Mode',
+        action: () => handleUpdatePreferences({ focusMode: !data.preferences.focusMode }),
+        category: 'View'
+    },
+    {
         id: 'theme-light',
         label: 'Theme: Light',
         action: () => handleUpdatePreferences({ theme: 'light' }),
@@ -95,7 +109,53 @@ function App() {
         label: 'Theme: Dracula',
         action: () => handleUpdatePreferences({ theme: 'dracula' }),
         category: 'Theme'
-    }
+    },
+    // Note Navigation Commands
+    ...data.notes.map(note => ({
+        id: `open-note-${note.id}`,
+        label: `Open Note: ${note.title || 'Untitled'}`,
+        action: () => handleSelectNote(note.id),
+        category: 'Navigation'
+    })),
+    // Current Note Actions
+    ...(getCurrentNoteId() ? [
+        {
+            id: 'delete-note',
+            label: 'Delete Current Note',
+            action: () => {
+                const id = getCurrentNoteId();
+                if (id) handleDeleteNote(id, { stopPropagation: () => {} } as React.MouseEvent);
+            },
+            category: 'Note'
+        },
+        {
+            id: 'duplicate-note',
+            label: 'Duplicate Current Note',
+            action: () => {
+                const id = getCurrentNoteId();
+                if (id) handleDuplicateNote(id, { stopPropagation: () => {} } as React.MouseEvent);
+            },
+            category: 'Note'
+        },
+        {
+            id: 'export-markdown',
+            label: 'Export as Markdown',
+            action: () => {
+                const id = getCurrentNoteId();
+                const note = data.notes.find(n => n.id === id);
+                if (note) {
+                    const blob = new Blob([note.content], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${note.title || 'untitled'}.md`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            },
+            category: 'Export'
+        }
+    ] : [])
   ];
 
   useEffect(() => {
@@ -195,7 +255,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} />} />
       </Routes>
       <CommandPalette 
         isOpen={isPaletteOpen} 
