@@ -9,8 +9,11 @@ import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/state';
 
 class CheckboxWidget extends WidgetType {
-    constructor(readonly checked: boolean) {
+    readonly checked: boolean;
+
+    constructor(checked: boolean) {
         super();
+        this.checked = checked;
     }
 
     eq(other: CheckboxWidget) {
@@ -23,7 +26,7 @@ class CheckboxWidget extends WidgetType {
         input.checked = this.checked;
         input.className = 'cm-task-checkbox';
 
-        input.onclick = (e) => {
+        input.onclick = () => {
             const pos = view.posAtDOM(input);
             if (pos === null) return;
 
