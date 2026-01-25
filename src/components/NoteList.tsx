@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Note } from '../types';
+import type { Note } from '../types';
 import { NoteCard } from './NoteCard';
 import './styles/NoteList.css';
 
