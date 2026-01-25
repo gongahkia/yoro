@@ -102,8 +102,17 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         }).join('\n');
     };
 
+    const handleContainerClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('editor-content')) {
+            editorRef.current?.view?.focus();
+        }
+    };
+
     return (
-        <div className={`editor-container ${focusMode ? 'focus-mode' : ''} editor-align-${editorAlignment}`}>
+        <div 
+            className={`editor-container ${focusMode ? 'focus-mode' : ''} editor-align-${editorAlignment}`}
+            onClick={handleContainerClick}
+        >
             <div className="editor-content">
                 <input
                     type="text"

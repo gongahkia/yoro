@@ -40,8 +40,12 @@
 
 .cm-editor {
     height: 100%;
-    outline: none;
+    outline: none !important;
     background-color: transparent !important;
+}
+
+.cm-editor.cm-focused {
+    outline: none !important;
 }
 
 .cm-scroller {
