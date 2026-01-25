@@ -8,8 +8,8 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 
-(A) Build note list/grid view with search and filter by tags
-(A) Implement create/delete/duplicate note operations
+
+
 (A) Add keyboard shortcuts system (Ctrl+N new note, Ctrl+K search, etc)
 (A) Design ultra-minimalist layout: centered typing area, nothing else on screen by default
 (A) Set up routing for multi-note navigation without page reload
