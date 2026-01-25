@@ -8,15 +8,6 @@ import { CompletionContext, type CompletionResult } from "@codemirror/autocomple
 import { Range } from '@codemirror/state';
 import type { Note } from '../types';
 
-import {
-    Decoration,
-    EditorView,
-    ViewPlugin,
-    ViewUpdate
-} from '@codemirror/view';
-import { CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
-import { Range } from '@codemirror/state';
-import type { Note } from '../types';
 
 export const getWikilinkCompletion = (notes: Note[]) => {
     return (context: CompletionContext): CompletionResult | null => {

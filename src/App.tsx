@@ -480,6 +480,12 @@ function App() {
             action: () => handleDuplicateNote(note.id),
             category: 'Note Operations'
         })),
+        ...data.notes.filter(n => n.deletedAt).map(note => ({
+            id: `restore-note-${note.id}`,
+            label: `Restore Note: ${note.title || 'Untitled'}`,
+            action: () => handleRestoreNote(note.id),
+            category: 'Note Operations'
+        })),
         ...data.notes.map(note => ({
             id: `delete-note-${note.id}`,
             label: note.deletedAt
