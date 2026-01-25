@@ -13,6 +13,19 @@ interface NoteListProps {
 export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const allTags = useMemo(() => {
         const tags = new Set<string>();
@@ -32,6 +45,7 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
         <div className="note-list-container">
             <div className="note-list-header">
                 <input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Search notes..."
                     value={searchQuery}

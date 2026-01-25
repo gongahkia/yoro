@@ -11,6 +11,23 @@ function App() {
     storage.set(data);
   }, [data]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault();
+        handleCreateNote();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [data.notes]); // Dependency on data.notes might be needed if handleCreateNote depends on it, but handleCreateNote uses functional update.
+  // Actually handleCreateNote is defined inside component and uses functional update setData(prev => ...), so it is stable? No, it's recreated every render unless wrapped in useCallback.
+  // However, handleCreateNote itself doesn't read 'data' from closure for creation logic, but setData(prev => ...).
+  // Safest to just add handleCreateNote to dependency or wrap it.
+
+  // Let's wrap handleCreateNote in useCallback for cleanliness before adding effect. Or allow re-binding. Re-binding is fine.
+
   const handleCreateNote = () => {
     const newNote: Note = {
       id: crypto.randomUUID(),
