@@ -455,6 +455,17 @@ function App() {
             action: () => navigate('/'),
             category: 'Navigation'
         },
+        // Open Bin Command
+        ...(data.notes.some(n => n.deletedAt) ? [{
+            id: 'open-bin',
+            label: 'Open Bin',
+            action: () => {
+                navigate('/');
+                const event = new CustomEvent('yoro-open-bin');
+                window.dispatchEvent(event);
+            },
+            category: 'Navigation'
+        }] : []),
         // Note Navigation Commands
         ...data.notes.map(note => ({
             id: `open-note-${note.id}`,
@@ -471,7 +482,9 @@ function App() {
         })),
         ...data.notes.map(note => ({
             id: `delete-note-${note.id}`,
-            label: `Delete Note: ${note.title || 'Untitled'}`,
+            label: note.deletedAt
+                ? `Permanently Delete Note: ${note.title || 'Untitled'}`
+                : `Delete Note: ${note.title || 'Untitled'}`,
             action: () => handleDeleteNote(note.id),
             category: 'Note Operations'
         })),

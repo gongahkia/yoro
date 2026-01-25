@@ -31,7 +31,14 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+
+        const handleOpenBin = () => setSelectedTag('bin');
+        window.addEventListener('yoro-open-bin', handleOpenBin);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('yoro-open-bin', handleOpenBin);
+        };
     }, []);
 
     const allTags = useMemo(() => {
