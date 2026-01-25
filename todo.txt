@@ -6,10 +6,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
-(C) Add Vim keybinding mode as an option
-
-(A) Alow users to edit eh 
-
 === PRIORITY 2A: COMMAND PALETTE ===
 (A) Build command palette overlay triggered by Ctrl+Shift+P / Cmd+Shift+P
 (A) Palette appears centered on screen with fuzzy search input

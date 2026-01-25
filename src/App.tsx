@@ -10,9 +10,10 @@ import './App.css';
 interface NoteEditorWrapperProps {
   notes: Note[];
   onUpdateNote: (id: string, updates: Partial<Note>) => void;
+  vimMode: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode }) => {
   const { id } = useParams<{ id: string }>();
   const note = notes.find(n => n.id === id);
 
@@ -23,6 +24,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
       note={note}
       onChange={(content) => onUpdateNote(note.id, { content })}
       onTitleChange={(title) => onUpdateNote(note.id, { title })}
+      vimMode={vimMode}
     />
   );
 };
@@ -128,7 +130,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} />} />
       </Routes>
     </div>
   );

@@ -6,6 +6,7 @@ import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
 import { autocompletion } from '@codemirror/autocomplete';
+import { vim } from '@replit/codemirror-vim';
 import { livePreview } from '../extensions/live-preview';
 import { handleImageEvents } from '../extensions/images';
 import { frontmatterFold } from '../extensions/frontmatter';
@@ -23,9 +24,10 @@ interface EditorProps {
     note: Note;
     onChange: (content: string) => void;
     onTitleChange: (title: string) => void;
+    vimMode: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange }) => {
+export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode }) => {
     return (
         <div className="editor-container">
             <div className="editor-content">
@@ -40,6 +42,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                     value={note.content}
                     height="100%"
                     extensions={[
+                        vimMode ? vim() : [],
                         yamlFrontmatter({
                             content: markdown({
                                 base: markdownLanguage,
