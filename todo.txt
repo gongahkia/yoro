@@ -3,16 +3,8 @@ Markdown-first visual note-taking web app optimized for studying
 No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
-
-(A) Add various personal wiki features
-
-(B) Add callout/admonition blocks (note, warning, tip, etc) with icons
-
-(D) Add export notes to docx, pdf, md
-(D) Add add notes to google drive that automatically handles the docx export
-(D) Add import notes from google drive 
-
 === PRIORITY 2A: COMMAND PALETTE ===
+
 (A) Add commands: font settings, editor preferences
 (A) Add commands: toggle spellcheck
 (A) Show keyboard shortcut hints alongside each command
@@ -23,6 +15,24 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Add commands: flashcard mode, pomodoro timer, study stats
 (C) Support user-defined custom commands and macros
 (C) Add command history with frequency-based sorting
+
+
+(A) Add various personal wiki features
+(A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ``` ``` with spec of codeblock type and file extension
+(A) Allow users to specify where they want cursor to appear from (left, centred (default), right)
+(A) Allow users to send a file and have that file shared be opened within yoro, with file content stored within the URL compressed
+(A) Have the colorscheme operate on the entire page including its side margins and the homepage, not just the textblock currently being edited 
+(A) Have it so that even when clicked, the edges of the textbox aren't necessarily seen and displayed so the typing appears to occur in an endless canvas/void
+
+(A) Have vim commands appear on the bottom left/right/up/down in a translucent font decoration to allow them to be seen but not be obstrusive/instrusive
+
+(B) Add callout/admonition blocks (note, warning, tip, etc) with icons
+
+(D) Add export notes to docx, pdf, md
+(D) Add add notes to google drive that automatically handles the docx export
+(D) Add import notes from google drive 
+
+(A) Add config.toml that lets users define their entire config within a toml file stored within localbrowser
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Build native mindmap component with node-edge graph

@@ -14,12 +14,13 @@ import './App.css';
 interface NoteEditorWrapperProps {
   notes: Note[];
   onUpdateNote: (id: string, updates: Partial<Note>) => void;
+  onNavigate: (id: string) => void;
   vimMode: boolean;
   focusMode: boolean;
   lineWrapping: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, vimMode, focusMode, lineWrapping }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping }) => {
   const { id } = useParams<{ id: string }>();
   const note = notes.find(n => n.id === id);
 
@@ -28,8 +29,10 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
   return (
     <Editor
       note={note}
+      notes={notes}
       onChange={(content) => onUpdateNote(note.id, { content })}
       onTitleChange={(title) => onUpdateNote(note.id, { title })}
+      onNavigate={onNavigate}
       vimMode={vimMode}
       focusMode={focusMode}
       lineWrapping={lineWrapping}
@@ -507,7 +510,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} onNavigate={handleSelectNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} />} />
       </Routes>
       <CommandPalette 
         isOpen={isPaletteOpen} 

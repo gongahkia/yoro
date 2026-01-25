@@ -23,14 +23,16 @@ import './styles/Editor.css';
 
 interface EditorProps {
     note: Note;
+    notes: Note[];
     onChange: (content: string) => void;
     onTitleChange: (title: string) => void;
+    onNavigate: (noteId: string) => void;
     vimMode: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange, vimMode, focusMode, lineWrapping }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping }) => {
     const editorRef = React.useRef<any>(null);
 
     React.useEffect(() => {
