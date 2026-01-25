@@ -11,6 +11,7 @@ import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
 import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
+import { ConfirmationModal } from './components/ConfirmationModal';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -574,15 +575,31 @@ function App() {
         navigate(`/note/${newId}`);
     };
 
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null }>({
+        isOpen: false,
+        noteId: null
+    });
+
     const handleDeleteNote = (id: string, e?: React.MouseEvent) => {
         e?.stopPropagation();
-        if (confirm('Are you sure you want to delete this note?')) {
+        setDeleteConfirmation({ isOpen: true, noteId: id });
+    };
+
+    const handleConfirmDelete = () => {
+        if (deleteConfirmation.noteId) {
+            const id = deleteConfirmation.noteId;
             setData(prev => ({
                 ...prev,
                 notes: prev.notes.filter(n => n.id !== id)
             }));
             analytics.track('delete_note');
+
+            // If we deleted the current note, navigate home
+            if (getCurrentNoteId() === id) {
+                navigate('/');
+            }
         }
+        setDeleteConfirmation({ isOpen: false, noteId: null });
     };
 
     const handleDuplicateNote = (id: string, e?: React.MouseEvent) => {
@@ -654,6 +671,13 @@ function App() {
                 isOpen={isPaletteOpen}
                 onClose={() => setIsPaletteOpen(false)}
                 commands={commands}
+            />
+            <ConfirmationModal
+                isOpen={deleteConfirmation.isOpen}
+                title="Delete Note"
+                message="Are you sure you want to delete this note? This action cannot be undone."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null })}
             />
         </div>
     );
