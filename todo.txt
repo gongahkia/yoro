@@ -5,21 +5,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
 
-(A) Support task lists with interactive checkboxes [ ] and [x]
-(A) Implement tables with Doom Emacs-style interaction:
-    - Tab to move between cells
-    - Auto-align columns on input
-    - Auto-expand table width as content grows
-    - Enter to create new rows
-    - Shortcut to add/remove columns
-    - Pipe-based markdown syntax rendered as clean table grid
-(A) Support link insertion with inline preview and clickable rendered links
-(A) Add image paste from clipboard, drag-drop, and markdown syntax (stored as base64)
-(A) Images render inline within the document at appropriate size
-(A) Support horizontal rules rendered as styled dividers
-(A) Implement auto-completion for markdown syntax (e.g. auto-close brackets, lists)
 (A) Support front matter (YAML) for note metadata, collapsed by default
-(B) Add syntax highlighting for fenced code blocks in 30+ languages
 (B) Implement smart list continuation (Enter continues list, Enter on empty item exits)
 (B) Support footnotes with rendered popup/inline preview
 (B) Add math/LaTeX rendering with KaTeX for inline ($...$) and block ($$...$$)
