@@ -1,73 +1,18 @@
-/* Styling for inline code when backticks are hidden */
-.cm-inline-code-styled {
-    background-color: rgba(150, 150, 150, 0.15);
-    border-radius: 4px;
-    padding: 0.1em 0.3em;
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9em;
+/* Wiki Links */
+.cm-wikilink {
     color: var(--primary);
-    /* Optional: make it pop or keep text-primary */
+    text-decoration: none;
+    cursor: pointer;
 }
 
-/* Styling for active inline code (cursor inside) */
-.cm-inline-code-active {
-    background-color: rgba(150, 150, 150, 0.1);
-    border-radius: 4px;
+.cm-wikilink:hover {
+    text-decoration: underline;
 }
 
-/* Ensure code blocks have a background and distinct look */
-.cm-content .cm-codeblock {
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9em;
-}
-
-/* Gutter styling (line numbers) */
-.editor-cm-wrapper .cm-gutters {
-    background-color: var(--editor-gutter-bg, var(--bg-primary)) !important;
-    color: var(--editor-gutter-text, #999) !important;
-    border-right: 1px solid var(--border-color);
-}
-
-.editor-cm-wrapper .cm-activeLineGutter {
-    background-color: var(--primary-light) !important;
-    color: var(--text-primary) !important;
-}
-
-.editor-cm-wrapper .cm-editor {
-    height: 100%;
-    background-color: var(--editor-bg, var(--bg-primary)) !important;
-    color: var(--text-primary) !important;
-}
-
-.editor-cm-wrapper .cm-scroller {
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
-    line-height: 1.6;
-}
-
-.editor-cm-wrapper .cm-content {
-    caret-color: var(--caret-color, var(--text-primary)) !important;
-    min-width: 100%;
-    /* Ensure content takes full width */
-}
-
-.editor-cm-wrapper .cm-activeLine {
-    background-color: var(--primary-light-active) !important;
-    width: 100% !important;
-    /* Force active line to be full width */
-    display: inline-block;
-    /* Ensure block-like geometry for background */
-}
-
-/* Fix for centered text having full width background */
-.editor-align-center .cm-line {
-    text-align: center;
-}
-
-.editor-cm-wrapper .cm-cursor {
-    border-left-color: var(--caret-color, var(--text-primary)) !important;
-}
-
-/* Ensure editor container background matches */
-.editor-container {
-    background-color: var(--editor-bg, var(--bg-primary)) !important;
+/* Standard Markdown Links */
+.cm-md-link {
+    cursor: pointer;
+    /* Optional: subtle hint it's interactive */
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
