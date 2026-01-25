@@ -65,6 +65,11 @@
     font-style: italic;
 }
 
+.cm-strikethrough {
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
 /* Headings: We need to style the CONTENT since we can't easily tag the line container 
    via Decoration.mark unless we use line decoration which wraps content or injects DOM.
    Actually, CodeMirror allows line attributes.

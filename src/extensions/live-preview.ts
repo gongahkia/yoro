@@ -1,8 +1,8 @@
+```
 import {
     Decoration,
     EditorView,
     ViewPlugin,
-    WidgetType,
 } from '@codemirror/view';
 import type { DecorationSet, ViewUpdate } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
@@ -35,7 +35,7 @@ class LivePreviewPlugin {
                         const level = parseInt(node.name.slice(10));
                         if (!isNaN(level)) {
                             widgets.push(Decoration.mark({
-                                class: `cm-heading-${level}`
+                                class: `cm - heading - ${ level } `
                             }).range(node.from, node.to));
                         }
                     }
@@ -57,6 +57,18 @@ class LivePreviewPlugin {
                     }
 
                     if (node.name === 'EmphasisMark') {
+                        if (!this.isFocused(selection, node.from, node.to)) {
+                            widgets.push(Decoration.replace({}).range(node.from, node.to));
+                        } else {
+                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
+                        }
+                    }
+
+                    if (node.name === 'Strikethrough') {
+                        widgets.push(Decoration.mark({ class: 'cm-strikethrough' }).range(node.from, node.to));
+                    }
+
+                    if (node.name === 'StrikethroughMark') {
                         if (!this.isFocused(selection, node.from, node.to)) {
                             widgets.push(Decoration.replace({}).range(node.from, node.to));
                         } else {
