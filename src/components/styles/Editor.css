@@ -57,8 +57,14 @@
     padding: 0 !important;
 }
 
-.cm-bold {
-    font-weight: 700;
+.cm-formatting-visible {
+    color: #ccc;
+    font-weight: normal;
+}
+
+.cm-list-mark {
+    color: var(--primary, #007bff);
+    font-weight: bold;
 }
 
 .cm-italic {

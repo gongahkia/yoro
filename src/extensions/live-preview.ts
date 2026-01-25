@@ -34,7 +34,7 @@ class LivePreviewPlugin {
                         const level = parseInt(node.name.slice(10));
                         if (!isNaN(level)) {
                             widgets.push(Decoration.mark({
-                                class: `cm - heading - ${level} `
+                                class: `cm-heading-${level}`
                             }).range(node.from, node.to));
                         }
                     }
@@ -73,9 +73,11 @@ class LivePreviewPlugin {
                         } else {
                             widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
                         }
+                        if (node.name === 'ListMark') {
+                            widgets.push(Decoration.mark({ class: 'cm-list-mark' }).range(node.from, node.to));
+                        }
                     }
-                }
-            });
+                });
         }
 
         return Decoration.set(widgets.sort((a, b) => a.from - b.from));
