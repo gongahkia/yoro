@@ -6,32 +6,26 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 2A: COMMAND PALETTE ===
 
 (A) Add commands: font settings, editor preferences
-
 (A) Have the notes frontend be rendered differently, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
-
+(A) Rework how config.toml works and how it can be edited (should it be saved as a local note?)
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access
 (B) Implement command categories/grouping for organized browsing
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
-(C) Support user-defined custom commands and macros
-(C) Display commands based on their latets frequencey (via command history)
+(B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
 (B) Add commands: flashcard mode, pomodoro timer, study stats
 (B) Add commands: note linking, tag management, search and replace
-
 (B) fix how images are rendered
 (B) fix how links are rendered
 (B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
-
-(D) Add export notes to docx, pdf, md
-(D) Add add notes to google drive that automatically handles the docx export
-(D) Add import notes from google drive 
-
-(D) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
-
-(D) Update manual within command palette
-
-(A) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
+(B) Add export notes to docx, pdf, md
+(B) Add add notes to google drive that automatically handles the docx export
+(B) Add import notes from google drive 
+(B) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
+(B) Update manual within command palette
+(C) Support user-defined custom commands and macros
+(C) Display commands based on their latets frequencey (via command history)
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Mindmap features were midway through implementation before being interrupted. First read the existing implementation and thoroughly understand what has already been incorporated, then update me what has yet to be done to ensure a working build and clarify as required, before adding the remaining 50% implementation to todo.txt
