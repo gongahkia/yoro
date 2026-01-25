@@ -1,10 +1,12 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
 import { livePreview } from '../extensions/live-preview';
 import { handleImageEvents } from '../extensions/images';
+import { frontmatterFold } from '../extensions/frontmatter';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -29,13 +31,16 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                     value={note.content}
                     height="100%"
                     extensions={[
-                        markdown({
-                            base: markdownLanguage,
-                            codeLanguages: languages,
-                            extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
+                        yamlFrontmatter({
+                            content: markdown({
+                                base: markdownLanguage,
+                                codeLanguages: languages,
+                                extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList]
+                            })
                         }),
                         livePreview,
-                        handleImageEvents
+                        handleImageEvents,
+                        frontmatterFold
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"
