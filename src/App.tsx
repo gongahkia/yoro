@@ -61,7 +61,7 @@ function App() {
     }, [data]);
 
     useEffect(() => {
-        document.body.setAttribute('data-theme', data.preferences.theme);
+        document.documentElement.setAttribute('data-theme', data.preferences.theme);
     }, [data.preferences.theme]);
 
     useEffect(() => {
