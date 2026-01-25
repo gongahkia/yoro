@@ -13,7 +13,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 
-(B) Add PWA manifest for installable web app experience
+
 (B) Implement service worker for offline functionality
 (C) Add analytics events (privacy-focused, no tracking) for feature usage
 
