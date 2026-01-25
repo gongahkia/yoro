@@ -232,6 +232,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                         footnoteTooltip,
                         textHighlight,
                         callouts,
+                        inlineCode,
                         autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
                         highlightActiveLine(),
