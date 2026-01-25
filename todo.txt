@@ -9,14 +9,13 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (A) Add commands: toggle spellcheck
 (A) Show keyboard shortcut hints alongside each command
 (A) Support recent commands list for quick re-access
-(B) Add commands: note linking, tag management, search and replace
 (B) Implement command categories/grouping for organized browsing
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
-(B) Add commands: flashcard mode, pomodoro timer, study stats
 (C) Support user-defined custom commands and macros
 (C) Add command history with frequency-based sorting
 (C) Add more colorschemes
-(C) Add vim binds that can be used to be keyboard only even in home
+(B) Add commands: flashcard mode, pomodoro timer, study stats
+(B) Add commands: note linking, tag management, search and replace
 
 (D) Add export notes to docx, pdf, md
 (D) Add add notes to google drive that automatically handles the docx export
