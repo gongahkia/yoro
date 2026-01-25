@@ -141,3 +141,15 @@
     line-height: 1.4;
     white-space: normal;
 }
+
+/* Highlight */
+.cm-highlight {
+    background-color: var(--highlight, rgba(255, 255, 0, 0.4));
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.cm-highlight-focused {
+    background-color: var(--highlight-dim, rgba(255, 255, 0, 0.2));
+    color: inherit;
+}

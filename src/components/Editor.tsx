@@ -12,6 +12,7 @@ import { mathPreview } from '../extensions/math';
 import { markdownPairs } from '../extensions/markdown-pairs';
 import { footnoteTooltip } from '../extensions/footnotes';
 import { FootnoteExtension } from '../extensions/markdown-footnotes';
+import { textHighlight } from '../extensions/text-highlight';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -49,6 +50,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         mathPreview,
                         markdownPairs,
                         footnoteTooltip,
+                        textHighlight,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
