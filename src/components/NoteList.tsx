@@ -6,9 +6,11 @@ import './styles/NoteList.css';
 interface NoteListProps {
     notes: Note[];
     onSelectNote: (id: string) => void;
+    onDeleteNote: (id: string, e: React.MouseEvent) => void;
+    onDuplicateNote: (id: string, e: React.MouseEvent) => void;
 }
 
-export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote }) => {
+export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
@@ -58,7 +60,13 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote }) => {
             <div className="notes-grid">
                 {filteredNotes.length > 0 ? (
                     filteredNotes.map(note => (
-                        <NoteCard key={note.id} note={note} onClick={onSelectNote} />
+                        <NoteCard
+                            key={note.id}
+                            note={note}
+                            onClick={onSelectNote}
+                            onDelete={(e) => onDeleteNote(note.id, e)}
+                            onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                        />
                     ))
                 ) : (
                     <div className="empty-state">No notes found</div>
