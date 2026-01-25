@@ -56,3 +56,17 @@
 .cm-line {
     padding: 0 !important;
 }
+
+.cm-bold {
+    font-weight: 700;
+}
+
+.cm-italic {
+    font-style: italic;
+}
+
+/* Headings: We need to style the CONTENT since we can't easily tag the line container 
+   via Decoration.mark unless we use line decoration which wraps content or injects DOM.
+   Actually, CodeMirror allows line attributes.
+   But my plugin currently doesn't do line attributes.
+   I'll add specific handling for ATXHeading in my plugin to style it big. */

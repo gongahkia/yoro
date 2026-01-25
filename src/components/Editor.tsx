@@ -1,6 +1,7 @@
 import React from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
+import { livePreview } from '../extensions/live-preview';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -24,7 +25,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                 <CodeMirror
                     value={note.content}
                     height="100%"
-                    extensions={[markdown()]}
+                    extensions={[markdown(), livePreview]}
                     onChange={onChange}
                     className="editor-cm-wrapper"
                     basicSetup={{
