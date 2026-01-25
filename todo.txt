@@ -15,7 +15,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 
-(C) Add analytics events (privacy-focused, no tracking) for feature usage
+
 
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 (A) Integrate CodeMirror 6 as the core editing engine
