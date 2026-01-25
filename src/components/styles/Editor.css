@@ -38,7 +38,7 @@
 
 .editor-content {
     width: 100%;
-    max-width: 900px;
+    max-width: 80ch;
     /* Max width for readability */
     height: 100%;
     display: flex;
