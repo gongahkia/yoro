@@ -3,11 +3,11 @@ Markdown-first visual note-taking web app optimized for studying
 No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === CORE INFRASTRUCTURE ===
-(A) Setup modern web project with Vite + React/Vanilla JS + TypeScript
-(A) Configure hot reload and development environment
-(A) Design localStorage schema for notes, themes, and user preferences
-(A) Implement localStorage wrapper with error handling and quota management
-(A) Create note data model: id, title, content, format type, timestamps, tags
+
+
+
+
+
 (A) Build note list/grid view with search and filter by tags
 (A) Implement create/delete/duplicate note operations
 (A) Add keyboard shortcuts system (Ctrl+N new note, Ctrl+K search, etc)
