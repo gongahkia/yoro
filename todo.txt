@@ -16,6 +16,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (C) Support user-defined custom commands and macros
 (C) Add command history with frequency-based sorting
 
+(C) Add vim binds that can be used to be keyboard only even in home
 
 (A) Add various personal wiki features
 (A) Refactor the codeblock feature to work properly with both inline `` and codeblocks with ``` ``` with spec of codeblock type and file extension

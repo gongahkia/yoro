@@ -224,3 +224,15 @@
 .focus-mode .editor-title:focus {
     opacity: 1;
 }
+
+/* Wikilinks */
+.cm-wikilink {
+    color: var(--primary, #007bff);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cm-wikilink:hover {
+    text-decoration: underline;
+}

@@ -17,6 +17,7 @@ import { FootnoteExtension } from '../extensions/markdown-footnotes';
 import { textHighlight } from '../extensions/text-highlight';
 import { callouts } from '../extensions/callouts';
 import { emojiCompletion } from '../extensions/emojis';
+import { createWikilinkPlugin, getWikilinkCompletion } from '../extensions/wikilinks';
 import { focusModeExtension } from '../extensions/focus-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
@@ -131,7 +132,8 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                         footnoteTooltip,
                         textHighlight,
                         callouts,
-                        autocompletion({ override: [emojiCompletion] }),
+                        autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes)] }),
+                        createWikilinkPlugin(notes, onNavigate),
                         highlightActiveLine(),
                         focusMode ? focusModeExtension : [],
                         keymap.of(markdownKeymap)

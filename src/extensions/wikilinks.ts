@@ -4,7 +4,7 @@ import {
     ViewPlugin,
     ViewUpdate
 } from '@codemirror/view';
-import { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
+import { CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
 import { Range } from '@codemirror/state';
 import type { Note } from '../types';
 
@@ -67,7 +67,7 @@ export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => 
     }, {
         decorations: v => v.decorations,
         eventHandlers: {
-            mousedown: (e, view) => {
+            mousedown: (e) => {
                 const target = e.target as HTMLElement;
                 const link = target.closest('.cm-wikilink');
                 if (link) {
