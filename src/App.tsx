@@ -415,7 +415,7 @@ function App() {
         },
         {
             id: 'theme-rose-pine-light',
-            label: 'Theme: Rose Pine Light (Dawn)',
+            label: 'Theme: Rose Pine Light',
             action: () => handleUpdatePreferences({ theme: 'rose-pine-light' }),
             category: 'Theme'
         },
@@ -439,13 +439,13 @@ function App() {
         },
         {
             id: 'theme-kanagawa-light',
-            label: 'Theme: Kanagawa Light (Lotus)',
+            label: 'Theme: Kanagawa Light',
             action: () => handleUpdatePreferences({ theme: 'kanagawa-light' }),
             category: 'Theme'
         },
         {
             id: 'theme-kanagawa-dark',
-            label: 'Theme: Kanagawa Dark (Wave)',
+            label: 'Theme: Kanagawa Dark',
             action: () => handleUpdatePreferences({ theme: 'kanagawa-dark' }),
             category: 'Theme'
         },
