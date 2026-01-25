@@ -2,6 +2,7 @@
     padding: 1rem;
     max-width: 1200px;
     margin: 0 auto;
+    color: var(--text-primary);
 }
 
 .note-list-header {
@@ -14,15 +15,17 @@
 .search-input {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     outline: none;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     transition: border-color 0.2s;
 }
 
 .search-input:focus {
-    border-color: #333;
+    border-color: var(--primary);
 }
 
 .tags-filter {
@@ -36,14 +39,21 @@
     padding: 0.3rem 0.8rem;
     border-radius: 16px;
     font-size: 0.85rem;
-    background: #f0f0f0;
+    background: var(--primary-light);
+    color: var(--text-primary);
     transition: all 0.2s;
     user-select: none;
+    border: 1px solid transparent;
+}
+
+.filter-tag:hover {
+    border-color: var(--primary);
 }
 
 .filter-tag.active {
-    background: #333;
+    background: var(--primary);
     color: white;
+    /* Keep white for active state contrast against primary color */
 }
 
 .notes-grid {
@@ -55,6 +65,7 @@
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
-    color: #888;
+    color: var(--text-primary);
+    opacity: 0.5;
     padding: 2rem;
 }
