@@ -35,7 +35,7 @@ interface EditorProps {
     focusMode: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
-    editorAlignment: 'left' | 'center' | 'right';
+    editorAlignment: 'natural' | 'left' | 'center' | 'right';
 }
 
 export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {

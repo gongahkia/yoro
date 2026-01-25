@@ -21,7 +21,7 @@ interface NoteEditorWrapperProps {
     focusMode: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
-    editorAlignment: 'left' | 'center' | 'right';
+    editorAlignment: 'natural' | 'left' | 'center' | 'right';
 }
 
 const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
@@ -217,11 +217,23 @@ function App() {
             category: 'General'
         },
         {
+            id: 'align-natural',
+            label: 'Align Editor Natural (Left Text, Centered View)',
+            action: () => handleUpdatePreferences({ editorAlignment: 'natural' }),
+            category: 'View'
+        },
+        {
             id: 'toggle-alignment',
             label: 'Cycle Editor Alignment',
             action: () => {
-                const next = data.preferences.editorAlignment === 'center' ? 'left' : data.preferences.editorAlignment === 'left' ? 'right' : 'center';
-                handleUpdatePreferences({ editorAlignment: next });
+                const map: Record<string, 'natural' | 'left' | 'center' | 'right'> = {
+                    'natural': 'left',
+                    'left': 'center',
+                    'center': 'right',
+                    'right': 'natural'
+                };
+                const current = data.preferences.editorAlignment || 'natural';
+                handleUpdatePreferences({ editorAlignment: map[current] || 'natural' });
             },
             category: 'View'
         },
