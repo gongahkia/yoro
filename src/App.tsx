@@ -66,6 +66,25 @@ function App() {
     }, [data.preferences.theme]);
 
     useEffect(() => {
+        // Auto-cleanup bin items older than 30 days
+        const cleanupBin = () => {
+            const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            setData(prev => {
+                const hasExpired = prev.notes.some(n => n.deletedAt && (now - n.deletedAt > THIRTY_DAYS_MS));
+                if (!hasExpired) return prev;
+                return {
+                    ...prev,
+                    notes: prev.notes.filter(n => !n.deletedAt || (now - n.deletedAt <= THIRTY_DAYS_MS))
+                };
+            });
+        };
+        cleanupBin(); // Check on mount
+        const interval = setInterval(cleanupBin, 60 * 60 * 1000); // Check every hour
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         const params = new URLSearchParams(location.search);
         const shareData = params.get('share');
         if (shareData) {
@@ -611,31 +630,60 @@ function App() {
         navigate(`/note/${newId}`);
     };
 
-    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null }>({
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null; isPermanent: boolean }>({
         isOpen: false,
-        noteId: null
+        noteId: null,
+        isPermanent: false
     });
 
     const handleDeleteNote = (id: string, e?: React.MouseEvent) => {
         e?.stopPropagation();
-        setDeleteConfirmation({ isOpen: true, noteId: id });
+        const note = data.notes.find(n => n.id === id);
+        if (!note) return;
+
+        if (note.deletedAt) {
+            // Already in bin, confirm permanent deletion
+            setDeleteConfirmation({ isOpen: true, noteId: id, isPermanent: true });
+        } else {
+            // Not in bin, move to bin (Soft delete)
+            setData(prev => ({
+                ...prev,
+                notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: Date.now() } : n)
+            }));
+            analytics.track('move_to_bin');
+
+            // If moved current note to bin, go home
+            if (getCurrentNoteId() === id) {
+                navigate('/');
+            }
+        }
+    };
+
+    const handleRestoreNote = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setData(prev => ({
+            ...prev,
+            notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: undefined } : n)
+        }));
+        analytics.track('restore_note');
     };
 
     const handleConfirmDelete = () => {
         if (deleteConfirmation.noteId) {
             const id = deleteConfirmation.noteId;
+            // Permanent delete
             setData(prev => ({
                 ...prev,
                 notes: prev.notes.filter(n => n.id !== id)
             }));
-            analytics.track('delete_note');
+            analytics.track('delete_note_permanent');
 
             // If we deleted the current note, navigate home
             if (getCurrentNoteId() === id) {
                 navigate('/');
             }
         }
-        setDeleteConfirmation({ isOpen: false, noteId: null });
+        setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false });
     };
 
     const handleDuplicateNote = (id: string, e?: React.MouseEvent) => {
@@ -684,6 +732,7 @@ function App() {
                             onSelectNote={handleSelectNote}
                             onDeleteNote={handleDeleteNote}
                             onDuplicateNote={handleDuplicateNote}
+                            onRestoreNote={handleRestoreNote}
                         />
                     </>
                 } />
@@ -710,10 +759,12 @@ function App() {
             />
             <ConfirmationModal
                 isOpen={deleteConfirmation.isOpen}
-                title="Delete Note"
-                message="Are you sure you want to delete this note? This action cannot be undone."
+                title={deleteConfirmation.isPermanent ? "Permanently Delete" : "Delete Note"}
+                message={deleteConfirmation.isPermanent
+                    ? "Are you sure you want to permanently delete this note from the bin? This action cannot be undone."
+                    : "Are you sure you want to move this note to the bin?"}
                 onConfirm={handleConfirmDelete}
-                onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null })}
+                onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false })}
             />
         </div>
     );

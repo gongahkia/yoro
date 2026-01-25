@@ -3,7 +3,10 @@ type EventName =
     | 'delete_note'
     | 'duplicate_note'
     | 'view_note'
-    | 'export_note';
+    | 'export_note'
+    | 'move_to_bin'
+    | 'restore_note'
+    | 'delete_note_permanent';
 
 export const analytics = {
     track: (event: EventName, properties?: Record<string, any>) => {

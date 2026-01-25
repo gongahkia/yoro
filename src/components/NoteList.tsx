@@ -11,7 +11,7 @@ interface NoteListProps {
     onRestoreNote?: (id: string, e: React.MouseEvent) => void;
 }
 
-export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote }) => {
+export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote, onRestoreNote }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
