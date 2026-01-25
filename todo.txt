@@ -5,9 +5,10 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
 
-(C) Add markdown templates for common study formats
-(C) Support emoji shortcodes with autocomplete (:smile: etc)
+(B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 (C) Add Vim keybinding mode as an option
+
+(A) Alow users to edit eh 
 
 === PRIORITY 2A: COMMAND PALETTE ===
 (A) Build command palette overlay triggered by Ctrl+Shift+P / Cmd+Shift+P

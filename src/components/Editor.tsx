@@ -5,6 +5,7 @@ import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-mar
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
 import { languages } from '@codemirror/language-data';
 import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
+import { autocompletion } from '@codemirror/autocomplete';
 import { livePreview } from '../extensions/live-preview';
 import { handleImageEvents } from '../extensions/images';
 import { frontmatterFold } from '../extensions/frontmatter';
@@ -14,6 +15,7 @@ import { footnoteTooltip } from '../extensions/footnotes';
 import { FootnoteExtension } from '../extensions/markdown-footnotes';
 import { textHighlight } from '../extensions/text-highlight';
 import { callouts } from '../extensions/callouts';
+import { emojiCompletion } from '../extensions/emojis';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -53,6 +55,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         footnoteTooltip,
                         textHighlight,
                         callouts,
+                        autocompletion({ override: [emojiCompletion] }),
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
