@@ -1,4 +1,6 @@
 import React from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { markdown } from '@codemirror/lang-markdown';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -19,12 +21,16 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                     onChange={(e) => onTitleChange(e.target.value)}
                     placeholder="Untitled"
                 />
-                <textarea
-                    className="editor-textarea"
+                <CodeMirror
                     value={note.content}
-                    onChange={(e) => onChange(e.target.value)}
-                    placeholder="Start writing..."
-                    spellCheck={false}
+                    height="100%"
+                    extensions={[markdown()]}
+                    onChange={onChange}
+                    className="editor-cm-wrapper"
+                    basicSetup={{
+                        lineNumbers: false,
+                        foldGutter: false,
+                    }}
                 />
             </div>
         </div>
