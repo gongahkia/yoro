@@ -395,6 +395,42 @@ function App() {
             category: 'Theme'
         },
         {
+            id: 'theme-rose-pine-light',
+            label: 'Theme: Rose Pine Light (Dawn)',
+            action: () => handleUpdatePreferences({ theme: 'rose-pine-light' }),
+            category: 'Theme'
+        },
+        {
+            id: 'theme-rose-pine-dark',
+            label: 'Theme: Rose Pine Dark',
+            action: () => handleUpdatePreferences({ theme: 'rose-pine-dark' }),
+            category: 'Theme'
+        },
+        {
+            id: 'theme-tokyo-night-light',
+            label: 'Theme: Tokyo Night Light',
+            action: () => handleUpdatePreferences({ theme: 'tokyo-night-light' }),
+            category: 'Theme'
+        },
+        {
+            id: 'theme-tokyo-night-dark',
+            label: 'Theme: Tokyo Night Dark',
+            action: () => handleUpdatePreferences({ theme: 'tokyo-night-dark' }),
+            category: 'Theme'
+        },
+        {
+            id: 'theme-kanagawa-light',
+            label: 'Theme: Kanagawa Light (Lotus)',
+            action: () => handleUpdatePreferences({ theme: 'kanagawa-light' }),
+            category: 'Theme'
+        },
+        {
+            id: 'theme-kanagawa-dark',
+            label: 'Theme: Kanagawa Dark (Wave)',
+            action: () => handleUpdatePreferences({ theme: 'kanagawa-dark' }),
+            category: 'Theme'
+        },
+        {
             id: 'go-home',
             label: 'Go to Home',
             action: () => navigate('/'),

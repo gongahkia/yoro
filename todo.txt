@@ -12,8 +12,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Implement command categories/grouping for organized browsing
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (C) Support user-defined custom commands and macros
-(C) Add command history with frequency-based sorting
-(C) Add more colorschemes
+(C) Display commands based on their latets frequencey (via command history)
 (B) Add commands: flashcard mode, pomodoro timer, study stats
 (B) Add commands: note linking, tag management, search and replace
 

@@ -20,7 +20,10 @@ export type Theme =
     | 'solarized-light' | 'solarized-dark'
     | 'gruvbox-light' | 'gruvbox-dark'
     | 'everforest-light' | 'everforest-dark'
-    | 'catppuccin-light' | 'catppuccin-dark';
+    | 'catppuccin-light' | 'catppuccin-dark'
+    | 'rose-pine-light' | 'rose-pine-dark'
+    | 'tokyo-night-light' | 'tokyo-night-dark'
+    | 'kanagawa-light' | 'kanagawa-dark';
 
 export interface UserPreferences {
     theme: Theme;
