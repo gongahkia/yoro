@@ -1,35 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { storage } from './utils/storage';
+import { AppState } from './types';
+import { NoteList } from './components/NoteList';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState<AppState>(storage.get());
+
+  useEffect(() => {
+    // Basic verification that storage works
+    console.log('Loaded notes:', data.notes.length);
+  }, [data]);
+
+  const handleSelectNote = (id: string) => {
+    console.log('Selected note:', id);
+    // TODO: Navigate to note editor
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app-container">
+      <NoteList notes={data.notes} onSelectNote={handleSelectNote} />
+    </div>
+  );
 }
 
-export default App
+export default App;
