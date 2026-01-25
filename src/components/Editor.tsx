@@ -9,6 +9,7 @@ import { livePreview } from '../extensions/live-preview';
 import { handleImageEvents } from '../extensions/images';
 import { frontmatterFold } from '../extensions/frontmatter';
 import { mathPreview } from '../extensions/math';
+import { markdownPairs } from '../extensions/markdown-pairs';
 import type { Note } from '../types';
 import './styles/Editor.css';
 
@@ -44,6 +45,7 @@ export const Editor: React.FC<EditorProps> = ({ note, onChange, onTitleChange })
                         handleImageEvents,
                         frontmatterFold,
                         mathPreview,
+                        markdownPairs,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}

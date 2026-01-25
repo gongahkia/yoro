@@ -6,7 +6,6 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 
 (B) Support footnotes with rendered popup/inline preview
-(B) Implement auto-pairing for markdown syntax (**, `, _, etc)
 (B) Support text highlight/mark syntax (==highlight==)
 (B) Add callout/admonition blocks (note, warning, tip, etc) with icons
 (C) Add markdown templates for common study formats
