@@ -32,9 +32,10 @@ interface EditorProps {
     vimMode: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
+    editorAlignment: 'left' | 'center' | 'right';
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, editorAlignment }) => {
     const editorRef = React.useRef<any>(null);
 
     React.useEffect(() => {
@@ -102,7 +103,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     };
 
     return (
-        <div className={`editor-container ${focusMode ? 'focus-mode' : ''}`}>
+        <div className={`editor-container ${focusMode ? 'focus-mode' : ''} editor-align-${editorAlignment}`}>
             <div className="editor-content">
                 <input
                     type="text"

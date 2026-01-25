@@ -18,9 +18,10 @@ interface NoteEditorWrapperProps {
   vimMode: boolean;
   focusMode: boolean;
   lineWrapping: boolean;
+  editorAlignment: 'left' | 'center' | 'right';
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping, editorAlignment }) => {
   const { id } = useParams<{ id: string }>();
   const note = notes.find(n => n.id === id);
 
@@ -36,6 +37,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
       vimMode={vimMode}
       focusMode={focusMode}
       lineWrapping={lineWrapping}
+      editorAlignment={editorAlignment}
     />
   );
 };
@@ -102,7 +104,8 @@ function App() {
                       sidebarVisible: newPrefs.sidebarVisible,
                       showLineNumbers: newPrefs.showLineNumbers,
                       focusMode: newPrefs.focusMode,
-                      lineWrapping: newPrefs.lineWrapping
+                      lineWrapping: newPrefs.lineWrapping,
+                      editorAlignment: newPrefs.editorAlignment
                   };
                   const newContent = stringify(configObj);
                   if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -135,7 +138,7 @@ function App() {
               const parsed = parse(configNote.content) as any;
               const updates: Partial<AppState['preferences']> = {};
               let hasUpdates = false;
-              const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping'];
+              const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment'];
 
               for (const key of keys) {
                   if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -181,32 +184,60 @@ function App() {
                     const configObj = {
                         theme: data.preferences.theme,
                         vimMode: data.preferences.vimMode,
-                        sidebarVisible: data.preferences.sidebarVisible,
-                        showLineNumbers: data.preferences.showLineNumbers,
-                        focusMode: data.preferences.focusMode,
-                        lineWrapping: data.preferences.lineWrapping
-                    };
-                    const newNote: Note = {
-                        id: newId,
-                        title: 'config.toml',
-                        content: stringify(configObj),
-                        format: 'markdown', // acts as text
-                        tags: ['config'],
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
-                        isFavorite: false,
-                    };
-                    setData(prev => ({
-                        ...prev,
-                        notes: [newNote, ...prev.notes]
-                    }));
-                    handleSelectNote(newId);
-                }
-            },
-            category: 'General'
-        },
-        {
-            id: 'toggle-vim',      label: 'Toggle Vim Mode',
+                                            sidebarVisible: data.preferences.sidebarVisible,
+                                            showLineNumbers: data.preferences.showLineNumbers,
+                                            focusMode: data.preferences.focusMode,
+                                            lineWrapping: data.preferences.lineWrapping,
+                                            editorAlignment: data.preferences.editorAlignment
+                                        };
+                                        const newNote: Note = {
+                                            id: newId,
+                                            title: 'config.toml',
+                                            content: stringify(configObj),
+                                            format: 'markdown', // acts as text
+                                            tags: ['config'],
+                                            createdAt: Date.now(),
+                                            updatedAt: Date.now(),
+                                            isFavorite: false,
+                                        };
+                                        setData(prev => ({
+                                            ...prev,
+                                            notes: [newNote, ...prev.notes]
+                                        }));
+                                        handleSelectNote(newId);
+                                    }
+                                },
+                                category: 'General'
+                            },
+                            {
+                                id: 'toggle-alignment',
+                                label: 'Cycle Editor Alignment',
+                                action: () => {
+                                    const next = data.preferences.editorAlignment === 'center' ? 'left' : data.preferences.editorAlignment === 'left' ? 'right' : 'center';
+                                    handleUpdatePreferences({ editorAlignment: next });
+                                },
+                                category: 'View'
+                            },
+                            {
+                                id: 'align-left',
+                                label: 'Align Editor Left',
+                                action: () => handleUpdatePreferences({ editorAlignment: 'left' }),
+                                category: 'View'
+                            },
+                            {
+                                id: 'align-center',
+                                label: 'Align Editor Center',
+                                action: () => handleUpdatePreferences({ editorAlignment: 'center' }),
+                                category: 'View'
+                            },
+                            {
+                                id: 'align-right',
+                                label: 'Align Editor Right',
+                                action: () => handleUpdatePreferences({ editorAlignment: 'right' }),
+                                category: 'View'
+                            },
+                            {
+                                id: 'toggle-vim',      label: 'Toggle Vim Mode',
       action: () => handleUpdatePreferences({ vimMode: !data.preferences.vimMode }),
       category: 'Editor'
     },
@@ -510,7 +541,7 @@ function App() {
             />
           </>
         } />
-        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} onNavigate={handleSelectNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} />} />
+        <Route path="/note/:id" element={<NoteEditorWrapper notes={data.notes} onUpdateNote={handleUpdateNote} onNavigate={handleSelectNote} vimMode={data.preferences.vimMode} focusMode={data.preferences.focusMode} lineWrapping={data.preferences.lineWrapping} editorAlignment={data.preferences.editorAlignment} />} />
       </Routes>
       <CommandPalette 
         isOpen={isPaletteOpen} 

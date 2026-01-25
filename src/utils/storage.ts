@@ -12,6 +12,7 @@ const initialState: AppState = {
         showLineNumbers: true,
         focusMode: false,
         lineWrapping: true,
+        editorAlignment: 'center',
     },
 };
 

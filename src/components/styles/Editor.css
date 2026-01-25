@@ -236,3 +236,25 @@
 .cm-wikilink:hover {
     text-decoration: underline;
 }
+
+/* Editor Alignment */
+.editor-align-left {
+    justify-content: flex-start;
+}
+
+.editor-align-center {
+    justify-content: center;
+}
+
+.editor-align-right {
+    justify-content: flex-end;
+}
+
+/* Ensure padding on sides when not centered? Or adjust max-width? */
+.editor-align-left .editor-content {
+    margin-left: 10%; /* Some spacing */
+}
+
+.editor-align-right .editor-content {
+    margin-right: 10%;
+}

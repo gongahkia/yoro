@@ -20,6 +20,7 @@ export interface UserPreferences {
     showLineNumbers: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
+    editorAlignment: 'left' | 'center' | 'right';
 }
 
 export interface AppState {
