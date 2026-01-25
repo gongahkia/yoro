@@ -9,6 +9,7 @@ import type { AppState, Note } from './types';
 import { CommandPalette, type Command } from './components/CommandPalette';
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
+import { MindMap } from './components/MindMap';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -26,6 +27,10 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
   const note = notes.find(n => n.id === id);
 
   if (!note) return <div>Note not found</div>;
+
+  if (note.viewMode === 'mindmap') {
+      return <MindMap markdown={note.content} title={note.title} />;
+  }
 
   return (
     <Editor
@@ -251,6 +256,20 @@ function App() {
         id: 'toggle-line-numbers',
         label: 'Toggle Line Numbers',
         action: () => handleUpdatePreferences({ showLineNumbers: !data.preferences.showLineNumbers }),
+        category: 'View'
+    },
+    {
+        id: 'toggle-mindmap',
+        label: 'Toggle Mindmap View',
+        action: () => {
+            const id = getCurrentNoteId();
+            if (id) {
+                const note = data.notes.find(n => n.id === id);
+                if (note) {
+                    handleUpdateNote(id, { viewMode: note.viewMode === 'mindmap' ? 'editor' : 'mindmap' });
+                }
+            }
+        },
         category: 'View'
     },
     {

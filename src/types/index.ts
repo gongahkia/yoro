@@ -9,6 +9,7 @@ export interface Note {
     createdAt: number;
     updatedAt: number;
     isFavorite: boolean;
+    viewMode?: 'editor' | 'mindmap';
 }
 
 export type Theme = 'light' | 'dark' | 'sepia' | 'dracula' | 'nord' | 'solarized-light' | 'solarized-dark';
