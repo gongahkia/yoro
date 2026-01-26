@@ -374,7 +374,7 @@ function App() {
         },
         {
             id: 'toggle-mindmap',
-            label: 'Toggle Mindmap View',
+            label: 'Create Mindmap',
             action: () => {
                 const id = getCurrentNoteId();
                 if (id) {
@@ -677,31 +677,31 @@ function App() {
             },
             {
                 id: 'insert-mermaid-flowchart',
-                label: 'Insert Mermaid Flowchart',
+                label: 'Create Flowchart',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-flowchart' } })),
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-timeline',
-                label: 'Insert Mermaid Timeline',
+                label: 'Create Timeline',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-timeline' } })),
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-state-diagram',
-                label: 'Insert Mermaid State Diagram',
+                label: 'Create State Diagram',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-state-diagram' } })),
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-sequence-diagram',
-                label: 'Insert Mermaid Sequence Diagram',
+                label: 'Create Sequence Diagram',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-sequence-diagram' } })),
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-er-diagram',
-                label: 'Insert Mermaid ER Diagram',
+                label: 'Create ER Diagram',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-er-diagram' } })),
                 category: 'Editor'
             }
