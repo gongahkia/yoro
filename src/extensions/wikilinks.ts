@@ -36,7 +36,7 @@ export const getWikilinkCompletion = (notes: Note[]) => {
 export const getMentionCompletion = (notes: Note[]) => {
     return (context: CompletionContext): CompletionResult | null => {
         // Allow URL characters in the match
-        const word = context.matchBefore(/@(?:[\w\d\s\-_.:\/?#&=%])*/);
+        const word = context.matchBefore(/@(?:[\w\d\s\-_.:/?#&=%])*/);
         if (!word) return null;
         if (word.text === '@' && !context.explicit) {
             // Optional: Don't trigger on just '@' if you feel it's annoying, 

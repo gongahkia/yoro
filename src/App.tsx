@@ -816,7 +816,7 @@ function App() {
                 category: 'Editor'
             }
         ] : [])
-    ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote]);
+    ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate]);
 
     const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
         const parts = shortcut.split('+');

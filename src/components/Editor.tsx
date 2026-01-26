@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
@@ -43,7 +43,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
-    const handleFormatting = (view: EditorView, type: string) => {
+    const handleFormatting = useCallback((view: EditorView, type: string) => {
         const { from, to } = view.state.selection.main;
         const text = view.state.sliceDoc(from, to);
         let insert = text;
@@ -68,7 +68,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                 break;
             case 'link':
                 insert = `[${text}](url)`;
-                selectionOffset = 1; // Position cursor inside brackets if empty, or at url? Let's just wrap.
+                selectionOffset = 1; 
                 break;
             case 'blockquote':
                 insert = `> ${text}`;
@@ -95,15 +95,13 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
 
         view.dispatch(view.state.replaceSelection(insert));
 
-        // If no text was selected, place cursor inside the markers
         if (from === to && selectionOffset > 0) {
             const newPos = from + selectionOffset;
             view.dispatch({ selection: { anchor: newPos } });
         }
-    };
+    }, []);
 
-    const wrapText = (text: string, width: number): string => {
-        // Very basic wrapper preserving paragraphs
+    const wrapText = useCallback((text: string, width: number): string => {
         return text.split('\n').map(line => {
             if (line.length <= width) return line;
             const words = line.split(' ');
@@ -120,11 +118,10 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             result += currentLine.trim();
             return result;
         }).join('\n');
-    };
+    }, []);
 
     React.useEffect(() => {
         if (vimMode) {
-            // Define :q, :wq, :x to navigate home
             const goHome = () => navigate('/');
             Vim.defineEx('q', 'q', goHome);
             Vim.defineEx('wq', 'wq', goHome);
@@ -133,7 +130,6 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     }, [vimMode, navigate]);
 
     React.useEffect(() => {
-        // Reset cursor to top-left when note changes
         if (editorRef.current?.view) {
             const view = editorRef.current.view;
             view.focus();
@@ -165,12 +161,9 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             } else if (command === 'insert-horizontal-rule') {
                 view.dispatch(view.state.replaceSelection('\n---\n'));
             } else if (command === 'hard-wrap') {
-                // Basic hard wrap at 80 chars
-                // Wraps current selection or current line
                 const { from, to } = view.state.selection.main;
                 let text = view.state.sliceDoc(from, to);
                 if (from === to) {
-                    // Select current line
                     const line = view.state.doc.lineAt(from);
                     text = line.text;
                     const wrapped = wrapText(text, 80);
@@ -182,55 +175,35 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                     view.dispatch(view.state.replaceSelection(wrapped));
                 }
             } else if (command === 'insert-mermaid-flowchart') {
-                const template = `\
-| Header 1 | Header 2 |
-| :--- | :--- |
-| Cell 1 | Cell 2 |
-`;
-                view.dispatch(view.state.replaceSelection(template));
-            } else if (command === 'insert-code-block') {
-                const codeBlock = "```language\n\n```";
-                view.dispatch(view.state.replaceSelection(codeBlock));
-                const cursor = view.state.selection.main.head;
-                view.dispatch({ selection: { anchor: cursor - 4 } });
-            } else if (command === 'insert-horizontal-rule') {
-                view.dispatch(view.state.replaceSelection('\n---\n'));
-            } else if (command === 'hard-wrap') {
-                // Basic hard wrap at 80 chars
-                // Wraps current selection or current line
-                const { from, to } = view.state.selection.main;
-                let text = view.state.sliceDoc(from, to);
-                if (from === to) {
-                    // Select current line
-                    const line = view.state.doc.lineAt(from);
-                    text = line.text;
-                    const wrapped = wrapText(text, 80);
-                    view.dispatch({
-                        changes: { from: line.from, to: line.to, insert: wrapped }
-                    });
-                } else {
-                    const wrapped = wrapText(text, 80);
-                    view.dispatch(view.state.replaceSelection(wrapped));
-                }
-            } else if (command === 'insert-mermaid-flowchart') {
-                const template = `\
-| Header 1 | Header 2 |
-| :--- | :--- |
-| Cell 1 | Cell 2 |
+                const template = `\`\`\`mermaid
+flowchart TD
+    A[Start] --> B{Is it?}
+    B -- Yes --> C[OK]
+    C --> D[Rethink]
+    D --> B
+    B -- No --> E[End]
+\`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (command === 'insert-mermaid-state-diagram') {
-                const template = `\
-| Header 1 | Header 2 |
-| :--- | :--- |
-| Cell 1 | Cell 2 |
+                const template = `\`\`\`mermaid
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
+\`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (command === 'insert-mermaid-sequence-diagram') {
-                const template = `\
-| Header 1 | Header 2 |
-| :--- | :--- |
-| Cell 1 | Cell 2 |
+                const template = `\`\`\`mermaid
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+\`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
@@ -243,12 +216,9 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             const view = editorRef.current.view;
             const { noteId, lineNumber } = e.detail;
 
-            // Only act if this event is for the current note
             if (noteId && noteId !== note.id) return;
 
             if (lineNumber) {
-                // CodeMirror lines are 1-based for lineAt, but 0-based for state? 
-                // lineAt(pos) or line(n). doc.line(n) is 1-based.
                 try {
                     const line = view.state.doc.line(lineNumber);
                     view.dispatch({
@@ -256,7 +226,6 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                         scrollIntoView: true,
                         effects: EditorView.scrollIntoView(line.from, { y: 'center' })
                     });
-                    // Focus editor
                     view.focus();
                 } catch (err) {
                     console.error('Failed to navigate to line:', lineNumber, err);
@@ -270,7 +239,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             window.removeEventListener('yoro-editor-cmd', handleCommand as EventListener);
             window.removeEventListener('yoro-navigate-line', handleNavigateLine as EventListener);
         };
-    }, [note.id]); // Re-bind if note ID changes
+    }, [note.id, handleFormatting, wrapText]);
 
     const handleContainerClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('editor-content')) {
