@@ -53,7 +53,18 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
 };
 
 function App() {
-    const [data, setData] = useState<AppState>(storage.get());
+    const [data, setData] = useState<AppState>(() => {
+        const loaded = storage.get();
+        return {
+            ...loaded,
+            preferences: {
+                fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
+                fontSize: 16,
+                recentCommandIds: [],
+                ...(loaded.preferences as any)
+            }
+        };
+    });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -86,6 +97,11 @@ function App() {
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', data.preferences.theme);
     }, [data.preferences.theme]);
+
+    useEffect(() => {
+        document.documentElement.style.setProperty('--editor-font-family', data.preferences.fontFamily);
+        document.documentElement.style.setProperty('--editor-font-size', `${data.preferences.fontSize}px`);
+    }, [data.preferences.fontFamily, data.preferences.fontSize]);
 
     useEffect(() => {
         // Auto-cleanup bin items older than 30 days
@@ -155,7 +171,9 @@ function App() {
                             showLineNumbers: newPrefs.showLineNumbers,
                             focusMode: newPrefs.focusMode,
                             lineWrapping: newPrefs.lineWrapping,
-                            editorAlignment: newPrefs.editorAlignment
+                            editorAlignment: newPrefs.editorAlignment,
+                            fontFamily: newPrefs.fontFamily,
+                            fontSize: newPrefs.fontSize
                         };
                         const newContent = stringify(configObj);
                         if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -188,7 +206,7 @@ function App() {
                 const parsed = parse(configNote.content) as any;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -237,7 +255,9 @@ function App() {
                         showLineNumbers: data.preferences.showLineNumbers,
                         focusMode: data.preferences.focusMode,
                         lineWrapping: data.preferences.lineWrapping,
-                        editorAlignment: data.preferences.editorAlignment
+                        editorAlignment: data.preferences.editorAlignment,
+                        fontFamily: data.preferences.fontFamily,
+                        fontSize: data.preferences.fontSize
                     };
                     const newNote: Note = {
                         id: newId,
@@ -257,6 +277,43 @@ function App() {
                 }
             },
             category: 'General'
+        },
+        // Font Settings
+        {
+            id: 'font-sans',
+            label: 'Font: Sans Serif',
+            action: () => handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }),
+            category: 'Font'
+        },
+        {
+            id: 'font-serif',
+            label: 'Font: Serif',
+            action: () => handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' }),
+            category: 'Font'
+        },
+        {
+            id: 'font-mono',
+            label: 'Font: Monospace',
+            action: () => handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" }),
+            category: 'Font'
+        },
+        {
+            id: 'font-size-increase',
+            label: 'Font Size: Increase',
+            action: () => handleUpdatePreferences({ fontSize: Math.min(data.preferences.fontSize + 2, 32) }),
+            category: 'Font'
+        },
+        {
+            id: 'font-size-decrease',
+            label: 'Font Size: Decrease',
+            action: () => handleUpdatePreferences({ fontSize: Math.max(data.preferences.fontSize - 2, 10) }),
+            category: 'Font'
+        },
+        {
+            id: 'font-size-reset',
+            label: 'Font Size: Reset (16px)',
+            action: () => handleUpdatePreferences({ fontSize: 16 }),
+            category: 'Font'
         },
         {
             id: 'toggle-alignment',
@@ -780,6 +837,19 @@ function App() {
         window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command } }));
     };
 
+    const handleCommandExecuted = (id: string) => {
+        setData(prev => {
+            const recent = [id, ...(prev.preferences.recentCommandIds || []).filter(cid => cid !== id)].slice(0, 5);
+            return {
+                ...prev,
+                preferences: {
+                    ...prev.preferences,
+                    recentCommandIds: recent
+                }
+            };
+        });
+    };
+
     return (
         <div className="app-container">
             <Routes>
@@ -815,6 +885,8 @@ function App() {
                 isOpen={isPaletteOpen}
                 onClose={() => setIsPaletteOpen(false)}
                 commands={commands}
+                recentCommandIds={data.preferences.recentCommandIds}
+                onCommandExecuted={handleCommandExecuted}
             />
             <SearchPalette
                 isOpen={isSearchOpen}

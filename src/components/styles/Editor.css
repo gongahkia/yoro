@@ -65,8 +65,8 @@
 .editor-cm-wrapper {
     flex: 1;
     overflow: auto;
-    font-size: 1.1rem;
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: var(--editor-font-size, 16px);
+    font-family: var(--editor-font-family, 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace);
 }
 
 /* Focus Mode */

@@ -34,6 +34,9 @@ export interface UserPreferences {
     focusMode: boolean;
     lineWrapping: boolean;
     editorAlignment: 'left' | 'center' | 'right';
+    fontFamily: string;
+    fontSize: number;
+    recentCommandIds: string[];
 }
 
 export interface AppState {

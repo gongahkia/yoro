@@ -13,16 +13,35 @@ interface CommandPaletteProps {
     isOpen: boolean;
     onClose: () => void;
     commands: Command[];
+    recentCommandIds?: string[];
+    onCommandExecuted?: (id: string) => void;
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands }) => {
+export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, recentCommandIds = [], onCommandExecuted }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
 
     const filteredCommands = React.useMemo(() => {
-        if (!query) return commands;
+        if (!query) {
+            // Show recent commands first, then the rest
+            const recent = recentCommandIds
+                .map(id => commands.find(c => c.id === id))
+                .filter((c): c is Command => !!c);
+            
+            // Deduplicate: Filter out recent commands from the main list if desired, 
+            // or just show them at the top. 
+            // Let's just show recent at top, then all commands. 
+            // To avoid visual duplicates if the list is short, we could filter.
+            // But having a dedicated "Recent" section logic is complex without section headers.
+            // Let's just prepend recent ones.
+            const uniqueRecent = Array.from(new Set(recent));
+            const recentIds = new Set(uniqueRecent.map(c => c.id));
+            
+            const others = commands.filter(c => !recentIds.has(c.id));
+            return [...uniqueRecent, ...others];
+        }
         
         const lowerQuery = query.toLowerCase();
         return commands
@@ -57,7 +76,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
             .filter((item): item is { cmd: Command, score: number } => item !== null)
             .sort((a, b) => b.score - a.score)
             .map(item => item.cmd);
-    }, [commands, query]);
+    }, [commands, query, recentCommandIds]);
 
     useEffect(() => {
         if (isOpen) {
@@ -71,6 +90,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
         setSelectedIndex(0);
     }, [query]);
 
+    const executeCommand = (cmd: Command) => {
+        cmd.action();
+        onCommandExecuted?.(cmd.id);
+        onClose();
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -81,8 +106,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
         } else if (e.key === 'Enter') {
             e.preventDefault();
             if (filteredCommands[selectedIndex]) {
-                filteredCommands[selectedIndex].action();
-                onClose();
+                executeCommand(filteredCommands[selectedIndex]);
             }
         } else if (e.key === 'Escape') {
             onClose();
@@ -109,10 +133,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                         <li
                             key={cmd.id}
                             className={`command-palette-item ${index === selectedIndex ? 'selected' : ''}`}
-                            onClick={() => {
-                                cmd.action();
-                                onClose();
-                            }}
+                            onClick={() => executeCommand(cmd)}
                             onMouseEnter={() => setSelectedIndex(index)}
                         >
                             <span className="command-label">{cmd.label}</span>
