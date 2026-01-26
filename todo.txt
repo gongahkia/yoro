@@ -8,10 +8,9 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
 (A) Have the notes frontend be rendered differently on the homepage, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
 (A) Add commands: font settings, editor preferences
+(A) Support recent commands list for quick re-access
 (A) Rework how config.toml works and how it can be edited (should it be saved as a local note?)
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
-(A) Show keyboard shortcut hints alongside each command
-(A) Support recent commands list for quick re-access
 (B) Implement command categories/grouping for organized browsing
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
