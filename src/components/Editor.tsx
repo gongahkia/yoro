@@ -197,15 +197,6 @@ stateDiagram-v2
 \`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
-            } else if (command === 'insert-mermaid-sequence-diagram') {
-                const template = `\`\`\`mermaid
-sequenceDiagram
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-    Alice-)John: See you later!
-\`\`\`
-`;
-                view.dispatch(view.state.replaceSelection(template));
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }

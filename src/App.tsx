@@ -800,15 +800,6 @@ function App() {
                     if (id) handleUpdateNote(id, { viewMode: 'state' });
                 },
                 category: 'Editor'
-            },
-            {
-                id: 'insert-mermaid-sequence-diagram',
-                label: 'Create Sequence Diagram',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleUpdateNote(id, { viewMode: 'sequence' });
-                },
-                category: 'Editor'
             }
         ] : [])
     ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate]);
