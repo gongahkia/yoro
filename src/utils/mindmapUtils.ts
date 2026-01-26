@@ -1,4 +1,4 @@
-import { type Node, type Edge } from '@xyflow/react';
+import { type Node, type Edge, Position } from '@xyflow/react';
 import dagre from 'dagre';
 
 const nodeWidth = 250;
@@ -17,9 +17,9 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
         // We estimate height based on note length if possible, or just use generous default
         // Simple heuristic: if note exists, add height
         const hasNote = !!node.data.note;
-        dagreGraph.setNode(node.id, { 
-            width: nodeWidth, 
-            height: hasNote ? nodeHeight + 40 : nodeHeight 
+        dagreGraph.setNode(node.id, {
+            width: nodeWidth,
+            height: hasNote ? nodeHeight + 40 : nodeHeight
         });
     });
 
@@ -37,9 +37,9 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
                 x: nodeWithPosition.x - nodeWidth / 2,
                 y: nodeWithPosition.y - nodeHeight / 2,
             },
-            targetPosition: 'left',
-            sourcePosition: 'right',
-        } as any;
+            targetPosition: Position.Left,
+            sourcePosition: Position.Right,
+        };
     });
 
     return { nodes: layoutedNodes, edges };

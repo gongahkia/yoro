@@ -1,8 +1,7 @@
-import React, { useMemo, useEffect, useCallback } from 'react';
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, type NodeMouseHandler, useOnSelectionChange, SelectionMode } from '@xyflow/react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, useOnSelectionChange, SelectionMode, ReactFlowProvider, Position, type Node, type Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { markdownToGraph } from '../utils/mindmapUtils';
-import { updateNodeLabel, addChildNode } from '../utils/markdownMutations';
+import dagre from 'dagre';
 import MindMapNode from './MindMapNode';
 
 interface MindMapProps {
@@ -17,103 +16,228 @@ const nodeTypes = {
     mindmap: MindMapNode,
 };
 
-export const MindMap: React.FC<MindMapProps> = ({ markdown, title, noteId, onViewModeChange, onMarkdownChange }) => {
-    // We memoize the graph generation, but we need to inject callbacks
-    const { nodes: rawNodes, edges: initialEdges } = useMemo(() => markdownToGraph(markdown, title), [markdown, title]);
-    
-    const handleLabelChange = useCallback((id: string, newLabel: string) => {
-        // We need the latest nodes to find the lineNumber, but accessing state in callback might be stale
-        // simpler: find node in rawNodes (re-calculated from markdown)
-        // actually, rawNodes depends on markdown, so it's fresh.
-        const node = rawNodes.find(n => n.id === id);
-        if (node && node.data.lineNumber) {
-            const newMarkdown = updateNodeLabel(markdown, node.data.lineNumber as number, newLabel);
-            onMarkdownChange(newMarkdown);
-        }
-    }, [markdown, rawNodes, onMarkdownChange]);
+const nodeWidth = 250;
+const nodeHeight = 80;
 
-    // Inject callback
-    const initialNodes = useMemo(() => {
-        return rawNodes.map(node => ({
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: 'LR', ranksep: 150, nodesep: 60 });
+
+    nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    const layoutedNodes = nodes.map((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        return {
             ...node,
-            data: {
-                ...node.data,
-                onLabelChange: handleLabelChange
-            }
-        }));
-    }, [rawNodes, handleLabelChange]);
+            position: {
+                x: nodeWithPosition.x - nodeWidth / 2,
+                y: nodeWithPosition.y - nodeHeight / 2,
+            },
+            targetPosition: Position.Left,
+            sourcePosition: Position.Right,
+        };
+    });
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-    const [selectedNodes, setSelectedNodes] = React.useState<string[]>([]);
+    return { nodes: layoutedNodes, edges };
+};
 
-    useEffect(() => {
-        setNodes(initialNodes);
-        setEdges(initialEdges);
-    }, [initialNodes, initialEdges, setNodes, setEdges]);
+interface MindMapNodeData {
+    id: string;
+    label: string;
+    children: MindMapNodeData[];
+}
+
+const nodesToMermaid = (rootNode: MindMapNodeData): string => {
+    const lines: string[] = ['```mermaid', 'mindmap'];
+
+    const traverse = (node: MindMapNodeData, depth: number) => {
+        const indent = '  '.repeat(depth);
+        if (depth === 0) {
+            lines.push(`${indent}root((${node.label}))`);
+        } else {
+            lines.push(`${indent}${node.label}`);
+        }
+        node.children.forEach(child => traverse(child, depth + 1));
+    };
+
+    traverse(rootNode, 1);
+    lines.push('```');
+
+    return lines.join('\n');
+};
+
+const buildTreeFromNodes = (nodes: Node[], edges: Edge[], rootId: string): MindMapNodeData => {
+    const nodeMap = new Map<string, Node>();
+    nodes.forEach(n => nodeMap.set(n.id, n));
+
+    const childrenMap = new Map<string, string[]>();
+    edges.forEach(e => {
+        const children = childrenMap.get(e.source) || [];
+        children.push(e.target);
+        childrenMap.set(e.source, children);
+    });
+
+    const buildNode = (id: string): MindMapNodeData => {
+        const node = nodeMap.get(id);
+        const childIds = childrenMap.get(id) || [];
+        return {
+            id,
+            label: (node?.data.label as string) || 'Node',
+            children: childIds.map(buildNode),
+        };
+    };
+
+    return buildNode(rootId);
+};
+
+const MindMapInner: React.FC<MindMapProps> = ({ markdown, title, onViewModeChange, onMarkdownChange }) => {
+    const rootId = 'root';
+
+    const createInitialState = () => {
+        const rootNode: Node = {
+            id: rootId,
+            data: { label: title || 'Central Topic' },
+            position: { x: 0, y: 0 },
+            type: 'mindmap',
+            targetPosition: Position.Left,
+            sourcePosition: Position.Right,
+        };
+        return getLayoutedElements([rootNode], []);
+    };
+
+    const [nodeIdCounter, setNodeIdCounter] = useState(1);
+    const initialState = createInitialState();
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialState.nodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialState.edges);
+    const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+
+    const handleLabelChange = useCallback((id: string, newLabel: string) => {
+        setNodes(nds => nds.map(n =>
+            n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n
+        ));
+    }, [setNodes]);
+
+    const nodesWithCallback = nodes.map(node => ({
+        ...node,
+        data: {
+            ...node.data,
+            onLabelChange: handleLabelChange,
+        }
+    }));
 
     useOnSelectionChange({
-        onChange: ({ nodes }) => {
-            setSelectedNodes(nodes.map(n => n.id));
+        onChange: ({ nodes: selectedNds }) => {
+            setSelectedNodes(selectedNds.map(n => n.id));
         },
     });
 
-    // Handle Keyboard Shortcuts for creation
+    const addChildNode = useCallback((parentId: string) => {
+        const newId = `node-${nodeIdCounter}`;
+        setNodeIdCounter(prev => prev + 1);
+
+        const newNode: Node = {
+            id: newId,
+            data: { label: 'New Node' },
+            position: { x: 0, y: 0 },
+            type: 'mindmap',
+            targetPosition: Position.Left,
+            sourcePosition: Position.Right,
+        };
+
+        const newEdge: Edge = {
+            id: `${parentId}-${newId}`,
+            source: parentId,
+            target: newId,
+            type: 'smoothstep',
+        };
+
+        setNodes(nds => {
+            const allNodes = [...nds, newNode];
+            const allEdges = [...edges, newEdge];
+            const { nodes: layoutedNodes } = getLayoutedElements(allNodes, allEdges);
+            return layoutedNodes;
+        });
+
+        setEdges(eds => [...eds, newEdge]);
+    }, [nodeIdCounter, edges, setNodes, setEdges]);
+
+    const deleteSelectedNodes = useCallback(() => {
+        if (selectedNodes.length === 0) return;
+        if (selectedNodes.includes(rootId)) return;
+
+        const nodesToDelete = new Set(selectedNodes);
+
+        const findDescendants = (nodeId: string) => {
+            edges.forEach(e => {
+                if (e.source === nodeId && !nodesToDelete.has(e.target)) {
+                    nodesToDelete.add(e.target);
+                    findDescendants(e.target);
+                }
+            });
+        };
+        selectedNodes.forEach(findDescendants);
+
+        setNodes(nds => {
+            const remaining = nds.filter(n => !nodesToDelete.has(n.id));
+            const remainingEdges = edges.filter(e => !nodesToDelete.has(e.source) && !nodesToDelete.has(e.target));
+            const { nodes: layoutedNodes } = getLayoutedElements(remaining, remainingEdges);
+            return layoutedNodes;
+        });
+
+        setEdges(eds => eds.filter(e => !nodesToDelete.has(e.source) && !nodesToDelete.has(e.target)));
+    }, [selectedNodes, edges, setNodes, setEdges]);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Add Child: Tab
             if (e.key === 'Tab' && selectedNodes.length === 1) {
                 e.preventDefault();
-                const parentId = selectedNodes[0];
-                const parentNode = nodes.find(n => n.id === parentId);
-                
-                if (parentNode && parentNode.data.lineNumber) {
-                    const newMarkdown = addChildNode(markdown, parentNode.data.lineNumber as number, 'New Node');
-                    onMarkdownChange(newMarkdown);
-                } else if (parentNode && parentNode.id === 'root') {
-                    // Root usually doesn't have a line number in our parser (it's synthesized)
-                    // We need a special case for root to add a top-level heading/item
-                    // Append to end of file? Or start?
-                    // Let's assume appending to end of file for now as a safe default
-                    const newMarkdown = markdown + '\n\n# New Topic';
-                    onMarkdownChange(newMarkdown);
+                addChildNode(selectedNodes[0]);
+            }
+            if ((e.key === 'Backspace' || e.key === 'Delete') && selectedNodes.length > 0) {
+                const target = e.target as HTMLElement;
+                if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    deleteSelectedNodes();
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedNodes, nodes, markdown, onMarkdownChange]);
+    }, [selectedNodes, addChildNode, deleteSelectedNodes]);
 
-    const handleNodeClick: NodeMouseHandler = useCallback((e, node) => {
-        if (e.altKey || e.metaKey || e.ctrlKey) {
-             // Navigate to line number if available
-            if (node.data.lineNumber) {
-                onViewModeChange('editor');
-                setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('yoro-navigate-line', { 
-                        detail: { 
-                            noteId, 
-                            lineNumber: node.data.lineNumber 
-                        } 
-                    }));
-                }, 100);
-            }
-        }
-    }, [noteId, onViewModeChange]);
+    const handleExitMindmap = useCallback(() => {
+        const tree = buildTreeFromNodes(nodes, edges, rootId);
+        const mermaidCode = nodesToMermaid(tree);
+
+        const newMarkdown = markdown + '\n\n' + mermaidCode;
+        onMarkdownChange(newMarkdown);
+        onViewModeChange('editor');
+    }, [nodes, edges, markdown, onMarkdownChange, onViewModeChange]);
+
+    const handleCancel = useCallback(() => {
+        onViewModeChange('editor');
+    }, [onViewModeChange]);
 
     return (
         <div style={{ width: '100%', height: '100%', minHeight: '100vh', background: 'var(--bg-primary)' }}>
             <ReactFlow
-                nodes={nodes}
+                nodes={nodesWithCallback}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 nodeTypes={nodeTypes}
-                onNodeClick={handleNodeClick}
                 fitView
                 style={{ background: 'var(--bg-primary)' }}
-                deleteKeyCode={['Backspace', 'Delete']}
                 multiSelectionKeyCode={['Meta', 'Ctrl']}
                 selectionOnDrag
                 panOnScroll
@@ -121,15 +245,53 @@ export const MindMap: React.FC<MindMapProps> = ({ markdown, title, noteId, onVie
             >
                 <Background color="var(--border-color)" gap={20} />
                 <Controls style={{ fill: 'var(--text-primary)', stroke: 'var(--text-primary)' }} />
-                <Panel position="top-right" style={{ color: 'var(--text-primary)', background: 'var(--bg-primary)', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                    <div>Mindmap Mode</div>
-                    <div style={{ fontSize: '0.8em', opacity: 0.8 }}>
-                        Double-click: Edit<br/>
-                        Tab: Add Child<br/>
-                        Cmd/Alt+Click: Jump to Editor
+                <Panel position="top-right" style={{ color: 'var(--text-primary)', background: 'var(--bg-primary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Mindmap Editor</div>
+                    <div style={{ fontSize: '0.85em', opacity: 0.8, marginBottom: '12px' }}>
+                        Double-click: Edit label<br/>
+                        Tab: Add child node<br/>
+                        Delete/Backspace: Remove node
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                            onClick={handleExitMindmap}
+                            style={{
+                                padding: '6px 12px',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.9em',
+                            }}
+                        >
+                            Insert Mermaid
+                        </button>
+                        <button
+                            onClick={handleCancel}
+                            style={{
+                                padding: '6px 12px',
+                                background: 'transparent',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.9em',
+                            }}
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </Panel>
             </ReactFlow>
         </div>
+    );
+};
+
+export const MindMap: React.FC<MindMapProps> = (props) => {
+    return (
+        <ReactFlowProvider>
+            <MindMapInner {...props} />
+        </ReactFlowProvider>
     );
 };

@@ -13,6 +13,7 @@
    --editor-gutter-bg: #f7f7f7;
    --editor-gutter-text: #999;
    --caret-color: #000;
+   --selection-bg: rgba(0, 123, 255, 0.3);
 
    /* Syntax Highlighting (Light) */
    --syntax-keyword: #d73a49;
@@ -42,6 +43,7 @@
    --editor-gutter-bg: #222;
    --editor-gutter-text: #666;
    --caret-color: #fff;
+   --selection-bg: rgba(55, 148, 255, 0.4);
 
    /* Syntax Highlighting (Dark+) */
    --syntax-keyword: #569cd6;
@@ -72,6 +74,7 @@
    --editor-gutter-bg: #eaddcf;
    --editor-gutter-text: #8b7666;
    --caret-color: #5b4636;
+   --selection-bg: rgba(210, 142, 93, 0.3);
 
    /* Syntax Sepia */
    --syntax-keyword: #885f37;
@@ -101,6 +104,7 @@
    --editor-gutter-bg: #3a2e1d;
    --editor-gutter-text: #a89178;
    --caret-color: #f4ecd8;
+   --selection-bg: rgba(210, 142, 93, 0.4);
 
    --syntax-keyword: #d28e5d;
    --syntax-variable: #f4ecd8;
@@ -130,6 +134,7 @@
    --editor-gutter-bg: #282a36;
    --editor-gutter-text: #6272a4;
    --caret-color: #f8f8f2;
+   --selection-bg: rgba(68, 71, 90, 0.8);
 
    --syntax-keyword: #ff79c6;
    --syntax-variable: #f8f8f2;
@@ -158,6 +163,7 @@
    --editor-gutter-bg: #f0f0f0;
    --editor-gutter-text: #999;
    --caret-color: #282a36;
+   --selection-bg: rgba(189, 147, 249, 0.3);
 
    --syntax-keyword: #d03e94;
    --syntax-variable: #282a36;
@@ -188,6 +194,7 @@
    --editor-gutter-bg: #3b4252;
    --editor-gutter-text: #616e88;
    --caret-color: #d8dee9;
+   --selection-bg: rgba(76, 86, 106, 0.7);
 
    --syntax-keyword: #81a1c1;
    --syntax-variable: #d8dee9;
@@ -217,6 +224,7 @@
    --editor-gutter-bg: #e5e9f0;
    --editor-gutter-text: #9aa8ba;
    --caret-color: #2e3440;
+   --selection-bg: rgba(94, 129, 172, 0.3);
 
    --syntax-keyword: #81a1c1;
    --syntax-variable: #2e3440;
@@ -248,6 +256,7 @@
    --editor-gutter-bg: #eee8d5;
    --editor-gutter-text: #93a1a1;
    --caret-color: #657b83;
+   --selection-bg: rgba(38, 139, 210, 0.2);
 
    --syntax-keyword: #859900;
    --syntax-variable: #657b83;
@@ -276,6 +285,7 @@
    --editor-gutter-bg: #073642;
    --editor-gutter-text: #586e75;
    --caret-color: #839496;
+   --selection-bg: rgba(38, 139, 210, 0.3);
 
    --syntax-keyword: #859900;
    --syntax-variable: #839496;
@@ -306,6 +316,7 @@
    --editor-gutter-bg: #32302f;
    --editor-gutter-text: #928374;
    --caret-color: #ebdbb2;
+   --selection-bg: rgba(80, 73, 69, 0.8);
 
    --syntax-keyword: #fb4934;
    --syntax-variable: #ebdbb2;
@@ -334,6 +345,7 @@
    --editor-gutter-bg: #ebdbb2;
    --editor-gutter-text: #928374;
    --caret-color: #3c3836;
+   --selection-bg: rgba(213, 196, 161, 0.7);
 
    --syntax-keyword: #9d0006;
    --syntax-variable: #3c3836;
@@ -364,6 +376,7 @@
    --editor-gutter-bg: #374247;
    --editor-gutter-text: #859289;
    --caret-color: #d3c6aa;
+   --selection-bg: rgba(64, 76, 81, 0.8);
 
    --syntax-keyword: #e67e80;
    --syntax-variable: #d3c6aa;
@@ -392,6 +405,7 @@
    --editor-gutter-bg: #efebd4;
    --editor-gutter-text: #a6b0a0;
    --caret-color: #5c6a72;
+   --selection-bg: rgba(147, 178, 89, 0.25);
 
    --syntax-keyword: #f85552;
    --syntax-variable: #5c6a72;
@@ -423,6 +437,7 @@
    --editor-gutter-bg: #313244;
    --editor-gutter-text: #6c7086;
    --caret-color: #cdd6f4;
+   --selection-bg: rgba(69, 71, 90, 0.8);
 
    --syntax-keyword: #cba6f7;
    --syntax-variable: #cdd6f4;
@@ -453,6 +468,7 @@
    --editor-gutter-bg: #e6e9ef;
    --editor-gutter-text: #9ca0b0;
    --caret-color: #4c4f69;
+   --selection-bg: rgba(30, 102, 245, 0.2);
 
    --syntax-keyword: #8839ef;
    --syntax-variable: #4c4f69;
@@ -486,6 +502,7 @@
    --editor-gutter-text: #908caa;
    /* Subtle */
    --caret-color: #ebbcba;
+   --selection-bg: rgba(64, 61, 82, 0.8);
 
    --syntax-keyword: #ebbcba;
    --syntax-variable: #e0def4;
@@ -516,6 +533,7 @@
    --editor-gutter-bg: #fffaf3;
    --editor-gutter-text: #9893a5;
    --caret-color: #575279;
+   --selection-bg: rgba(215, 130, 126, 0.25);
 
    --syntax-keyword: #d7827e;
    --syntax-variable: #575279;
@@ -545,6 +563,7 @@
    --editor-gutter-bg: #1a1b26;
    --editor-gutter-text: #565f89;
    --caret-color: #a9b1d6;
+   --selection-bg: rgba(65, 72, 104, 0.7);
 
    --syntax-keyword: #bb9af7;
    --syntax-variable: #a9b1d6;
@@ -573,6 +592,7 @@
    --editor-gutter-bg: #d5d6db;
    --editor-gutter-text: #9699a3;
    --caret-color: #343b58;
+   --selection-bg: rgba(52, 84, 138, 0.25);
 
    --syntax-keyword: #5a4a78;
    --syntax-variable: #343b58;
@@ -603,6 +623,7 @@
    --editor-gutter-bg: #1f1f28;
    --editor-gutter-text: #727169;
    --caret-color: #dcd7ba;
+   --selection-bg: rgba(54, 54, 70, 0.8);
 
    --syntax-keyword: #ffa066;
    --syntax-variable: #dcd7ba;
@@ -634,6 +655,7 @@
    --editor-gutter-bg: #f2ecbc;
    --editor-gutter-text: #716e61;
    --caret-color: #545464;
+   --selection-bg: rgba(67, 85, 154, 0.25);
 
    --syntax-keyword: #d55fde;
    --syntax-variable: #545464;

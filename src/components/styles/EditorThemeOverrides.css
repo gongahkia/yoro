@@ -93,3 +93,29 @@
 .editor-container {
     background-color: var(--editor-bg, var(--bg-primary)) !important;
 }
+
+/* Vim Visual Mode Selection */
+.editor-cm-wrapper .cm-selectionBackground {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+.editor-cm-wrapper .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Vim visual line mode - ensure full line selection */
+.editor-cm-wrapper .cm-selectionLayer .cm-selectionBackground {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Vim fat cursor for normal mode */
+.editor-cm-wrapper .cm-fat-cursor .cm-cursor {
+    background-color: var(--caret-color, var(--text-primary)) !important;
+    border: none !important;
+    opacity: 0.7;
+}
+
+.editor-cm-wrapper .cm-fat-cursor-mark {
+    background-color: var(--caret-color, var(--text-primary)) !important;
+    opacity: 0.7;
+}
