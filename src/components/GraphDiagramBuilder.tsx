@@ -140,7 +140,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         }));
     }, [setNodes]);
 
-    const getInitialState = () => {
+    const getInitialState = useCallback(() => {
         let initialLabel = 'Start';
         if (diagramType === 'state') initialLabel = '[*]';
 
@@ -151,7 +151,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
             type: 'custom',
         };
         return getLayoutedElements([rootNode], []);
-    };
+    }, [diagramType, onLabelChange]);
 
     // We only want to run getInitialState once, but it depends on onLabelChange which changes?
     // Actually we should initialize once. 
@@ -175,7 +175,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
             setNodes(state.nodes);
             setEdges(state.edges);
         }
-    }, []); // Run once on mount (effectively)
+    }, [getInitialState, nodes.length, nodeIdCounter, setNodes, setEdges]); // Added missing dependencies
 
     // Update handler when it changes? 
     // Actually it's better to keep handler stable.
