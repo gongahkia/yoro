@@ -13,7 +13,8 @@ import { Editor } from './components/Editor';
 import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
-import { GraphDiagramBuilder } from './components/GraphDiagramBuilder';
+import { FlowchartBuilder } from './components/FlowchartBuilder';
+import { StateDiagramBuilder } from './components/StateDiagramBuilder';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -45,12 +46,20 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
         );
     }
 
-    if (note.viewMode === 'flowchart' || note.viewMode === 'state') {
+    if (note.viewMode === 'flowchart') {
         return (
-            <GraphDiagramBuilder
+            <FlowchartBuilder
                 note={note}
                 onUpdateNote={onUpdateNote}
-                diagramType={note.viewMode}
+            />
+        );
+    }
+
+    if (note.viewMode === 'state') {
+        return (
+            <StateDiagramBuilder
+                note={note}
+                onUpdateNote={onUpdateNote}
             />
         );
     }
