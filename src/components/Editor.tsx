@@ -43,6 +43,85 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     const editorRef = React.useRef<any>(null);
     const navigate = useNavigate();
 
+    const handleFormatting = (view: EditorView, type: string) => {
+        const { from, to } = view.state.selection.main;
+        const text = view.state.sliceDoc(from, to);
+        let insert = text;
+        let selectionOffset = 0;
+
+        switch (type) {
+            case 'bold':
+                insert = `**${text}**`;
+                selectionOffset = 2;
+                break;
+            case 'italic':
+                insert = `*${text}*`;
+                selectionOffset = 1;
+                break;
+            case 'strikethrough':
+                insert = `~~${text}~~`;
+                selectionOffset = 2;
+                break;
+            case 'code':
+                insert = `\`${text}\``;
+                selectionOffset = 1;
+                break;
+            case 'link':
+                insert = `[${text}](url)`;
+                selectionOffset = 1; // Position cursor inside brackets if empty, or at url? Let's just wrap.
+                break;
+            case 'blockquote':
+                insert = `> ${text}`;
+                break;
+            case 'list-ul':
+                insert = `- ${text}`;
+                break;
+            case 'list-ol':
+                insert = `1. ${text}`;
+                break;
+            case 'checklist':
+                insert = `- [ ] ${text}`;
+                break;
+            case 'h1':
+                insert = `# ${text}`;
+                break;
+            case 'h2':
+                insert = `## ${text}`;
+                break;
+            case 'h3':
+                insert = `### ${text}`;
+                break;
+        }
+
+        view.dispatch(view.state.replaceSelection(insert));
+
+        // If no text was selected, place cursor inside the markers
+        if (from === to && selectionOffset > 0) {
+            const newPos = from + selectionOffset;
+            view.dispatch({ selection: { anchor: newPos } });
+        }
+    };
+
+    const wrapText = (text: string, width: number): string => {
+        // Very basic wrapper preserving paragraphs
+        return text.split('\n').map(line => {
+            if (line.length <= width) return line;
+            const words = line.split(' ');
+            let currentLine = '';
+            let result = '';
+
+            words.forEach(word => {
+                if ((currentLine + word).length > width) {
+                    result += currentLine.trim() + '\n';
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            });
+            result += currentLine.trim();
+            return result;
+        }).join('\n');
+    };
+
     React.useEffect(() => {
         if (vimMode) {
             // Define :q, :wq, :x to navigate home
@@ -172,85 +251,6 @@ sequenceDiagram
             window.removeEventListener('yoro-navigate-line' as any, handleNavigateLine);
         };
     }, [note.id]); // Re-bind if note ID changes
-
-    const handleFormatting = (view: any, type: string) => {
-        const { from, to } = view.state.selection.main;
-        const text = view.state.sliceDoc(from, to);
-        let insert = text;
-        let selectionOffset = 0;
-
-        switch (type) {
-            case 'bold':
-                insert = `**${text}**`;
-                selectionOffset = 2;
-                break;
-            case 'italic':
-                insert = `*${text}*`;
-                selectionOffset = 1;
-                break;
-            case 'strikethrough':
-                insert = `~~${text}~~`;
-                selectionOffset = 2;
-                break;
-            case 'code':
-                insert = `\`${text}\``;
-                selectionOffset = 1;
-                break;
-            case 'link':
-                insert = `[${text}](url)`;
-                selectionOffset = 1; // Position cursor inside brackets if empty, or at url? Let's just wrap.
-                break;
-            case 'blockquote':
-                insert = `> ${text}`;
-                break;
-            case 'list-ul':
-                insert = `- ${text}`;
-                break;
-            case 'list-ol':
-                insert = `1. ${text}`;
-                break;
-            case 'checklist':
-                insert = `- [ ] ${text}`;
-                break;
-            case 'h1':
-                insert = `# ${text}`;
-                break;
-            case 'h2':
-                insert = `## ${text}`;
-                break;
-            case 'h3':
-                insert = `### ${text}`;
-                break;
-        }
-
-        view.dispatch(view.state.replaceSelection(insert));
-
-        // If no text was selected, place cursor inside the markers
-        if (from === to && selectionOffset > 0) {
-            const newPos = from + selectionOffset;
-            view.dispatch({ selection: { anchor: newPos } });
-        }
-    };
-
-    const wrapText = (text: string, width: number): string => {
-        // Very basic wrapper preserving paragraphs
-        return text.split('\n').map(line => {
-            if (line.length <= width) return line;
-            const words = line.split(' ');
-            let currentLine = '';
-            let result = '';
-
-            words.forEach(word => {
-                if ((currentLine + word).length > width) {
-                    result += currentLine.trim() + '\n';
-                    currentLine = '';
-                }
-                currentLine += word + ' ';
-            });
-            result += currentLine.trim();
-            return result;
-        }).join('\n');
-    };
 
     const handleContainerClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('editor-content')) {

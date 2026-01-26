@@ -78,14 +78,14 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
 
 function App() {
     const [data, setData] = useState<AppState>(() => {
-        const loaded = storage.get();
+        const loaded = storage.get() as AppState;
         return {
             ...loaded,
             preferences: {
-                fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
-                fontSize: 16,
-                recentCommandIds: [],
-                ...(loaded.preferences as any)
+                ...loaded.preferences,
+                fontFamily: loaded.preferences.fontFamily || "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
+                fontSize: loaded.preferences.fontSize || 16,
+                recentCommandIds: loaded.preferences.recentCommandIds || [],
             }
         };
     });
@@ -171,8 +171,8 @@ function App() {
                     // Clean URL and navigate
                     navigate(`/note/${newNote.id}`, { replace: true });
                 }
-            } catch (e) {
-                console.error('Failed to import shared note:', e);
+            } catch {
+                console.error('Failed to import shared note:');
                 alert('Failed to load shared note. The link might be corrupted.');
             }
         }
@@ -227,7 +227,7 @@ function App() {
         const configNote = data.notes.find(n => n.title === 'config.toml');
         if (configNote) {
             try {
-                const parsed = parse(configNote.content) as any;
+                const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
                 const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize'];
@@ -283,14 +283,15 @@ function App() {
                         fontFamily: data.preferences.fontFamily,
                         fontSize: data.preferences.fontSize
                     };
+                    const now = Date.now();
                     const newNote: Note = {
                         id: newId,
                         title: 'config.toml',
                         content: stringify(configObj),
                         format: 'markdown', // acts as text
                         tags: ['config'],
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
+                        createdAt: now,
+                        updatedAt: now,
                         isFavorite: false,
                     };
                     setData(prev => ({
@@ -765,20 +766,23 @@ function App() {
 
     const handleCreateNote = () => {
         const newId = crypto.randomUUID();
-        const newNote: Note = {
-            id: newId,
-            title: '',
-            content: '',
-            format: 'markdown',
-            tags: [],
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            isFavorite: false,
-        };
-        setData(prev => ({
-            ...prev,
-            notes: [newNote, ...prev.notes]
-        }));
+        setData(prev => {
+            const now = Date.now();
+            const newNote: Note = {
+                id: newId,
+                title: '',
+                content: '',
+                format: 'markdown',
+                tags: [],
+                createdAt: now,
+                updatedAt: now,
+                isFavorite: false,
+            };
+            return {
+                ...prev,
+                notes: [newNote, ...prev.notes]
+            };
+        });
         analytics.track('create_note');
         navigate(`/note/${newId}`);
     };
