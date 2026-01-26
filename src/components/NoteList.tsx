@@ -86,7 +86,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     return (
         <div className="note-list-container">
             <div className="search-hint">
-                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> then <kbd>/</kbd> to search
+                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
             <div className="circular-deck-container" ref={deckRef}>
