@@ -189,14 +189,14 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
             >
                 <Background />
                 <Controls />
-                <Panel position="top-right" style={{ padding: 10, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 4 }}>
-                    <h3>{diagramType.toUpperCase()} Builder</h3>
+                <Panel position="top-right" style={{ padding: 10, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 4, color: 'var(--text-primary)' }}>
+                    <h3 style={{ margin: '0 0 10px 0' }}>{diagramType.toUpperCase()} Builder</h3>
                     <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
-                        <button onClick={handleAddNode}>Add Node (Select parent to connect)</button>
-                        <button onClick={handleDelete} disabled={selectedNodes.length === 0}>Delete Selected</button>
-                        <hr />
-                        <button onClick={handleInsert}>Insert Diagram</button>
-                        <button onClick={handleCancel}>Cancel</button>
+                        <button onClick={handleAddNode} style={{ background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>Add Node</button>
+                        <button onClick={handleDelete} disabled={selectedNodes.length === 0} style={{ background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', opacity: selectedNodes.length === 0 ? 0.5 : 1 }}>Delete Selected</button>
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', width: '100%', margin: '5px 0' }} />
+                        <button onClick={handleInsert} style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}>Insert Diagram</button>
+                        <button onClick={handleCancel} style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>Cancel</button>
                     </div>
                 </Panel>
             </ReactFlow>
