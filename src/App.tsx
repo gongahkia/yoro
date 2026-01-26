@@ -272,32 +272,34 @@ function App() {
                 } else {
                     // Create config note with current defaults
                     const newId = crypto.randomUUID();
-                    const configObj = {
-                        theme: data.preferences.theme,
-                        vimMode: data.preferences.vimMode,
-                        sidebarVisible: data.preferences.sidebarVisible,
-                        showLineNumbers: data.preferences.showLineNumbers,
-                        focusMode: data.preferences.focusMode,
-                        lineWrapping: data.preferences.lineWrapping,
-                        editorAlignment: data.preferences.editorAlignment,
-                        fontFamily: data.preferences.fontFamily,
-                        fontSize: data.preferences.fontSize
-                    };
-                    const now = Date.now();
-                    const newNote: Note = {
-                        id: newId,
-                        title: 'config.toml',
-                        content: stringify(configObj),
-                        format: 'markdown', // acts as text
-                        tags: ['config'],
-                        createdAt: now,
-                        updatedAt: now,
-                        isFavorite: false,
-                    };
-                    setData(prev => ({
-                        ...prev,
-                        notes: [newNote, ...prev.notes]
-                    }));
+                    setData(prev => {
+                        const now = Date.now();
+                        const configObj = {
+                            theme: prev.preferences.theme,
+                            vimMode: prev.preferences.vimMode,
+                            sidebarVisible: prev.preferences.sidebarVisible,
+                            showLineNumbers: prev.preferences.showLineNumbers,
+                            focusMode: prev.preferences.focusMode,
+                            lineWrapping: prev.preferences.lineWrapping,
+                            editorAlignment: prev.preferences.editorAlignment,
+                            fontFamily: prev.preferences.fontFamily,
+                            fontSize: prev.preferences.fontSize
+                        };
+                        const newNote: Note = {
+                            id: newId,
+                            title: 'config.toml',
+                            content: stringify(configObj),
+                            format: 'markdown', // acts as text
+                            tags: ['config'],
+                            createdAt: now,
+                            updatedAt: now,
+                            isFavorite: false,
+                        };
+                        return {
+                            ...prev,
+                            notes: [newNote, ...prev.notes]
+                        };
+                    });
                     handleSelectNote(newId);
                 }
             },

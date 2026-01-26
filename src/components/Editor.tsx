@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
-...
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
+import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
