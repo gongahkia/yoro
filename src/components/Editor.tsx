@@ -134,15 +134,6 @@ sequenceDiagram
 \`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
-            } else if (command === 'insert-mermaid-er-diagram') {
-                const template = `\`\`\`mermaid
-erDiagram
-    CUSTOMER ||--o{ ORDER : places
-    ORDER ||--|{ LINE-ITEM : contains
-    CUSTOMER }|..|{ DELIVERY-ADDRESS : uses
-\`\`\`
-`;
-                view.dispatch(view.state.replaceSelection(template));
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }
