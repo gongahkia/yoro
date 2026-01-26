@@ -85,6 +85,10 @@ export const NoteList: React.FC<NoteListProps> = ({
 
     return (
         <div className="note-list-container">
+            <div className="search-hint">
+                Press <kbd>/</kbd> to search
+                {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
+            </div>
             <div className="circular-deck-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
                     <div 

@@ -637,6 +637,24 @@ function App() {
                 return;
             }
 
+            // "/" to open search palette (only on home page and not in an input)
+            if (e.key === '/' && location.pathname === '/') {
+                const target = e.target as HTMLElement;
+                const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+                if (!isInput && !isPaletteOpen && !isSearchOpen) {
+                    e.preventDefault();
+                    setIsSearchOpen(true);
+                    return;
+                }
+            }
+
+            // Cmd+K or Ctrl+K to open search palette (on home page)
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k' && location.pathname === '/') {
+                e.preventDefault();
+                setIsSearchOpen(true);
+                return;
+            }
+
             // Check commands
             for (const cmd of commands) {
                 if (cmd.shortcut && matchShortcut(e, cmd.shortcut)) {
@@ -649,7 +667,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [commands]);
+    }, [commands, location.pathname, isPaletteOpen, isSearchOpen]);
 
     const handleCreateNote = () => {
         const newId = crypto.randomUUID();
@@ -766,16 +784,16 @@ function App() {
         <div className="app-container">
             <Routes>
                 <Route path="/" element={
-                    <>
-
-                        <NoteList
-                            notes={data.notes}
-                            onSelectNote={handleSelectNote}
-                            onDeleteNote={handleDeleteNote}
-                            onDuplicateNote={handleDuplicateNote}
-                            onRestoreNote={handleRestoreNote}
-                        />
-                    </>
+                    <NoteList
+                        notes={data.notes}
+                        onSelectNote={handleSelectNote}
+                        onDeleteNote={handleDeleteNote}
+                        onDuplicateNote={handleDuplicateNote}
+                        onRestoreNote={handleRestoreNote}
+                        searchQuery={searchQuery}
+                        selectedTag={selectedTag}
+                        onTagChange={setSelectedTag}
+                    />
                 } />
                 <Route path="/note/:id" element={
                     <div className="main-editor-layout" style={{ display: 'flex', height: '100%', width: '100%' }}>
@@ -797,6 +815,15 @@ function App() {
                 isOpen={isPaletteOpen}
                 onClose={() => setIsPaletteOpen(false)}
                 commands={commands}
+            />
+            <SearchPalette
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedTag={selectedTag}
+                onTagSelect={setSelectedTag}
+                allTags={allTags}
             />
             <ConfirmationModal
                 isOpen={deleteConfirmation.isOpen}
