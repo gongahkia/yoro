@@ -13,6 +13,9 @@ import { Editor } from './components/Editor';
 import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { GraphDiagramBuilder } from './components/GraphDiagramBuilder';
+import { TimelineBuilder } from './components/TimelineBuilder';
+import { SequenceBuilder } from './components/SequenceBuilder';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -42,6 +45,24 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
                 onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
             />
         );
+    }
+
+    if (note.viewMode === 'flowchart' || note.viewMode === 'state' || note.viewMode === 'er') {
+        return (
+            <GraphDiagramBuilder
+                note={note}
+                onUpdateNote={onUpdateNote}
+                diagramType={note.viewMode}
+            />
+        );
+    }
+
+    if (note.viewMode === 'timeline') {
+        return <TimelineBuilder note={note} onUpdateNote={onUpdateNote} />;
+    }
+
+    if (note.viewMode === 'sequence') {
+        return <SequenceBuilder note={note} onUpdateNote={onUpdateNote} />;
     }
 
     return (
@@ -678,31 +699,48 @@ function App() {
             {
                 id: 'insert-mermaid-flowchart',
                 label: 'Create Flowchart',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-flowchart' } })),
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) {
+                        handleUpdateNote(id, { viewMode: 'flowchart' });
+                    }
+                },
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-timeline',
                 label: 'Create Timeline',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-timeline' } })),
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) handleUpdateNote(id, { viewMode: 'timeline' });
+                },
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-state-diagram',
                 label: 'Create State Diagram',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-state-diagram' } })),
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) handleUpdateNote(id, { viewMode: 'state' });
+                },
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-sequence-diagram',
                 label: 'Create Sequence Diagram',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-sequence-diagram' } })),
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) handleUpdateNote(id, { viewMode: 'sequence' });
+                },
                 category: 'Editor'
             },
             {
                 id: 'insert-mermaid-er-diagram',
                 label: 'Create ER Diagram',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-mermaid-er-diagram' } })),
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) handleUpdateNote(id, { viewMode: 'er' });
+                },
                 category: 'Editor'
             }
         ] : [])
