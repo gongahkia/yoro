@@ -34,7 +34,8 @@ export const getWikilinkCompletion = (notes: Note[]) => {
 
 export const getMentionCompletion = (notes: Note[]) => {
     return (context: CompletionContext): CompletionResult | null => {
-        const word = context.matchBefore(/@[\w\d\s\-_]*/);
+        // Allow URL characters in the match
+        const word = context.matchBefore(/@(?:[\w\d\s\-_\.:\/?#&=%])*/);
         if (!word) return null;
         if (word.text === '@' && !context.explicit) {
             // Optional: Don't trigger on just '@' if you feel it's annoying, 
@@ -42,15 +43,68 @@ export const getMentionCompletion = (notes: Note[]) => {
             // allow implicit trigger.
         }
 
-        const query = word.text.slice(1).toLowerCase();
-        const options = notes
-            .filter(n => (n.title || 'Untitled').toLowerCase().includes(query))
+        const query = word.text.slice(1);
+        const lowerQuery = query.toLowerCase();
+        
+        const options: any[] = notes
+            .filter(n => (n.title || 'Untitled').toLowerCase().includes(lowerQuery))
             .map(n => ({
                 label: n.title || 'Untitled',
                 apply: `[${n.title || 'Untitled'}](/note/${n.id})`,
                 detail: 'Link',
                 boost: 99
             }));
+
+        // Check for URL
+        const isUrl = /^(https?:\/\/|www\.)/i.test(query);
+        if (isUrl) {
+            const url = query.startsWith('www.') ? 'https://' + query : query;
+            options.unshift({
+                label: `Link to ${query}`,
+                displayLabel: `Link to ${query}`,
+                detail: 'External Link',
+                boost: 100,
+                apply: (view: EditorView, completion: any, from: number, to: number) => {
+                    const initialLabel = url;
+                    const insertText = `[${initialLabel}](${url})`;
+                    view.dispatch({
+                        changes: { from, to, insert: insertText }
+                    });
+
+                    // Attempt to fetch title
+                    fetch(url)
+                        .then(res => res.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const title = doc.querySelector('title')?.innerText?.trim();
+                            
+                            if (title) {
+                                // We need to find the text we inserted to replace it safely.
+                                // We look for the exact string we inserted starting from 'from'.
+                                // This is a heuristic but should work for immediate updates.
+                                const currentDoc = view.state.doc.toString();
+                                const linkStr = `[${initialLabel}](${url})`;
+                                const foundIndex = currentDoc.indexOf(linkStr, from);
+                                
+                                // Ensure we are still close to where we inserted (sanity check)
+                                if (foundIndex !== -1 && Math.abs(foundIndex - from) < 10) {
+                                    view.dispatch({
+                                        changes: {
+                                            from: foundIndex,
+                                            to: foundIndex + linkStr.length,
+                                            insert: `[${title}](${url})`
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            console.warn('Failed to fetch link title', err);
+                        });
+                }
+            });
+        }
 
         return {
             from: word.from,
