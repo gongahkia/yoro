@@ -29,7 +29,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Implement drag-and-drop node repositioning (Persistence)
-(B) Add/delete/edit nodes with keyboard shortcuts (Bi-directional editing)
+(x) Add/delete/edit nodes with keyboard shortcuts (Bi-directional editing: Edit Label & Add Child)
 (A) Support collapsing and expanding branches
 (A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
 (x) Convert markdown headings and lists into mindmap nodes automatically

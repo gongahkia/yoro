@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useCallback } from 'react';
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, type NodeMouseHandler, useOnSelectionChange } from '@xyflow/react';
+import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, type NodeMouseHandler, useOnSelectionChange, SelectionMode } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { markdownToGraph } from '../utils/mindmapUtils';
 import { updateNodeLabel, addChildNode } from '../utils/markdownMutations';
@@ -85,34 +85,6 @@ export const MindMap: React.FC<MindMapProps> = ({ markdown, title, noteId, onVie
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedNodes, nodes, markdown, onMarkdownChange]);
 
-    const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
-        // Only navigate if NOT editing (handled in node)
-        // But how do we know? Node handles double click. Single click selects.
-        // We might want to require Modifier+Click to navigate, or just double click to edit, single click to select?
-        // Current: Click navigates.
-        // User wants to edit. Double click edits.
-        // If I single click to select (for Tab creation), I also navigate away... that's annoying.
-        
-        // CHANGE: Click selects. Cmd+Click navigates. Double Click edits.
-        
-        // Let's check for modifier
-        // Or actually, let's make Navigation explicit via a button or specific area?
-        // Or just delay navigation?
-        
-        // For now, let's keep Click = Navigate, but maybe we disable navigation if we want to support selection-based creation?
-        // If I click to select, I leave the page. That breaks creation flow.
-        
-        // PROPOSAL:
-        // Single Click: Select node (for keyboard actions)
-        // Double Click: Edit Text
-        // Cmd/Ctrl + Click: Navigate to Editor
-        
-        // Note: ReactFlow handles selection on click automatically.
-        // We just need to STOP the auto-navigation on simple click.
-        
-        // Let's change navigation to Alt+Click or Cmd+Click
-    }, []);
-
     const handleNodeClick: NodeMouseHandler = useCallback((e, node) => {
         if (e.altKey || e.metaKey || e.ctrlKey) {
              // Navigate to line number if available
@@ -145,7 +117,7 @@ export const MindMap: React.FC<MindMapProps> = ({ markdown, title, noteId, onVie
                 multiSelectionKeyCode={['Meta', 'Ctrl']}
                 selectionOnDrag
                 panOnScroll
-                selectionMode={1} // Partial
+                selectionMode={SelectionMode.Partial}
             >
                 <Background color="var(--border-color)" gap={20} />
                 <Controls style={{ fill: 'var(--text-primary)', stroke: 'var(--text-primary)' }} />
