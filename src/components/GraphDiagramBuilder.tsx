@@ -112,70 +112,48 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         setSelectedNodes([]);
     }, [nodes, edges, selectedNodes, setNodes, setEdges]);
 
-    // Handle Selection
-    const onSelectionChange = useCallback(({ nodes }: { nodes: Node[] }) => {
-        setSelectedNodes(nodes.map(n => n.id));
-    }, []);
+    // Handle Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore if typing in an input
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
 
-    const generateMermaid = () => {
-        // Generate Mermaid Code based on Nodes/Edges/Type
-        let code = '';
-        if (diagramType === 'flowchart') {
-            code = '```mermaid\nflowchart TD\n';
-            // Nodes
-            nodes.forEach(n => {
-                // Sanitize label
-                const label = (n.data.label as string).replace(/["()]/g, '');
-                code += `    ${n.id}["${label}"]\n`;
-            });
-            // Edges
-            edges.forEach(e => {
-                code += `    ${e.source} --> ${e.target}\n`;
-            });
-            code += '```';
-        } else if (diagramType === 'state') {
-            code = '```mermaid\nstateDiagram-v2\n';
-            nodes.forEach(n => {
-                const label = n.data.label as string;
-                if (label === '[*]') return; // Handled in edges mostly or implicit
-                code += `    ${label}\n`;
-            });
-            edges.forEach(e => {
-                const sourceNode = nodes.find(n => n.id === e.source);
-                const targetNode = nodes.find(n => n.id === e.target);
-                const sLabel = sourceNode ? sourceNode.data.label : 'state';
-                const tLabel = targetNode ? targetNode.data.label : 'state';
-                code += `    ${sLabel} --> ${tLabel}\n`;
-            });
-            code += '```';
-        } else if (diagramType === 'er') {
-            code = '```mermaid\nerDiagram\n';
-            nodes.forEach(n => {
-                const label = n.data.label as string;
-                code += `    ${label} {\n    }\n`;
-            });
-            edges.forEach(e => {
-                const sourceNode = nodes.find(n => n.id === e.source);
-                const targetNode = nodes.find(n => n.id === e.target);
-                const sLabel = sourceNode ? sourceNode.data.label : 'ENTITY';
-                const tLabel = targetNode ? targetNode.data.label : 'ENTITY';
-                // Default relationship
-                code += `    ${sLabel} ||--o{ ${tLabel} : has\n`;
-            });
-            code += '```';
-        }
-        return code;
-    };
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                handleAddNode(); // This function already handles connecting to selected node
+            }
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+                handleDelete();
+            }
+        };
 
-    const handleInsert = () => {
-        const code = generateMermaid();
-        const newContent = note.content + '\n\n' + code;
-        onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
-    };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleAddNode, handleDelete]);
 
-    const handleCancel = () => {
-        onUpdateNote(note.id, { viewMode: 'editor' });
-    };
+    const handleLabelChange = useCallback((id: string, newLabel: string) => {
+        setNodes(nds => nds.map(n =>
+            n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n
+        ));
+    }, [setNodes]);
+
+    // We can use the MindMapNode component or a generic one that supports double click to edit?
+    // For now, let's just stick to default nodes but maybe we need a custom node to edit labels easily?
+    // The current implementation uses standard nodes. Editing labels via double click isn't implemented in the standard node.
+    // MindMap uses a custom node.
+    // user didn't explicitly ask for label editing interactivity change, just "controls/buttons look".
+    // However, the instructions in MindMap say "Double-click: Edit label".
+    // If I put that in instructions, I should probably support it.
+    // But GraphDiagramBuilder currently relies on... wait, it doesn't have label editing UI except the sidebar in the previous version?
+    // Actually the previous version didn't have label editing visible in the snippets I saw!
+    // It just had "Add Node" and "Delete".
+    // Let's stick to the styling request. I will list interactions that WORK.
+    // "Tab: Add (connected) node", "Delete: Remove node".
+    // I won't list "Double-click: Edit label" unless I implement it.
+    // Given the prompt "fix how the controls/buttons look", I should prioritize the visual aspect.
+    // But for "keybinds as specified", I'll add Tab/Delete.
 
     return (
         <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -186,17 +164,20 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                 onEdgesChange={onEdgesChange}
                 onSelectionChange={onSelectionChange}
                 fitView
+                deleteKeyCode={['Backspace', 'Delete']}
+                multiSelectionKeyCode={['Meta', 'Ctrl']}
             >
-                <Background />
-                <Controls />
-                <Panel position="top-right" style={{ padding: 10, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 4, color: 'var(--text-primary)' }}>
-                    <h3 style={{ margin: '0 0 10px 0' }}>{diagramType.toUpperCase()} Builder</h3>
-                    <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
-                        <button onClick={handleAddNode} style={{ background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>Add Node</button>
-                        <button onClick={handleDelete} disabled={selectedNodes.length === 0} style={{ background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', opacity: selectedNodes.length === 0 ? 0.5 : 1 }}>Delete Selected</button>
-                        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', width: '100%', margin: '5px 0' }} />
-                        <button onClick={handleInsert} style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}>Insert Diagram</button>
-                        <button onClick={handleCancel} style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>Cancel</button>
+                <Background color="var(--border-color)" gap={20} />
+                <Controls style={{ fill: 'var(--text-primary)', stroke: 'var(--text-primary)' }} />
+                <Panel position="top-right" style={{ color: 'var(--text-primary)', background: 'var(--bg-primary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>{diagramType.toUpperCase()} Editor</div>
+                    <div style={{ fontSize: '0.85em', opacity: 0.8, marginBottom: '12px' }}>
+                        Tab: Add linked node<br />
+                        Delete/Backspace: Remove node
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={handleInsert} style={{ padding: '6px 12px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9em' }}>Insert Mermaid</button>
+                        <button onClick={handleCancel} style={{ padding: '6px 12px', background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9em' }}>Cancel</button>
                     </div>
                 </Panel>
             </ReactFlow>
