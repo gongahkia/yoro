@@ -39,6 +39,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
                 title={note.title} 
                 noteId={note.id}
                 onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
+                onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
             />
         );
     }
