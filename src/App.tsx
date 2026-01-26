@@ -14,7 +14,6 @@ import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { GraphDiagramBuilder } from './components/GraphDiagramBuilder';
-import { TimelineBuilder } from './components/TimelineBuilder';
 import { SequenceBuilder } from './components/SequenceBuilder';
 import './App.css';
 
@@ -47,7 +46,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
         );
     }
 
-    if (note.viewMode === 'flowchart' || note.viewMode === 'state' || note.viewMode === 'er') {
+    if (note.viewMode === 'flowchart' || note.viewMode === 'state') {
         return (
             <GraphDiagramBuilder
                 note={note}
@@ -55,10 +54,6 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
                 diagramType={note.viewMode}
             />
         );
-    }
-
-    if (note.viewMode === 'timeline') {
-        return <TimelineBuilder note={note} onUpdateNote={onUpdateNote} />;
     }
 
     if (note.viewMode === 'sequence') {
@@ -708,15 +703,6 @@ function App() {
                 category: 'Editor'
             },
             {
-                id: 'insert-mermaid-timeline',
-                label: 'Create Timeline',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleUpdateNote(id, { viewMode: 'timeline' });
-                },
-                category: 'Editor'
-            },
-            {
                 id: 'insert-mermaid-state-diagram',
                 label: 'Create State Diagram',
                 action: () => {
@@ -731,15 +717,6 @@ function App() {
                 action: () => {
                     const id = getCurrentNoteId();
                     if (id) handleUpdateNote(id, { viewMode: 'sequence' });
-                },
-                category: 'Editor'
-            },
-            {
-                id: 'insert-mermaid-er-diagram',
-                label: 'Create ER Diagram',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleUpdateNote(id, { viewMode: 'er' });
                 },
                 category: 'Editor'
             }

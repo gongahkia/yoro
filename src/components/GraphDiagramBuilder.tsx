@@ -7,7 +7,7 @@ import type { Note } from '../types';
 interface DiagramBuilderProps {
     note: Note;
     onUpdateNote: (id: string, updates: Partial<Note>) => void;
-    diagramType: 'flowchart' | 'state' | 'er';
+    diagramType: 'flowchart' | 'state';
 }
 
 const nodeWidth = 150;
