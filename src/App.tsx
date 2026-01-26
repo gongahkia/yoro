@@ -7,6 +7,7 @@ import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command } from './components/CommandPalette';
+import { SearchPalette } from './components/SearchPalette';
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
 import { Sidebar } from './components/Sidebar';
@@ -54,8 +55,29 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
 function App() {
     const [data, setData] = useState<AppState>(storage.get());
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Compute all tags from notes
+    const allTags = useMemo(() => {
+        const tags = new Set<string>();
+        let hasDeleted = false;
+        data.notes.forEach(note => {
+            if (note.deletedAt) {
+                hasDeleted = true;
+            } else {
+                note.tags.forEach(tag => tags.add(tag));
+            }
+        });
+        const sorted = Array.from(tags).sort();
+        if (hasDeleted) {
+            sorted.push('bin');
+        }
+        return sorted;
+    }, [data.notes]);
 
     useEffect(() => {
         storage.set(data);

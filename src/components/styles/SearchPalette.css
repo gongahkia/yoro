@@ -1,0 +1,104 @@
+.search-palette-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 15vh;
+    z-index: 1500;
+    backdrop-filter: blur(2px);
+}
+
+.search-palette-modal {
+    width: 100%;
+    max-width: 500px;
+    background: var(--bg-primary, #ffffff);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 60vh;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.search-palette-search {
+    padding: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.search-palette-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    padding: 8px;
+    background: transparent;
+    color: var(--text-primary, #333);
+}
+
+.search-palette-tags {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-palette-tags-label {
+    padding: 8px 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary, #888);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.search-palette-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 300px;
+}
+
+.search-palette-item {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-primary, #333);
+    transition: background-color 0.1s ease;
+}
+
+.search-palette-item.selected {
+    background-color: var(--primary-light, #f0f7ff);
+    color: var(--primary, #007bff);
+}
+
+.search-palette-item:active {
+    background-color: var(--primary-light-active, #e0efff);
+}
+
+.tag-label {
+    font-weight: 500;
+}
+
+.tag-active {
+    font-size: 0.8em;
+    color: var(--primary, #007bff);
+    background: var(--primary-light, rgba(0, 123, 255, 0.1));
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.search-palette-empty {
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}

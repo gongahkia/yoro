@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 import type { Note } from '../types';
 import { NoteCard } from './NoteCard';
 import './styles/NoteList.css';
@@ -9,59 +9,34 @@ interface NoteListProps {
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
     onRestoreNote?: (id: string, e: React.MouseEvent) => void;
+    searchQuery: string;
+    selectedTag: string | null;
+    onTagChange: (tag: string | null) => void;
 }
 
-export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDeleteNote, onDuplicateNote, onRestoreNote }) => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const searchInputRef = useRef<HTMLInputElement>(null);
-
+export const NoteList: React.FC<NoteListProps> = ({
+    notes,
+    onSelectNote,
+    onDeleteNote,
+    onDuplicateNote,
+    onRestoreNote,
+    searchQuery,
+    selectedTag,
+    onTagChange
+}) => {
     // Circular Deck State
     const [rotation, setRotation] = useState(0);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const deckRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // Cmd+K or Ctrl+K to focus search
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                searchInputRef.current?.focus();
-            }
-            // Slash to focus search (only if not already focused)
-            if (e.key === '/' && document.activeElement !== searchInputRef.current) {
-                e.preventDefault();
-                searchInputRef.current?.focus();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        const handleOpenBin = () => setSelectedTag('bin');
+        const handleOpenBin = () => onTagChange('bin');
         window.addEventListener('yoro-open-bin', handleOpenBin);
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('yoro-open-bin', handleOpenBin);
         };
-    }, []);
-
-    const allTags = useMemo(() => {
-        const tags = new Set<string>();
-        let hasDeleted = false;
-        notes.forEach(note => {
-            if (note.deletedAt) {
-                hasDeleted = true;
-            } else {
-                note.tags.forEach(tag => tags.add(tag));
-            }
-        });
-        const sorted = Array.from(tags).sort();
-        if (hasDeleted) {
-            sorted.push('bin'); // Add phantom tag for bin
-        }
-        return sorted;
-    }, [notes]);
+    }, [onTagChange]);
 
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
@@ -110,34 +85,6 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, onSelectNote, onDelet
 
     return (
         <div className="note-list-container">
-            <div className="note-list-header">
-                <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="/ to search notes"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
-                />
-                <div className="tags-filter">
-                    <span
-                        className={`filter-tag ${selectedTag === null ? 'active' : ''}`}
-                        onClick={() => setSelectedTag(null)}
-                    >
-                        All
-                    </span>
-                    {allTags.map(tag => (
-                        <span
-                            key={tag}
-                            className={`filter-tag ${selectedTag === tag ? 'active' : ''}`}
-                            onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                        >
-                            #{tag}
-                        </span>
-                    ))}
-                </div>
-            </div>
-
             <div className="circular-deck-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
                     <div 
