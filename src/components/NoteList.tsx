@@ -79,19 +79,19 @@ export const NoteList: React.FC<NoteListProps> = ({
     const cardWidth = 300; // slightly more than 280
     const count = filteredNotes.length;
     const dynamicRadius = Math.max(450, (count * cardWidth) / (2 * Math.PI));
-    
+
     // Tilt the deck slightly for better 3D view
     const deckTilt = -5; // degrees X-axis
 
     return (
         <div className="note-list-container">
             <div className="search-hint">
-                Press <kbd>/</kbd> to search
+                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> then <kbd>/</kbd> to search
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
             <div className="circular-deck-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
-                    <div 
+                    <div
                         className="circular-deck"
                         style={{
                             transform: `rotateX(${deckTilt}deg) rotateY(${rotation}deg)`
@@ -100,15 +100,15 @@ export const NoteList: React.FC<NoteListProps> = ({
                         {filteredNotes.map((note, index) => {
                             const angle = index * (360 / Math.max(count, 1));
                             const isHovered = hoveredId === note.id;
-                            
+
                             // 3D Cylinder Transform
                             // Rotate Y to position on ring, Push out Z to radius.
                             // We don't rotate the card itself to face center?
                             // Yes, rotateY(angle) makes it face outward from center.
-                            
+
                             // Hover: Pull UP (Y-) and OUT (Z+)
-                            const hoverTransform = isHovered 
-                                ? `translateY(-40px) translateZ(40px) scale(1.1)` 
+                            const hoverTransform = isHovered
+                                ? `translateY(-40px) translateZ(40px) scale(1.1)`
                                 : `translateY(0) translateZ(0) scale(1)`;
 
                             const transform = `rotateY(${angle}deg) translateZ(${dynamicRadius}px) ${hoverTransform}`;
