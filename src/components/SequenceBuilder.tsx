@@ -103,7 +103,7 @@ export const SequenceBuilder: React.FC<SequenceBuilderProps> = ({ note, onUpdate
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexGrow: 1 }}>
-                {messages.map((msg, idx) => (
+                {messages.map((msg) => (
                     <div key={msg.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr 2fr auto', gap: 10, alignItems: 'center', marginBottom: 10, padding: 12, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-tooltip)' }}>
                         <select value={msg.from} onChange={e => updateMessage(msg.id, { from: e.target.value })} style={inputStyle}>
                             {participants.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}

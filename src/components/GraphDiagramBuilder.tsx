@@ -123,8 +123,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
 };
 
 export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpdateNote, diagramType }) => {
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
@@ -166,9 +166,6 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
     // OR we can use the `setNodes` from the hook in an effect to attach the handler.
 
     // Better: Initialize without handler, then attach handler via useEffect.
-
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
         // Initialize if empty
