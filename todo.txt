@@ -28,22 +28,19 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (C) Display commands based on their latets frequencey (via command history)
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
-(A) Mindmap features were midway through implementation before being interrupted. First read the existing implementation and thoroughly understand what has already been incorporated, then update me what has yet to be done to ensure a working build and clarify as required, before adding the remaining 50% implementation to todo.txt
-(A) Build native mindmap component with node-edge graph
-(A) Support central topic node with branching child nodes
-(A) Implement drag-and-drop node repositioning
-(A) Add/delete/edit nodes with keyboard shortcuts
+(A) Implement drag-and-drop node repositioning (Persistence)
+(B) Add/delete/edit nodes with keyboard shortcuts (Bi-directional editing)
 (A) Support collapsing and expanding branches
-(A) Add node colors and icons for categorization
-(A) Implement automatic layout algorithm (radial or tree)
-(A) Seamless toggle between markdown editor and mindmap mode per note
-(A) Store mindmap data alongside note content with proper serialization
-(A) Convert markdown headings and lists into mindmap nodes automatically
+(A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
+(x) Convert markdown headings and lists into mindmap nodes automatically
+(A) [MISSING] Navigation: Click node to jump to source line in Editor
+(A) [MISSING] Visual Polish: Theme synchronization (match app colors/fonts)
+(A) [MISSING] Content: Display plain text paragraphs as note attachments/children
 (B) Support different node shapes (rectangle, circle, rounded)
 (B) Add edge styling (straight, curved, orthogonal)
 (B) Implement node relationships beyond parent-child
 (B) Support floating notes and images on mindmap
-(B) Add zoom and pan controls for large mindmaps
+(B) Add zoom and pan controls for large mindmaps (Default exists, needs polish)
 (B) Implement minimap for navigation
 (C) Add mindmap export as image or structured format
 (C) Support importing from other mindmap tools
