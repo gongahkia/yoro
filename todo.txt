@@ -5,6 +5,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 === PRIORITY 2A: COMMAND PALETTE ===
 
+(A) Make the command palette command context-specific
 (A) Test mindmap rendering syntx
 (A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered
 (A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d

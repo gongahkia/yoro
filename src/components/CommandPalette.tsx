@@ -161,7 +161,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder={isSearchMode ? "Search notes..." : "Type a command... (or / to search notes)"}
+                        placeholder={isSearchMode ? "Search notes..." : "Type a command (or / to search notes)..."}
                     />
                 </div>
                 {isSearchMode ? (
