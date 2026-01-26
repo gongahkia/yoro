@@ -9,7 +9,7 @@ export interface Note {
     createdAt: number;
     updatedAt: number;
     isFavorite: boolean;
-    viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state' | 'sequence';
+    viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state';
     deletedAt?: number;
 }
 

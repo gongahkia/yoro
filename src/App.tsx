@@ -14,7 +14,6 @@ import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { GraphDiagramBuilder } from './components/GraphDiagramBuilder';
-import { SequenceBuilder } from './components/SequenceBuilder';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -54,10 +53,6 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
                 diagramType={note.viewMode}
             />
         );
-    }
-
-    if (note.viewMode === 'sequence') {
-        return <SequenceBuilder note={note} onUpdateNote={onUpdateNote} />;
     }
 
     return (
