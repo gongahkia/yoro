@@ -2,6 +2,44 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
+import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
+import { themeSyntaxHighlighting } from '../extensions/theme-highlighting';
+import { yamlFrontmatter } from '@codemirror/lang-yaml';
+import { languages } from '@codemirror/language-data';
+import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
+import { autocompletion } from '@codemirror/autocomplete';
+import { vim, Vim } from '@replit/codemirror-vim';
+import { livePreview } from '../extensions/live-preview';
+import { handleImageEvents } from '../extensions/images';
+import { frontmatterFold } from '../extensions/frontmatter';
+import { mathPreview } from '../extensions/math';
+import { markdownPairs } from '../extensions/markdown-pairs';
+import { footnoteTooltip } from '../extensions/footnotes';
+import { FootnoteExtension } from '../extensions/markdown-footnotes';
+import { textHighlight } from '../extensions/text-highlight';
+import { callouts } from '../extensions/callouts';
+import { emojiCompletion } from '../extensions/emojis';
+import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } from '../extensions/wikilinks';
+import { focusModeExtension } from '../extensions/focus-mode';
+import { inlineCode } from '../extensions/inline-code';
+import type { Note } from '../types';
+import './styles/Editor.css';
+import './styles/EditorThemeOverrides.css';
+
+interface EditorProps {
+    note: Note;
+    notes: Note[];
+    onChange: (content: string) => void;
+    onTitleChange: (title: string) => void;
+    onNavigate: (noteId: string) => void;
+    vimMode: boolean;
+    focusMode: boolean;
+    lineWrapping: boolean;
+    showLineNumbers: boolean;
+    editorAlignment: 'left' | 'center' | 'right';
+}
+
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
@@ -144,35 +182,55 @@ import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
                     view.dispatch(view.state.replaceSelection(wrapped));
                 }
             } else if (command === 'insert-mermaid-flowchart') {
-                const template = `\`\`\`mermaid
-flowchart TD
-    A[Start] --> B{Is it?}
-    B -- Yes --> C[OK]
-    C --> D[Rethink]
-    D --> B
-    B -- No --> E[End]
-\`\`\`
+                const template = `\
+| Header 1 | Header 2 |
+| :--- | :--- |
+| Cell 1 | Cell 2 |
+`;
+                view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-code-block') {
+                const codeBlock = "```language\n\n```";
+                view.dispatch(view.state.replaceSelection(codeBlock));
+                const cursor = view.state.selection.main.head;
+                view.dispatch({ selection: { anchor: cursor - 4 } });
+            } else if (command === 'insert-horizontal-rule') {
+                view.dispatch(view.state.replaceSelection('\n---\n'));
+            } else if (command === 'hard-wrap') {
+                // Basic hard wrap at 80 chars
+                // Wraps current selection or current line
+                const { from, to } = view.state.selection.main;
+                let text = view.state.sliceDoc(from, to);
+                if (from === to) {
+                    // Select current line
+                    const line = view.state.doc.lineAt(from);
+                    text = line.text;
+                    const wrapped = wrapText(text, 80);
+                    view.dispatch({
+                        changes: { from: line.from, to: line.to, insert: wrapped }
+                    });
+                } else {
+                    const wrapped = wrapText(text, 80);
+                    view.dispatch(view.state.replaceSelection(wrapped));
+                }
+            } else if (command === 'insert-mermaid-flowchart') {
+                const template = `\
+| Header 1 | Header 2 |
+| :--- | :--- |
+| Cell 1 | Cell 2 |
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (command === 'insert-mermaid-state-diagram') {
-                const template = `\`\`\`mermaid
-stateDiagram-v2
-    [*] --> Still
-    Still --> [*]
-    Still --> Moving
-    Moving --> Still
-    Moving --> Crash
-    Crash --> [*]
-\`\`\`
+                const template = `\
+| Header 1 | Header 2 |
+| :--- | :--- |
+| Cell 1 | Cell 2 |
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (command === 'insert-mermaid-sequence-diagram') {
-                const template = `\`\`\`mermaid
-sequenceDiagram
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-    Alice-)John: See you later!
-\`\`\`
+                const template = `\
+| Header 1 | Header 2 |
+| :--- | :--- |
+| Cell 1 | Cell 2 |
 `;
                 view.dispatch(view.state.replaceSelection(template));
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {

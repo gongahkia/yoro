@@ -164,12 +164,14 @@ function App() {
                         updatedAt: Date.now(),
                         isFavorite: false,
                     };
-                    setData(prev => ({
-                        ...prev,
-                        notes: [newNote, ...prev.notes]
-                    }));
-                    // Clean URL and navigate
-                    navigate(`/note/${newNote.id}`, { replace: true });
+                    setTimeout(() => {
+                        setData(prev => ({
+                            ...prev,
+                            notes: [newNote, ...prev.notes]
+                        }));
+                        // Clean URL and navigate
+                        navigate(`/note/${newNote.id}`, { replace: true });
+                    }, 0);
                 }
             } catch {
                 console.error('Failed to import shared note:');
@@ -240,15 +242,13 @@ function App() {
                 }
 
                 if (hasUpdates) {
-                    handleUpdatePreferences(updates, false); // Don't sync back to note to avoid loop/overwrite
+                    setTimeout(() => handleUpdatePreferences(updates, false), 0);
                 }
-            } catch (e) {
+            } catch {
                 // ignore parse errors while typing
             }
         }
-    }, [data.notes]); // Careful: data.notes changes when we update pref (if we update note). 
-    // If handleUpdatePreferences updates note, this effect fires.
-    // It parses note. matches prefs. hasUpdates = false. Loop breaks. Correct.
+    }, [data.notes, data.preferences]); // Added data.preferences to dependencies
 
     const getCurrentNoteId = () => {
         const match = location.pathname.match(/\/note\/(.+)/);
