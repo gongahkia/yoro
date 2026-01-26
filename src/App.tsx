@@ -724,7 +724,7 @@ function App() {
                 category: 'Editor'
             }
         ] : [])
-    ], [data, location.pathname]);
+    ], [data, location.pathname, navigate, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId]);
 
     const matchShortcut = (e: KeyboardEvent, shortcut: string) => {
         const parts = shortcut.split('+');
@@ -764,7 +764,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [commands, location.pathname, isPaletteOpen]);
+    }, [commands, location.pathname, isPaletteOpen, matchShortcut]);
 
     const handleCreateNote = () => {
         const newId = crypto.randomUUID();
