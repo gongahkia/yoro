@@ -109,7 +109,7 @@ export const SequenceBuilder: React.FC<SequenceBuilderProps> = ({ note, onUpdate
                             {participants.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
                         </select>
 
-                        <select value={msg.type} onChange={e => updateMessage(msg.id, { type: e.target.value as any })} style={inputStyle}>
+                        <select value={msg.type} onChange={e => updateMessage(msg.id, { type: e.target.value as Message['type'] })} style={inputStyle}>
                             <option value="solid">-&gt;</option>
                             <option value="dotted">--&gt;</option>
                         </select>

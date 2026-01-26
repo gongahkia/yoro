@@ -86,15 +86,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     useEffect(() => {
         if (isOpen) {
-            setQuery('');
-            setSelectedIndex(0);
-            setTimeout(() => inputRef.current?.focus(), 50);
+            // Use setTimeout to ensure focus happens after render and avoid synchronous setState warnings
+            const timer = setTimeout(() => {
+                setQuery('');
+                setSelectedIndex(0);
+                inputRef.current?.focus();
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
-
-    useEffect(() => {
-        setSelectedIndex(0);
-    }, [query]);
 
     // Update global search query when in search mode
     useEffect(() => {
@@ -159,7 +159,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         ref={inputRef}
                         type="text"
                         value={query}
-                        onChange={e => setQuery(e.target.value)}
+                        onChange={e => {
+                            setQuery(e.target.value);
+                            setSelectedIndex(0);
+                        }}
                         onKeyDown={handleKeyDown}
                         placeholder={isSearchMode ? "Search notes..." : "Type a command (or / to search notes)..."}
                     />

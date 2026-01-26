@@ -1,46 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import CodeMirror from '@uiw/react-codemirror';
-import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
-import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
-import { themeSyntaxHighlighting } from '../extensions/theme-highlighting';
-import { yamlFrontmatter } from '@codemirror/lang-yaml';
-import { languages } from '@codemirror/language-data';
-import { GFM, Subscript, Superscript, Strikethrough, Table, TaskList } from '@lezer/markdown';
-import { autocompletion } from '@codemirror/autocomplete';
-import { vim, Vim } from '@replit/codemirror-vim';
-import { livePreview } from '../extensions/live-preview';
-import { handleImageEvents } from '../extensions/images';
-import { frontmatterFold } from '../extensions/frontmatter';
-import { mathPreview } from '../extensions/math';
-import { markdownPairs } from '../extensions/markdown-pairs';
-import { footnoteTooltip } from '../extensions/footnotes';
-import { FootnoteExtension } from '../extensions/markdown-footnotes';
-import { textHighlight } from '../extensions/text-highlight';
-import { callouts } from '../extensions/callouts';
-import { emojiCompletion } from '../extensions/emojis';
-import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } from '../extensions/wikilinks';
-import { focusModeExtension } from '../extensions/focus-mode';
-import { inlineCode } from '../extensions/inline-code';
-import type { Note } from '../types';
-import './styles/Editor.css';
-import './styles/EditorThemeOverrides.css';
-
-interface EditorProps {
-    note: Note;
-    notes: Note[];
-    onChange: (content: string) => void;
-    onTitleChange: (title: string) => void;
-    onNavigate: (noteId: string) => void;
-    vimMode: boolean;
-    focusMode: boolean;
-    lineWrapping: boolean;
-    showLineNumbers: boolean;
-    editorAlignment: 'left' | 'center' | 'right';
-}
-
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+...
 export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
-    const editorRef = React.useRef<any>(null);
+    const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
     const handleFormatting = (view: EditorView, type: string) => {
@@ -244,11 +207,11 @@ sequenceDiagram
             }
         };
 
-        window.addEventListener('yoro-editor-cmd' as any, handleCommand);
-        window.addEventListener('yoro-navigate-line' as any, handleNavigateLine);
+        window.addEventListener('yoro-editor-cmd', handleCommand as EventListener);
+        window.addEventListener('yoro-navigate-line', handleNavigateLine as EventListener);
         return () => {
-            window.removeEventListener('yoro-editor-cmd' as any, handleCommand);
-            window.removeEventListener('yoro-navigate-line' as any, handleNavigateLine);
+            window.removeEventListener('yoro-editor-cmd', handleCommand as EventListener);
+            window.removeEventListener('yoro-navigate-line', handleNavigateLine as EventListener);
         };
     }, [note.id]); // Re-bind if note ID changes
 

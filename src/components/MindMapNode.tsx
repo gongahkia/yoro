@@ -5,11 +5,13 @@ const MindMapNode = ({ data, id }: NodeProps) => {
     const noteText = data.note as string | undefined;
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(data.label as string);
+    const [prevLabel, setPrevLabel] = useState(data.label);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
+    if (data.label !== prevLabel) {
         setEditValue(data.label as string);
-    }, [data.label]);
+        setPrevLabel(data.label);
+    }
 
     useEffect(() => {
         if (isEditing) {

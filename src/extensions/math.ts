@@ -30,7 +30,7 @@ class MathWidget extends WidgetType {
                 displayMode: this.displayMode,
                 throwOnError: false
             });
-        } catch (e) {
+        } catch {
             span.innerText = this.formula;
             span.style.color = 'red';
         }

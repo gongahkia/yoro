@@ -2,9 +2,10 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
-    ViewUpdate
+    ViewUpdate,
+    DecorationSet
 } from '@codemirror/view';
-import { CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
+import { CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
 import { Range } from '@codemirror/state';
 import type { Note } from '../types';
 
@@ -16,7 +17,7 @@ export const getWikilinkCompletion = (notes: Note[]) => {
         if (word.from === word.to && !context.explicit) return null;
 
         const query = word.text.slice(2).toLowerCase();
-        const options = notes
+        const options: Completion[] = notes
             .filter(n => (n.title || 'Untitled').toLowerCase().includes(query))
             .map(n => ({
                 label: n.title || 'Untitled',
@@ -46,7 +47,7 @@ export const getMentionCompletion = (notes: Note[]) => {
         const query = word.text.slice(1);
         const lowerQuery = query.toLowerCase();
         
-        const options: any[] = notes
+        const options: Completion[] = notes
             .filter(n => (n.title || 'Untitled').toLowerCase().includes(lowerQuery))
             .map(n => ({
                 label: n.title || 'Untitled',
@@ -64,7 +65,7 @@ export const getMentionCompletion = (notes: Note[]) => {
                 displayLabel: `Link to ${query}`,
                 detail: 'External Link',
                 boost: 100,
-                apply: (view: EditorView, _completion: any, from: number, to: number) => {
+                apply: (view: EditorView, _completion: Completion, from: number, to: number) => {
                     const initialLabel = url;
                     const insertText = `[${initialLabel}](${url})`;
                     view.dispatch({
@@ -116,7 +117,7 @@ export const getMentionCompletion = (notes: Note[]) => {
 
 export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => void) => {
     return ViewPlugin.fromClass(class {
-        decorations: any;
+        decorations: DecorationSet;
 
         constructor(view: EditorView) {
             this.decorations = this.compute(view);
@@ -166,6 +167,48 @@ export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => 
             return Decoration.set(widgets.sort((a, b) => a.from - b.from));
         }
     }, {
+        decorations: v => v.decorations,
+        eventHandlers: {
+            mousedown: (e) => {
+                const target = e.target as HTMLElement;
+
+                // Handle Wikilinks
+                const wikiLink = target.closest('.cm-wikilink');
+                if (wikiLink) {
+                    const title = wikiLink.getAttribute('data-title');
+                    if (title && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        const note = notes.find(n => (n.title || 'Untitled') === title);
+                        if (note) {
+                            onNavigate(note.id);
+                        } else {
+                            alert(`Note "${title}" not found.`);
+                        }
+                        return;
+                    }
+                }
+
+                // Handle Standard Links
+                const mdLink = target.closest('.cm-md-link');
+                if (mdLink) {
+                    const url = mdLink.getAttribute('data-url');
+                    if (url && (e.metaKey || e.ctrlKey)) {
+                        // Check if internal note link
+                        const noteMatch = url.match(/\/note\/([a-zA-Z0-9-]+)/);
+                        if (noteMatch) {
+                            e.preventDefault();
+                            onNavigate(noteMatch[1]);
+                        } else {
+                            // External link? Let browser handle or open in new tab
+                            // e.preventDefault(); 
+                            // window.open(url, '_blank');
+                        }
+                    }
+                }
+            }
+        }
+    });
+};
         decorations: v => v.decorations,
         eventHandlers: {
             mousedown: (e) => {

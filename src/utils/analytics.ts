@@ -9,7 +9,7 @@ type EventName =
     | 'delete_note_permanent';
 
 export const analytics = {
-    track: (event: EventName, properties?: Record<string, any>) => {
+    track: (event: EventName, properties?: Record<string, unknown>) => {
         // Privacy-focused: No PII, just feature usage
         if (import.meta.env.DEV) {
             console.log(`[Analytics] ${event}`, properties);
