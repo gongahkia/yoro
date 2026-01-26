@@ -5,6 +5,11 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 === PRIORITY 2A: COMMAND PALETTE ===
 
+(A) Add a new shortcut in the command palette to create flowcharts and similarly be able to insert it as mermaid code in a note (in the same way that the current flowchart works)
+(A) Add a new shortcut in the command palette to create timeline and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
+(A) Add a new shortcut in the command palette to create a state diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
+(A) Add a new shortcut in the command palette to create a sequence diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
+(A) Add a new shortcut in the command palette to create a ER diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
 (A) Make the command palette command context-specific
 (A) Test mindmap rendering syntx
 (A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered
