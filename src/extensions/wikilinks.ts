@@ -64,7 +64,7 @@ export const getMentionCompletion = (notes: Note[]) => {
                 displayLabel: `Link to ${query}`,
                 detail: 'External Link',
                 boost: 100,
-                apply: (view: EditorView, completion: any, from: number, to: number) => {
+                apply: (view: EditorView, _completion: any, from: number, to: number) => {
                     const initialLabel = url;
                     const insertText = `[${initialLabel}](${url})`;
                     view.dispatch({

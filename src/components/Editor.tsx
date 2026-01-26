@@ -115,7 +115,6 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         const { from, to } = view.state.selection.main;
         const text = view.state.sliceDoc(from, to);
         let insert = text;
-        let setSelection = false;
         let selectionOffset = 0;
 
         switch (type) {
