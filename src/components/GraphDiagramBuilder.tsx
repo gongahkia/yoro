@@ -155,6 +155,71 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
     // Given the prompt "fix how the controls/buttons look", I should prioritize the visual aspect.
     // But for "keybinds as specified", I'll add Tab/Delete.
 
+    // Handle Selection
+    const onSelectionChange = useCallback(({ nodes }: { nodes: Node[] }) => {
+        setSelectedNodes(nodes.map(n => n.id));
+    }, []);
+
+    const generateMermaid = () => {
+        // Generate Mermaid Code based on Nodes/Edges/Type
+        let code = '';
+        if (diagramType === 'flowchart') {
+            code = '```mermaid\nflowchart TD\n';
+            // Nodes
+            nodes.forEach(n => {
+                // Sanitize label
+                const label = (n.data.label as string).replace(/["()]/g, '');
+                code += `    ${n.id}["${label}"]\n`;
+            });
+            // Edges
+            edges.forEach(e => {
+                code += `    ${e.source} --> ${e.target}\n`;
+            });
+            code += '```';
+        } else if (diagramType === 'state') {
+            code = '```mermaid\nstateDiagram-v2\n';
+            nodes.forEach(n => {
+                const label = n.data.label as string;
+                if (label === '[*]') return; // Handled in edges mostly or implicit
+                code += `    ${label}\n`;
+            });
+            edges.forEach(e => {
+                const sourceNode = nodes.find(n => n.id === e.source);
+                const targetNode = nodes.find(n => n.id === e.target);
+                const sLabel = sourceNode ? sourceNode.data.label : 'state';
+                const tLabel = targetNode ? targetNode.data.label : 'state';
+                code += `    ${sLabel} --> ${tLabel}\n`;
+            });
+            code += '```';
+        } else if (diagramType === 'er') {
+            code = '```mermaid\nerDiagram\n';
+            nodes.forEach(n => {
+                const label = n.data.label as string;
+                code += `    ${label} {\n    }\n`;
+            });
+            edges.forEach(e => {
+                const sourceNode = nodes.find(n => n.id === e.source);
+                const targetNode = nodes.find(n => n.id === e.target);
+                const sLabel = sourceNode ? sourceNode.data.label : 'ENTITY';
+                const tLabel = targetNode ? targetNode.data.label : 'ENTITY';
+                // Default relationship
+                code += `    ${sLabel} ||--o{ ${tLabel} : has\n`;
+            });
+            code += '```';
+        }
+        return code;
+    };
+
+    const handleInsert = () => {
+        const code = generateMermaid();
+        const newContent = note.content + '\n\n' + code;
+        onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
+    };
+
+    const handleCancel = () => {
+        onUpdateNote(note.id, { viewMode: 'editor' });
+    };
+
     return (
         <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <ReactFlow
