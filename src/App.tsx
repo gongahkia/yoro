@@ -7,7 +7,7 @@ import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command } from './components/CommandPalette';
-import { SearchPalette } from './components/SearchPalette';
+
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
 import { Sidebar } from './components/Sidebar';
@@ -34,9 +34,9 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
 
     if (note.viewMode === 'mindmap') {
         return (
-            <MindMap 
-                markdown={note.content} 
-                title={note.title} 
+            <MindMap
+                markdown={note.content}
+                title={note.title}
                 noteId={note.id}
                 onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
                 onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
@@ -74,7 +74,7 @@ function App() {
         };
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -702,23 +702,7 @@ function App() {
                 return;
             }
 
-            // "/" to open search palette (only on home page and not in an input)
-            if (e.key === '/' && location.pathname === '/') {
-                const target = e.target as HTMLElement;
-                const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-                if (!isInput && !isPaletteOpen && !isSearchOpen) {
-                    e.preventDefault();
-                    setIsSearchOpen(true);
-                    return;
-                }
-            }
 
-            // Cmd+K or Ctrl+K to open search palette (on home page)
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k' && location.pathname === '/') {
-                e.preventDefault();
-                setIsSearchOpen(true);
-                return;
-            }
 
             // Check commands
             for (const cmd of commands) {
@@ -732,7 +716,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [commands, location.pathname, isPaletteOpen, isSearchOpen]);
+    }, [commands, location.pathname, isPaletteOpen]);
 
     const handleCreateNote = () => {
         const newId = crypto.randomUUID();
@@ -895,16 +879,12 @@ function App() {
                 commands={commands}
                 recentCommandIds={data.preferences.recentCommandIds}
                 onCommandExecuted={handleCommandExecuted}
-            />
-            <SearchPalette
-                isOpen={isSearchOpen}
-                onClose={() => setIsSearchOpen(false)}
-                searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 selectedTag={selectedTag}
                 onTagSelect={setSelectedTag}
                 allTags={allTags}
             />
+
             <ConfirmationModal
                 isOpen={deleteConfirmation.isOpen}
                 title={deleteConfirmation.isPermanent ? "Permanently Delete" : "Delete Note"}

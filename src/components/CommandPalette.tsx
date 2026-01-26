@@ -15,34 +15,45 @@ interface CommandPaletteProps {
     commands: Command[];
     recentCommandIds?: string[];
     onCommandExecuted?: (id: string) => void;
+    onSearchChange?: (query: string) => void;
+    selectedTag?: string | null;
+    onTagSelect?: (tag: string | null) => void;
+    allTags?: string[];
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, recentCommandIds = [], onCommandExecuted }) => {
+export const CommandPalette: React.FC<CommandPaletteProps> = ({
+    isOpen,
+    onClose,
+    commands,
+    recentCommandIds = [],
+    onCommandExecuted,
+    onSearchChange,
+    selectedTag,
+    onTagSelect,
+    allTags = []
+}) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
 
+    const isSearchMode = query.startsWith('/');
+
     const filteredCommands = React.useMemo(() => {
+        if (isSearchMode) return [];
+
         if (!query) {
-            // Show recent commands first, then the rest
             const recent = recentCommandIds
                 .map(id => commands.find(c => c.id === id))
                 .filter((c): c is Command => !!c);
-            
-            // Deduplicate: Filter out recent commands from the main list if desired, 
-            // or just show them at the top. 
-            // Let's just show recent at top, then all commands. 
-            // To avoid visual duplicates if the list is short, we could filter.
-            // But having a dedicated "Recent" section logic is complex without section headers.
-            // Let's just prepend recent ones.
+
             const uniqueRecent = Array.from(new Set(recent));
             const recentIds = new Set(uniqueRecent.map(c => c.id));
-            
+
             const others = commands.filter(c => !recentIds.has(c.id));
             return [...uniqueRecent, ...others];
         }
-        
+
         const lowerQuery = query.toLowerCase();
         return commands
             .map(cmd => {
@@ -50,25 +61,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                 let score = 0;
                 let qIdx = 0;
                 let lIdx = 0;
-                
-                // Simple subsequence matching
+
                 while (qIdx < lowerQuery.length && lIdx < label.length) {
                     if (lowerQuery[qIdx] === label[lIdx]) {
-                        score += 10; // Match
-                        // Bonus for consecutive matches? 
-                        // Bonus for start of word?
+                        score += 10;
                         if (lIdx === 0 || label[lIdx - 1] === ' ') score += 5;
                         qIdx++;
                     } else {
-                        score -= 1; // Penalty for gap
+                        score -= 1;
                     }
                     lIdx++;
                 }
-                
-                // If we didn't match the whole query, reject
+
                 if (qIdx < lowerQuery.length) return null;
-                
-                // Adjust score by length difference (penalty for long unused strings)
+
                 score -= (label.length - lowerQuery.length) * 0.1;
 
                 return { cmd, score };
@@ -76,7 +82,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
             .filter((item): item is { cmd: Command, score: number } => item !== null)
             .sort((a, b) => b.score - a.score)
             .map(item => item.cmd);
-    }, [commands, query, recentCommandIds]);
+    }, [commands, query, recentCommandIds, isSearchMode]);
 
     useEffect(() => {
         if (isOpen) {
@@ -90,6 +96,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
         setSelectedIndex(0);
     }, [query]);
 
+    // Update global search query when in search mode
+    useEffect(() => {
+        if (isSearchMode && onSearchChange) {
+            onSearchChange(query.slice(1));
+        }
+    }, [query, isSearchMode, onSearchChange]);
+
     const executeCommand = (cmd: Command) => {
         cmd.action();
         onCommandExecuted?.(cmd.id);
@@ -97,19 +110,42 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setSelectedIndex(prev => (prev + 1) % filteredCommands.length);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setSelectedIndex(prev => (prev - 1 + filteredCommands.length) % filteredCommands.length);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (filteredCommands[selectedIndex]) {
-                executeCommand(filteredCommands[selectedIndex]);
+        if (isSearchMode) {
+            const totalOptions = 1 + allTags.length;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev + 1) % totalOptions);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev - 1 + totalOptions) % totalOptions);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (onTagSelect) {
+                    if (selectedIndex === 0) onTagSelect(null);
+                    else onTagSelect(allTags[selectedIndex - 1]);
+                }
+                onClose();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                // Revert from search mode to default command mode
+                setQuery('');
+                if (onSearchChange) onSearchChange('');
             }
-        } else if (e.key === 'Escape') {
-            onClose();
+        } else {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev + 1) % filteredCommands.length);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filteredCommands[selectedIndex]) {
+                    executeCommand(filteredCommands[selectedIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                onClose();
+            }
         }
     };
 
@@ -125,25 +161,61 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Type a command..."
+                        placeholder={isSearchMode ? "Search notes..." : "Type a command... (or / to search notes)"}
                     />
                 </div>
-                <ul className="command-palette-list" ref={listRef}>
-                    {filteredCommands.map((cmd, index) => (
-                        <li
-                            key={cmd.id}
-                            className={`command-palette-item ${index === selectedIndex ? 'selected' : ''}`}
-                            onClick={() => executeCommand(cmd)}
-                            onMouseEnter={() => setSelectedIndex(index)}
-                        >
-                            <span className="command-label">{cmd.label}</span>
-                            {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
-                        </li>
-                    ))}
-                    {filteredCommands.length === 0 && (
-                        <li className="command-palette-empty">No commands found</li>
-                    )}
-                </ul>
+                {isSearchMode ? (
+                    <div className="command-palette-tags">
+                        <div className="command-palette-tags-label">Filter by tag</div>
+                        <ul className="command-palette-list" ref={listRef}>
+                            <li
+                                className={`command-palette-item ${selectedIndex === 0 ? 'selected' : ''}`}
+                                onClick={() => {
+                                    if (onTagSelect) onTagSelect(null);
+                                    onClose();
+                                }}
+                                onMouseEnter={() => setSelectedIndex(0)}
+                            >
+                                <span className="tag-label">All</span>
+                                {selectedTag === null && <span className="tag-active">Active</span>}
+                            </li>
+                            {allTags.map((tag, index) => (
+                                <li
+                                    key={tag}
+                                    className={`command-palette-item ${selectedIndex === index + 1 ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        if (onTagSelect) onTagSelect(tag);
+                                        onClose();
+                                    }}
+                                    onMouseEnter={() => setSelectedIndex(index + 1)}
+                                >
+                                    <span className="tag-label">#{tag}</span>
+                                    {selectedTag === tag && <span className="tag-active">Active</span>}
+                                </li>
+                            ))}
+                            {allTags.length === 0 && (
+                                <li className="command-palette-empty">No tags found</li>
+                            )}
+                        </ul>
+                    </div>
+                ) : (
+                    <ul className="command-palette-list" ref={listRef}>
+                        {filteredCommands.map((cmd, index) => (
+                            <li
+                                key={cmd.id}
+                                className={`command-palette-item ${index === selectedIndex ? 'selected' : ''}`}
+                                onClick={() => executeCommand(cmd)}
+                                onMouseEnter={() => setSelectedIndex(index)}
+                            >
+                                <span className="command-label">{cmd.label}</span>
+                                {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
+                            </li>
+                        ))}
+                        {filteredCommands.length === 0 && (
+                            <li className="command-palette-empty">No commands found</li>
+                        )}
+                    </ul>
+                )}
             </div>
         </div>
     );
