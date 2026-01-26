@@ -102,6 +102,59 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
                     const wrapped = wrapText(text, 80);
                     view.dispatch(view.state.replaceSelection(wrapped));
                 }
+            } else if (command === 'insert-mermaid-flowchart') {
+                const template = `\`\`\`mermaid
+flowchart TD
+    A[Start] --> B{Is it?}
+    B -- Yes --> C[OK]
+    C --> D[Rethink]
+    D --> B
+    B -- No --> E[End]
+\`\`\`
+`;
+                view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-mermaid-timeline') {
+                const template = `\`\`\`mermaid
+timeline
+    title History of Social Media Platform
+    2002 : LinkedIn
+    2004 : Facebook
+         : Google
+    2005 : Youtube
+    2006 : Twitter
+\`\`\`
+`;
+                view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-mermaid-state-diagram') {
+                const template = `\`\`\`mermaid
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
+\`\`\`
+`;
+                view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-mermaid-sequence-diagram') {
+                const template = `\`\`\`mermaid
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+\`\`\`
+`;
+                view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-mermaid-er-diagram') {
+                const template = `\`\`\`mermaid
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ LINE-ITEM : contains
+    CUSTOMER }|..|{ DELIVERY-ADDRESS : uses
+\`\`\`
+`;
+                view.dispatch(view.state.replaceSelection(template));
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }
