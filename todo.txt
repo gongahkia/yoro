@@ -29,7 +29,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (B) Add add notes to google drive that automatically handles the docx export
 (B) Add import notes from google drive 
 (B) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
-(B) Update manual within command palette
+(B) Add a help manual within the command palette
 (C) Support user-defined custom commands and macros
 (C) Display commands based on their latets frequencey (via command history)
 

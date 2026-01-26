@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import JSZip from 'jszip';
 import LZString from 'lz-string';
@@ -146,41 +146,7 @@ function App() {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const shareData = params.get('share');
-        if (shareData) {
-            try {
-                const decompressed = LZString.decompressFromEncodedURIComponent(shareData);
-                if (decompressed) {
-                    const { title, content } = JSON.parse(decompressed);
-                    const newNote: Note = {
-                        id: crypto.randomUUID(),
-                        title: title || 'Shared Note',
-                        content: content || '',
-                        format: 'markdown',
-                        tags: ['shared'],
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
-                        isFavorite: false,
-                    };
-                    setTimeout(() => {
-                        setData(prev => ({
-                            ...prev,
-                            notes: [newNote, ...prev.notes]
-                        }));
-                        // Clean URL and navigate
-                        navigate(`/note/${newNote.id}`, { replace: true });
-                    }, 0);
-                }
-            } catch {
-                console.error('Failed to import shared note:');
-                alert('Failed to load shared note. The link might be corrupted.');
-            }
-        }
-    }, [location.search, navigate]);
-
-    const handleUpdatePreferences = (updates: Partial<AppState['preferences']>, syncToConfig = true) => {
+    const handleUpdatePreferences = useCallback((updates: Partial<AppState['preferences']>, syncToConfig = true) => {
         setData(prev => {
             const newPrefs = { ...prev.preferences, ...updates };
             let newNotes = prev.notes;
@@ -222,7 +188,138 @@ function App() {
                 preferences: newPrefs
             };
         });
-    };
+    }, []);
+
+    const handleUpdateNote = useCallback((id: string, updates: Partial<Note>) => {
+        setData(prev => ({
+            ...prev,
+            notes: prev.notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n)
+        }));
+    }, []);
+
+    const handleCreateNote = useCallback(() => {
+        const newId = crypto.randomUUID();
+        setData(prev => {
+            const now = Date.now();
+            const newNote: Note = {
+                id: newId,
+                title: '',
+                content: '',
+                format: 'markdown',
+                tags: [],
+                createdAt: now,
+                updatedAt: now,
+                isFavorite: false,
+            };
+            return {
+                ...prev,
+                notes: [newNote, ...prev.notes]
+            };
+        });
+        analytics.track('create_note');
+        navigate(`/note/${newId}`);
+    }, [navigate]);
+
+    const handleSelectNote = useCallback((id: string) => {
+        navigate(`/note/${id}`);
+    }, [navigate]);
+
+    const handleDuplicateNote = useCallback((id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        const noteToDuplicate = data.notes.find(n => n.id === id);
+        if (noteToDuplicate) {
+            const newNote: Note = {
+                ...noteToDuplicate,
+                id: crypto.randomUUID(),
+                title: `${noteToDuplicate.title} (Copy)`,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            };
+
+            setData(prev => ({
+                ...prev,
+                notes: [newNote, ...prev.notes]
+            }));
+            analytics.track('duplicate_note');
+        }
+    }, [data.notes]);
+
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null; isPermanent: boolean }>({
+        isOpen: false,
+        noteId: null,
+        isPermanent: false
+    });
+
+    const getCurrentNoteId = useCallback(() => {
+        const match = location.pathname.match(/\/note\/(.+)/);
+        return match ? match[1] : null;
+    }, [location.pathname]);
+
+    const handleDeleteNote = useCallback((id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        const note = data.notes.find(n => n.id === id);
+        if (!note) return;
+
+        if (note.deletedAt) {
+            // Already in bin, confirm permanent deletion
+            setDeleteConfirmation({ isOpen: true, noteId: id, isPermanent: true });
+        } else {
+            // Not in bin, move to bin (Soft delete)
+            setData(prev => ({
+                ...prev,
+                notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: Date.now() } : n)
+            }));
+            analytics.track('move_to_bin');
+
+            // If moved current note to bin, go home
+            if (getCurrentNoteId() === id) {
+                navigate('/');
+            }
+        }
+    }, [data.notes, navigate, getCurrentNoteId]);
+
+    const handleRestoreNote = useCallback((id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setData(prev => ({
+            ...prev,
+            notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: undefined } : n)
+        }));
+        analytics.track('restore_note');
+    }, []);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const shareData = params.get('share');
+        if (shareData) {
+            try {
+                const decompressed = LZString.decompressFromEncodedURIComponent(shareData);
+                if (decompressed) {
+                    const { title, content } = JSON.parse(decompressed);
+                    const newNote: Note = {
+                        id: crypto.randomUUID(),
+                        title: title || 'Shared Note',
+                        content: content || '',
+                        format: 'markdown',
+                        tags: ['shared'],
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                        isFavorite: false,
+                    };
+                    setTimeout(() => {
+                        setData(prev => ({
+                            ...prev,
+                            notes: [newNote, ...prev.notes]
+                        }));
+                        // Clean URL and navigate
+                        navigate(`/note/${newNote.id}`, { replace: true });
+                    }, 0);
+                }
+            } catch {
+                console.error('Failed to import shared note:');
+                alert('Failed to load shared note. The link might be corrupted.');
+            }
+        }
+    }, [location.search, navigate]);
 
     // Sync from config.toml note to preferences
     useEffect(() => {
@@ -248,12 +345,7 @@ function App() {
                 // ignore parse errors while typing
             }
         }
-    }, [data.notes, data.preferences]); // Added data.preferences to dependencies
-
-    const getCurrentNoteId = () => {
-        const match = location.pathname.match(/\/note\/(.+)/);
-        return match ? match[1] : null;
-    };
+    }, [data.notes, data.preferences, handleUpdatePreferences]);
 
     const commands: Command[] = useMemo(() => [
         {
@@ -724,9 +816,9 @@ function App() {
                 category: 'Editor'
             }
         ] : [])
-    ], [data, location.pathname, navigate, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId]);
+    ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote]);
 
-    const matchShortcut = (e: KeyboardEvent, shortcut: string) => {
+    const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
         const parts = shortcut.split('+');
         const key = parts[parts.length - 1].toLowerCase();
         const needsCmd = parts.includes('Cmd') || parts.includes('Ctrl');
@@ -739,7 +831,7 @@ function App() {
             (e.shiftKey === needsShift) &&
             (e.altKey === needsAlt)
         );
-    };
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -764,68 +856,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [commands, location.pathname, isPaletteOpen, matchShortcut]);
-
-    const handleCreateNote = () => {
-        const newId = crypto.randomUUID();
-        setData(prev => {
-            const now = Date.now();
-            const newNote: Note = {
-                id: newId,
-                title: '',
-                content: '',
-                format: 'markdown',
-                tags: [],
-                createdAt: now,
-                updatedAt: now,
-                isFavorite: false,
-            };
-            return {
-                ...prev,
-                notes: [newNote, ...prev.notes]
-            };
-        });
-        analytics.track('create_note');
-        navigate(`/note/${newId}`);
-    };
-
-    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null; isPermanent: boolean }>({
-        isOpen: false,
-        noteId: null,
-        isPermanent: false
-    });
-
-    const handleDeleteNote = (id: string, e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        const note = data.notes.find(n => n.id === id);
-        if (!note) return;
-
-        if (note.deletedAt) {
-            // Already in bin, confirm permanent deletion
-            setDeleteConfirmation({ isOpen: true, noteId: id, isPermanent: true });
-        } else {
-            // Not in bin, move to bin (Soft delete)
-            setData(prev => ({
-                ...prev,
-                notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: Date.now() } : n)
-            }));
-            analytics.track('move_to_bin');
-
-            // If moved current note to bin, go home
-            if (getCurrentNoteId() === id) {
-                navigate('/');
-            }
-        }
-    };
-
-    const handleRestoreNote = (id: string, e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setData(prev => ({
-            ...prev,
-            notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: undefined } : n)
-        }));
-        analytics.track('restore_note');
-    };
+    }, [commands, isPaletteOpen, matchShortcut]);
 
     const handleConfirmDelete = () => {
         if (deleteConfirmation.noteId) {
@@ -843,37 +874,6 @@ function App() {
             }
         }
         setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false });
-    };
-
-    const handleDuplicateNote = (id: string, e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        const noteToDuplicate = data.notes.find(n => n.id === id);
-        if (noteToDuplicate) {
-            const newNote: Note = {
-                ...noteToDuplicate,
-                id: crypto.randomUUID(),
-                title: `${noteToDuplicate.title} (Copy)`,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-            };
-
-            setData(prev => ({
-                ...prev,
-                notes: [newNote, ...prev.notes]
-            }));
-            analytics.track('duplicate_note');
-        }
-    };
-
-    const handleUpdateNote = (id: string, updates: Partial<Note>) => {
-        setData(prev => ({
-            ...prev,
-            notes: prev.notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n)
-        }));
-    };
-
-    const handleSelectNote = (id: string) => {
-        navigate(`/note/${id}`);
     };
 
     const handleSidebarCommand = (command: string) => {
