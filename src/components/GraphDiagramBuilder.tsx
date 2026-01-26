@@ -87,7 +87,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         };
 
         // If a node is selected, connect to it
-        let newEdges = [...edges];
+        const newEdges = [...edges];
         if (selectedNodes.length === 1) {
             const parentId = selectedNodes[0];
             newEdges.push({

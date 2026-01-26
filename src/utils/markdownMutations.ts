@@ -31,7 +31,7 @@ export const addChildNode = (markdown: string, parentLineNumber: number, childLa
     if (parentIndex < 0 || parentIndex >= lines.length) return markdown;
 
     const parentLine = lines[parentIndex];
-    let insertIndex = parentIndex + 1;
+    const insertIndex = parentIndex + 1;
     let newPrefix = '- ';
 
     // Determine type and indentation

@@ -58,7 +58,7 @@ export const markdownToGraph = (markdown: string, title: string) => {
     });
 
     // Stack: [{ id, level }]
-    let stack: { id: string, level: number }[] = [{ id: rootId, level: 0 }];
+    const stack: { id: string, level: number }[] = [{ id: rootId, level: 0 }];
     let lastHeadingLevel = 0;
     let lastNodeId: string | null = null;
 
