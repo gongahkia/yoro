@@ -233,7 +233,7 @@ class LivePreviewPlugin {
             });
         }
 
-        return Decoration.set(widgets.sort((a, b) => a.from - b.from));
+        return Decoration.set(widgets, true);
     }
 
     isFocused(selection: { from: number, to: number }, from: number, to: number) {

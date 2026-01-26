@@ -3,7 +3,7 @@ import {
     EditorView,
     ViewPlugin,
     ViewUpdate,
-    DecorationSet
+    type DecorationSet
 } from '@codemirror/view';
 import { CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
 import { Range } from '@codemirror/state';
@@ -164,7 +164,7 @@ export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => 
                     }).range(start, end));
                 }
             }
-            return Decoration.set(widgets.sort((a, b) => a.from - b.from));
+            return Decoration.set(widgets, true);
         }
     }, {
         decorations: v => v.decorations,

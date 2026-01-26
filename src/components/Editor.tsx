@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { themeSyntaxHighlighting } from '../extensions/theme-highlighting';

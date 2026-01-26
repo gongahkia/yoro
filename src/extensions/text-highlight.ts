@@ -63,7 +63,7 @@ class TextHighlightPlugin {
                 }
             }
         }
-        return Decoration.set(widgets.sort((a, b) => a.from - b.from));
+        return Decoration.set(widgets, true);
     }
 }
 
