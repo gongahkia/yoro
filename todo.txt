@@ -5,6 +5,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 === PRIORITY 2A: COMMAND PALETTE ===
 
+(A) Test the various mermiad diagram editors as necessary to ensure all core functionality works and makes sense
 (A) Add a new shortcut in the command palette to create flowcharts and similarly be able to insert it as mermaid code in a note (in the same way that the current flowchart works)
 (A) Add a new shortcut in the command palette to create timeline and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
 (A) Add a new shortcut in the command palette to create a state diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
