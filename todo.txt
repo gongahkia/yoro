@@ -1,36 +1,28 @@
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Add yoro to the title screen
-(A) Do a visual refactor of the timeline and sequence diagram files
-(A) Test the various mermiad diagram editors as necessary to ensure all core functionality works and makes sense
-(A) Make the command palette command context-specific
-(A) Test all mermaid diagram rendering syntxA
-(A) Fix how the insert table works where it asks for how many cells you want etc
-(A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered
+(A) Make the command palette command context-specific within the specific page the user is currently in
+(A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered automatically 
+(A) Test all mermaid diagram rendering syntax actually works 
+(A) Fix how the insert table works where it asks for how many rows and columns you want 
+(A) Implement command categories/grouping for organized browsing
+(A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)
+(A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
 (A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
-(A) Have the notes frontend be rendered differently on the homepage, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
-(A) Add commands: font settings, editor preferences
-(A) Support recent commands list for quick re-access
-(A) Rework how config.toml works and how it can be edited (should it be saved as a local note?)
-(A) Refactor the command palette to have all related commands shelved under a higher level command (eg all themes should be under theme marketplace)
-(B) Implement command categories/grouping for organized browsing
+(A) Add a help manual within the command palette
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
-(B) Add commands: flashcard mode, pomodoro timer, study stats
-(B) Add commands: note linking, tag management, search and replace
 (B) fix how images are rendered
 (B) fix how links are rendered
-(B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
 (B) Add export notes to docx, pdf, md
+(B) Add commands: note linking, tag management, search and replace
+(B) Add commands: flashcard mode, pomodoro timer, study stats
+(B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
 (B) Add add notes to google drive that automatically handles the docx export
-(B) Add import notes from google drive 
 (B) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
-(B) Add a help manual within the command palette
-(C) Support user-defined custom commands and macros
-(C) Display commands based on their latets frequencey (via command history)
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Implement drag-and-drop node repositioning (Persistence)
+(B) Add import notes from google drive 
 (x) Add/delete/edit nodes with keyboard shortcuts (Bi-directional editing: Edit Label & Add Child)
 (A) Support collapsing and expanding branches
 (A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
