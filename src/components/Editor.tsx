@@ -113,18 +113,6 @@ flowchart TD
 \`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
-            } else if (command === 'insert-mermaid-timeline') {
-                const template = `\`\`\`mermaid
-timeline
-    title History of Social Media Platform
-    2002 : LinkedIn
-    2004 : Facebook
-         : Google
-    2005 : Youtube
-    2006 : Twitter
-\`\`\`
-`;
-                view.dispatch(view.state.replaceSelection(template));
             } else if (command === 'insert-mermaid-state-diagram') {
                 const template = `\`\`\`mermaid
 stateDiagram-v2

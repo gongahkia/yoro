@@ -141,7 +141,6 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
     const getInitialState = () => {
         let initialLabel = 'Start';
         if (diagramType === 'state') initialLabel = '[*]';
-        if (diagramType === 'er') initialLabel = 'ENTITY';
 
         const rootNode: Node = {
             id: 'node-0',
@@ -202,7 +201,6 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
 
         let label = 'New Node';
         if (diagramType === 'state') label = 'State';
-        if (diagramType === 'er') label = 'ENTITY';
 
         const newNode: Node = {
             id: newId,
@@ -286,22 +284,6 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                 const tLabel = targetNode ? targetNode.data.label : 'state';
                 if (sLabel && tLabel) {
                     code += `    ${sLabel} --> ${tLabel}\n`;
-                }
-            });
-            code += '```';
-        } else if (diagramType === 'er') {
-            code = '```mermaid\nerDiagram\n';
-            nodes.forEach(n => {
-                const label = n.data.label as string;
-                code += `    ${label} {\n    }\n`;
-            });
-            edges.forEach(e => {
-                const sourceNode = nodes.find(n => n.id === e.source);
-                const targetNode = nodes.find(n => n.id === e.target);
-                const sLabel = sourceNode ? sourceNode.data.label : 'ENTITY';
-                const tLabel = targetNode ? targetNode.data.label : 'ENTITY';
-                if (sLabel && tLabel) {
-                    code += `    ${sLabel} ||--o{ ${tLabel} : has\n`;
                 }
             });
             code += '```';
