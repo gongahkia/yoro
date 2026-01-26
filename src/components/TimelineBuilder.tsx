@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Note } from '../types';
+import type { Note } from '../types';
 
 interface TimelineEvent {
     id: string;

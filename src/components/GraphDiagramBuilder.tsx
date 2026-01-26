@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, ReactFlowProvider, Position, type Node, type Edge, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
-import { Note } from '../types';
+import type { Note } from '../types';
 
 interface DiagramBuilderProps {
     note: Note;
