@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, ReactFlowProvider, Position, type Node, type Edge, MarkerType } from '@xyflow/react';
+import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, addEdge, Position, type Node, type Edge, type Connection, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 import type { Note } from '../types';
@@ -37,8 +37,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
             ...node,
             targetPosition,
             sourcePosition,
-            // We are shifting the dagre node position (anchor=center center) to the top left
-            // so it matches the React Flow node anchor point (top left).
             position: {
                 x: nodeWithPosition.x - nodeWidth / 2,
                 y: nodeWithPosition.y - nodeHeight / 2,
@@ -53,7 +51,6 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
-    // Initial State Based on Type
     const getInitialState = () => {
         let initialLabel = 'Start';
         if (diagramType === 'state') initialLabel = '[*]';
@@ -63,7 +60,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
             id: 'node-0',
             data: { label: initialLabel },
             position: { x: 0, y: 0 },
-            type: 'default', // Using default for now
+            type: 'default', // standard node has handles
         };
         return getLayoutedElements([rootNode], []);
     };
@@ -71,6 +68,11 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
     const initialState = getInitialState();
     const [nodes, setNodes, onNodesChange] = useNodesState(initialState.nodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialState.edges);
+
+    const onConnect = useCallback(
+        (params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
+        [setEdges]
+    );
 
     const handleAddNode = useCallback(() => {
         const newId = `node-${nodeIdCounter}`;
@@ -83,7 +85,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         const newNode: Node = {
             id: newId,
             data: { label },
-            position: { x: 0, y: 0 }, // Will be laid out
+            position: { x: 0, y: 0 },
         };
 
         // If a node is selected, connect to it
@@ -112,16 +114,14 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         setSelectedNodes([]);
     }, [nodes, edges, selectedNodes, setNodes, setEdges]);
 
-    // Handle Keyboard Shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Ignore if typing in an input
             const target = e.target as HTMLElement;
             if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
 
             if (e.key === 'Tab') {
                 e.preventDefault();
-                handleAddNode(); // This function already handles connecting to selected node
+                handleAddNode();
             }
             if (e.key === 'Backspace' || e.key === 'Delete') {
                 e.preventDefault();
@@ -133,45 +133,18 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleAddNode, handleDelete]);
 
-    const handleLabelChange = useCallback((id: string, newLabel: string) => {
-        setNodes(nds => nds.map(n =>
-            n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n
-        ));
-    }, [setNodes]);
-
-    // We can use the MindMapNode component or a generic one that supports double click to edit?
-    // For now, let's just stick to default nodes but maybe we need a custom node to edit labels easily?
-    // The current implementation uses standard nodes. Editing labels via double click isn't implemented in the standard node.
-    // MindMap uses a custom node.
-    // user didn't explicitly ask for label editing interactivity change, just "controls/buttons look".
-    // However, the instructions in MindMap say "Double-click: Edit label".
-    // If I put that in instructions, I should probably support it.
-    // But GraphDiagramBuilder currently relies on... wait, it doesn't have label editing UI except the sidebar in the previous version?
-    // Actually the previous version didn't have label editing visible in the snippets I saw!
-    // It just had "Add Node" and "Delete".
-    // Let's stick to the styling request. I will list interactions that WORK.
-    // "Tab: Add (connected) node", "Delete: Remove node".
-    // I won't list "Double-click: Edit label" unless I implement it.
-    // Given the prompt "fix how the controls/buttons look", I should prioritize the visual aspect.
-    // But for "keybinds as specified", I'll add Tab/Delete.
-
-    // Handle Selection
     const onSelectionChange = useCallback(({ nodes }: { nodes: Node[] }) => {
         setSelectedNodes(nodes.map(n => n.id));
     }, []);
 
     const generateMermaid = () => {
-        // Generate Mermaid Code based on Nodes/Edges/Type
         let code = '';
         if (diagramType === 'flowchart') {
             code = '```mermaid\nflowchart TD\n';
-            // Nodes
             nodes.forEach(n => {
-                // Sanitize label
                 const label = (n.data.label as string).replace(/["()]/g, '');
                 code += `    ${n.id}["${label}"]\n`;
             });
-            // Edges
             edges.forEach(e => {
                 code += `    ${e.source} --> ${e.target}\n`;
             });
@@ -180,7 +153,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
             code = '```mermaid\nstateDiagram-v2\n';
             nodes.forEach(n => {
                 const label = n.data.label as string;
-                if (label === '[*]') return; // Handled in edges mostly or implicit
+                if (label === '[*]') return;
                 code += `    ${label}\n`;
             });
             edges.forEach(e => {
@@ -188,7 +161,9 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                 const targetNode = nodes.find(n => n.id === e.target);
                 const sLabel = sourceNode ? sourceNode.data.label : 'state';
                 const tLabel = targetNode ? targetNode.data.label : 'state';
-                code += `    ${sLabel} --> ${tLabel}\n`;
+                if (sLabel && tLabel) {
+                    code += `    ${sLabel} --> ${tLabel}\n`;
+                }
             });
             code += '```';
         } else if (diagramType === 'er') {
@@ -202,8 +177,9 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                 const targetNode = nodes.find(n => n.id === e.target);
                 const sLabel = sourceNode ? sourceNode.data.label : 'ENTITY';
                 const tLabel = targetNode ? targetNode.data.label : 'ENTITY';
-                // Default relationship
-                code += `    ${sLabel} ||--o{ ${tLabel} : has\n`;
+                if (sLabel && tLabel) {
+                    code += `    ${sLabel} ||--o{ ${tLabel} : has\n`;
+                }
             });
             code += '```';
         }
@@ -227,6 +203,7 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
                 onSelectionChange={onSelectionChange}
                 fitView
                 deleteKeyCode={['Backspace', 'Delete']}
@@ -238,7 +215,8 @@ export const GraphDiagramBuilder: React.FC<DiagramBuilderProps> = ({ note, onUpd
                     <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>{diagramType.toUpperCase()} Editor</div>
                     <div style={{ fontSize: '0.85em', opacity: 0.8, marginBottom: '12px' }}>
                         Tab: Add linked node<br />
-                        Delete/Backspace: Remove node
+                        Delete/Backspace: Remove node<br />
+                        Drag handles to connect
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={handleInsert} style={{ padding: '6px 12px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9em' }}>Insert Mermaid</button>
