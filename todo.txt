@@ -11,7 +11,8 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 (A) Add a new shortcut in the command palette to create a sequence diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
 (A) Add a new shortcut in the command palette to create a ER diagram and similarly be able to insert it as mermaid code (in the same way that the current flowchart works)
 (A) Make the command palette command context-specific
-(A) Test mindmap rendering syntx
+(A) Test all mermaid diagram rendering syntx
+(A) Fix how the insert table works where it asks for how many cells you want etc
 (A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered
 (A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
 (A) Have the notes frontend be rendered differently on the homepage, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise

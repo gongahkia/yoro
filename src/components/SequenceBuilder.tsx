@@ -65,48 +65,56 @@ export const SequenceBuilder: React.FC<SequenceBuilderProps> = ({ note, onUpdate
         onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
     };
 
+    const inputStyle = {
+        background: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border-color)',
+        padding: '6px',
+        borderRadius: '4px'
+    };
+
     return (
-        <div style={{ padding: 20, maxWidth: 800, margin: '0 auto', height: '100vh', overflowY: 'auto' }}>
+        <div style={{ padding: 20, maxWidth: 800, margin: '0 auto', height: '100vh', overflowY: 'auto', color: 'var(--text-primary)' }}>
             <h2>Sequence Diagram Builder</h2>
 
-            <div style={{ marginBottom: 20, padding: 10, border: '1px solid var(--border-color)' }}>
+            <div style={{ marginBottom: 20, padding: 10, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-tooltip)' }}>
                 <h3>Participants</h3>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                     {participants.map(p => (
-                        <span key={p.id} style={{ padding: '4px 8px', background: '#eee', borderRadius: 4 }}>{p.name}</span>
+                        <span key={p.id} style={{ padding: '4px 8px', background: 'var(--primary-light)', color: 'var(--text-primary)', borderRadius: 4, border: '1px solid var(--border-color)' }}>{p.name}</span>
                     ))}
-                    <button onClick={addParticipant}>+ Add</button>
+                    <button onClick={addParticipant} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>+ Add</button>
                 </div>
             </div>
 
             <div>
                 <h3>Messages</h3>
                 {messages.map((msg, idx) => (
-                    <div key={msg.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr 2fr auto', gap: 10, alignItems: 'center', marginBottom: 10, padding: 10, border: '1px solid #eee' }}>
-                        <select value={msg.from} onChange={e => updateMessage(msg.id, { from: e.target.value })}>
+                    <div key={msg.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr 2fr auto', gap: 10, alignItems: 'center', marginBottom: 10, padding: 10, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-tooltip)' }}>
+                        <select value={msg.from} onChange={e => updateMessage(msg.id, { from: e.target.value })} style={inputStyle}>
                             {participants.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
                         </select>
 
-                        <select value={msg.type} onChange={e => updateMessage(msg.id, { type: e.target.value as any })}>
+                        <select value={msg.type} onChange={e => updateMessage(msg.id, { type: e.target.value as any })} style={inputStyle}>
                             <option value="solid">-&gt;</option>
                             <option value="dotted">--&gt;</option>
                         </select>
 
-                        <select value={msg.to} onChange={e => updateMessage(msg.id, { to: e.target.value })}>
+                        <select value={msg.to} onChange={e => updateMessage(msg.id, { to: e.target.value })} style={inputStyle}>
                             {participants.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
                         </select>
 
-                        <input value={msg.text} onChange={e => updateMessage(msg.id, { text: e.target.value })} />
+                        <input value={msg.text} onChange={e => updateMessage(msg.id, { text: e.target.value })} style={inputStyle} />
 
-                        <button onClick={() => removeMessage(msg.id)}>X</button>
+                        <button onClick={() => removeMessage(msg.id)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>X</button>
                     </div>
                 ))}
-                <button onClick={addMessage}>+ Add Step</button>
+                <button onClick={addMessage} style={{ background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>+ Add Step</button>
             </div>
 
             <div style={{ marginTop: 30, display: 'flex', gap: 10 }}>
-                <button onClick={handleInsert} style={{ padding: 10, background: 'var(--primary)', color: 'white' }}>Insert Diagram</button>
-                <button onClick={() => onUpdateNote(note.id, { viewMode: 'editor' })} style={{ padding: 10 }}>Cancel</button>
+                <button onClick={handleInsert} style={{ padding: 10, background: 'var(--primary)', color: '#fff', border: 'none' }}>Insert Diagram</button>
+                <button onClick={() => onUpdateNote(note.id, { viewMode: 'editor' })} style={{ padding: 10, background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>Cancel</button>
             </div>
         </div>
     );

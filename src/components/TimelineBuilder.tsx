@@ -42,38 +42,63 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ note, onUpdate
     };
 
     return (
-        <div style={{ padding: 20, maxWidth: 600, margin: '0 auto' }}>
-            <h2>Timeline Builder</h2>
+        <div style={{ padding: 20, maxWidth: 600, margin: '0 auto', color: 'var(--text-primary)', height: '100vh', overflowY: 'auto' }}>
+            <h2 style={{ color: 'var(--text-primary)' }}>Timeline Builder</h2>
             <div style={{ marginBottom: 20 }}>
-                <label>Chart Title: </label>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: '100%', padding: 8 }} />
+                <label style={{ display: 'block', marginBottom: 5 }}>Chart Title: </label>
+                <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: 8,
+                        background: 'var(--bg-tooltip)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 4
+                    }}
+                />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {events.map((ev, idx) => (
-                    <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'center', border: '1px solid #ccc', padding: 10 }}>
-                        <span>{idx + 1}.</span>
+                    <div key={ev.id} style={{ display: 'flex', gap: 10, alignItems: 'center', border: '1px solid var(--border-color)', padding: 10, borderRadius: 8, background: 'var(--bg-tooltip)' }}>
+                        <span style={{ minWidth: 20 }}>{idx + 1}.</span>
                         <input
                             placeholder="Period (e.g. 2023)"
                             value={ev.period}
                             onChange={(e) => updateEvent(ev.id, { period: e.target.value })}
+                            style={{
+                                background: 'var(--bg-primary)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--border-color)',
+                                padding: 6,
+                                borderRadius: 4
+                            }}
                         />
                         <input
                             placeholder="Event Title"
                             value={ev.title}
                             onChange={(e) => updateEvent(ev.id, { title: e.target.value })}
-                            style={{ flexGrow: 1 }}
+                            style={{
+                                flexGrow: 1,
+                                background: 'var(--bg-primary)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--border-color)',
+                                padding: 6,
+                                borderRadius: 4
+                            }}
                         />
-                        <button onClick={() => removeEvent(ev.id)}>X</button>
+                        <button onClick={() => removeEvent(ev.id)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>X</button>
                     </div>
                 ))}
             </div>
 
-            <button onClick={addEvent} style={{ marginTop: 10 }}>+ Add Event</button>
+            <button onClick={addEvent} style={{ marginTop: 10, background: 'var(--bg-tooltip)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>+ Add Event</button>
 
             <div style={{ marginTop: 30, display: 'flex', gap: 10 }}>
-                <button onClick={handleInsert} style={{ padding: 10, background: 'var(--primary)', color: 'white' }}>Insert Timeline</button>
-                <button onClick={() => onUpdateNote(note.id, { viewMode: 'editor' })} style={{ padding: 10 }}>Cancel</button>
+                <button onClick={handleInsert} style={{ padding: 10, background: 'var(--primary)', color: '#fff', border: 'none' }}>Insert Timeline</button>
+                <button onClick={() => onUpdateNote(note.id, { viewMode: 'editor' })} style={{ padding: 10, background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>Cancel</button>
             </div>
         </div>
     );
