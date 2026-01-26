@@ -107,9 +107,39 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             }
         };
 
+        const handleNavigateLine = (e: CustomEvent) => {
+            if (!editorRef.current?.view) return;
+            const view = editorRef.current.view;
+            const { noteId, lineNumber } = e.detail;
+
+            // Only act if this event is for the current note
+            if (noteId && noteId !== note.id) return;
+
+            if (lineNumber) {
+                // CodeMirror lines are 1-based for lineAt, but 0-based for state? 
+                // lineAt(pos) or line(n). doc.line(n) is 1-based.
+                try {
+                    const line = view.state.doc.line(lineNumber);
+                    view.dispatch({
+                        selection: { anchor: line.from },
+                        scrollIntoView: true,
+                        effects: EditorView.scrollIntoView(line.from, { y: 'center' })
+                    });
+                    // Focus editor
+                    view.focus();
+                } catch (err) {
+                    console.error('Failed to navigate to line:', lineNumber, err);
+                }
+            }
+        };
+
         window.addEventListener('yoro-editor-cmd' as any, handleCommand);
-        return () => window.removeEventListener('yoro-editor-cmd' as any, handleCommand);
-    }, []);
+        window.addEventListener('yoro-navigate-line' as any, handleNavigateLine);
+        return () => {
+            window.removeEventListener('yoro-editor-cmd' as any, handleCommand);
+            window.removeEventListener('yoro-navigate-line' as any, handleNavigateLine);
+        };
+    }, [note.id]); // Re-bind if note ID changes
 
     const handleFormatting = (view: any, type: string) => {
         const { from, to } = view.state.selection.main;

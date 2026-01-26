@@ -33,7 +33,14 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
     if (!note) return <div>Note not found</div>;
 
     if (note.viewMode === 'mindmap') {
-        return <MindMap markdown={note.content} title={note.title} />;
+        return (
+            <MindMap 
+                markdown={note.content} 
+                title={note.title} 
+                noteId={note.id}
+                onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
+            />
+        );
     }
 
     return (
