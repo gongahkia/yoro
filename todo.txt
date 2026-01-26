@@ -5,6 +5,7 @@ No database | Local-first | Live-preview markdown | Native mindmaps & diagrams
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 === PRIORITY 2A: COMMAND PALETTE ===
 
+(A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
 (A) Have the notes frontend be rendered differently on the homepage, as a circular panel of all available notes, where hovering over any card will have it "pull" out and float up above the rest of the circular deck of splayed out cards. scrolling up/down will also cause the floating carousel to rotate clokcwise/anticlockwise
 (A) Add commands: font settings, editor preferences
 (A) Rework how config.toml works and how it can be edited (should it be saved as a local note?)

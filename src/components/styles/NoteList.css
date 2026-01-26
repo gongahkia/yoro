@@ -1,80 +1,45 @@
 .note-list-container {
-    padding: 1rem;
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     color: var(--text-primary);
     background: var(--bg-app);
+    position: relative;
 }
 
 .note-list-header {
-    margin-bottom: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 0;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    z-index: 10;
+    z-index: 100; /* Ensure header is above the 3D deck */
     position: relative;
     max-width: 800px;
-    width: 100%;
+    width: 90%;
     align-self: center;
+    background: rgba(0,0,0,0.5); /* Optional: distinct background if needed, or rely on blur */
+    padding: 1rem;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
 }
 
-.search-input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    outline: none;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    transition: border-color 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.search-input:focus {
-    border-color: var(--primary);
-}
-
-.tags-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-.filter-tag {
-    cursor: pointer;
-    padding: 0.3rem 0.8rem;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    background: var(--primary-light);
-    color: var(--text-primary);
-    transition: all 0.2s;
-    user-select: none;
-    border: 1px solid transparent;
-}
-
-.filter-tag:hover {
-    border-color: var(--primary);
-}
-
-.filter-tag.active {
-    background: var(--primary);
-    color: white;
-}
+/* ... existing search styles ... */
 
 /* Circular Deck Styles */
 .circular-deck-container {
     flex-grow: 1;
+    width: 100%;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    perspective: 2000px; /* Deeper perspective for cylinder */
-    overflow: hidden;
-    margin-top: -20px;
+    perspective: 2000px;
+    overflow: visible; /* changed from hidden to visible to avoid clipping cards rotating close to camera */
+    /* Ensure the center of the deck is positioned well within the view */
+    margin-top: 0; 
 }
 
 .circular-deck {
@@ -82,7 +47,9 @@
     width: 0;
     height: 0;
     transform-style: preserve-3d;
-    transition: transform 0.1s ease-out; /* Smooth rotation */
+    transition: transform 0.1s ease-out;
+    /* Move the whole deck down if it's too high up */
+    top: 50px; 
 }
 
 .circular-card-wrapper {
