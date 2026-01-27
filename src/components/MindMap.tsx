@@ -59,12 +59,19 @@ interface MindMapNodeData {
 const nodesToMermaid = (rootNode: MindMapNodeData): string => {
     const lines: string[] = ['```mermaid', 'mindmap'];
 
+    const sanitizeLabel = (label: string): string => {
+        // Remove or escape characters that could break mermaid syntax
+        return label.replace(/[()[\]{}]/g, '').trim() || 'Node';
+    };
+
     const traverse = (node: MindMapNodeData, depth: number) => {
         const indent = '  '.repeat(depth);
-        if (depth === 0) {
-            lines.push(`${indent}root((${node.label}))`);
+        const safeLabel = sanitizeLabel(node.label);
+        if (depth === 1) {
+            // Root node uses special syntax
+            lines.push(`${indent}root((${safeLabel}))`);
         } else {
-            lines.push(`${indent}${node.label}`);
+            lines.push(`${indent}${safeLabel}`);
         }
         node.children.forEach(child => traverse(child, depth + 1));
     };

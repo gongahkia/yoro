@@ -230,7 +230,11 @@ export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = ({ note, onUpda
     const generateMermaid = () => {
         let code = '```mermaid\nflowchart TD\n';
         nodes.forEach(n => {
-            const label = (n.data.label as string).replace(/["()]/g, '');
+            // Escape quotes and remove problematic characters for mermaid
+            const label = (n.data.label as string)
+                .replace(/"/g, "'")
+                .replace(/[\[\]]/g, '')
+                .trim() || 'Node';
             code += `    ${n.id}["${label}"]\n`;
         });
         edges.forEach(e => {

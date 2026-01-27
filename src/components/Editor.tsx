@@ -22,6 +22,7 @@ import { emojiCompletion } from '../extensions/emojis';
 import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } from '../extensions/wikilinks';
 import { focusModeExtension } from '../extensions/focus-mode';
 import { inlineCode } from '../extensions/inline-code';
+import { mermaidPreview } from '../extensions/mermaid';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -275,6 +276,7 @@ stateDiagram-v2
                         textHighlight,
                         callouts,
                         inlineCode,
+                        mermaidPreview,
                         autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
                         highlightActiveLine(),

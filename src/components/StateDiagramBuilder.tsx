@@ -317,12 +317,31 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
     const generateMermaid = () => {
         let code = '```mermaid\nstateDiagram-v2\n';
 
-        // Define states (skip start and end markers)
+        // Helper to create valid state ID from label
+        const toStateId = (label: string, nodeId: string): string => {
+            // Convert label to valid identifier (alphanumeric and underscores only)
+            const sanitized = label
+                .replace(/[^a-zA-Z0-9]/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+            return sanitized || nodeId.replace(/-/g, '_');
+        };
+
+        // Build a map of node id to state id and label
+        const stateMap = new Map<string, { stateId: string; label: string }>();
         nodes.forEach(n => {
             if (n.type === 'state') {
-                const label = n.data.label as string;
-                code += `    ${label}\n`;
+                const label = (n.data.label as string) || 'State';
+                const stateId = toStateId(label, n.id);
+                stateMap.set(n.id, { stateId, label });
             }
+        });
+
+        // Define states with labels (only if label differs from id or has spaces)
+        stateMap.forEach(({ stateId, label }) => {
+            // Always use the state definition to ensure proper display
+            const safeLabel = label.replace(/"/g, "'");
+            code += `    state "${safeLabel}" as ${stateId}\n`;
         });
 
         // Define transitions
@@ -330,13 +349,22 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
             const sourceNode = nodes.find(n => n.id === e.source);
             const targetNode = nodes.find(n => n.id === e.target);
             if (sourceNode && targetNode) {
-                const sLabel = sourceNode.type === 'startState' || sourceNode.type === 'endState'
-                    ? '[*]'
-                    : sourceNode.data.label as string;
-                const tLabel = targetNode.type === 'startState' || targetNode.type === 'endState'
-                    ? '[*]'
-                    : targetNode.data.label as string;
-                code += `    ${sLabel} --> ${tLabel}\n`;
+                let sId: string;
+                let tId: string;
+
+                if (sourceNode.type === 'startState' || sourceNode.type === 'endState') {
+                    sId = '[*]';
+                } else {
+                    sId = stateMap.get(sourceNode.id)?.stateId || sourceNode.id;
+                }
+
+                if (targetNode.type === 'startState' || targetNode.type === 'endState') {
+                    tId = '[*]';
+                } else {
+                    tId = stateMap.get(targetNode.id)?.stateId || targetNode.id;
+                }
+
+                code += `    ${sId} --> ${tId}\n`;
             }
         });
 
