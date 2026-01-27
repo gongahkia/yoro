@@ -335,7 +335,7 @@ function App() {
                 }
             } catch {
                 console.error('Failed to import shared note:');
-                alert('Failed to load shared note. The link might be corrupted.');
+                showToast('Failed to load shared note. The link might be corrupted.', 'error');
             }
         }
     }, [location.search, navigate]);
@@ -792,7 +792,7 @@ function App() {
                         const compressed = LZString.compressToEncodedURIComponent(dataToCompress);
                         const url = `${window.location.origin}/?share=${compressed}`;
                         navigator.clipboard.writeText(url).then(() => {
-                            alert('Share link copied to clipboard!');
+                            showToast('Share link copied to clipboard!', 'success');
                         });
                     }
                 },
