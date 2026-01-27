@@ -182,7 +182,9 @@ export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => 
                         if (note) {
                             onNavigate(note.id);
                         } else {
-                            alert(`Note "${title}" not found.`);
+                            window.dispatchEvent(new CustomEvent('yoro-toast', {
+                                detail: { message: `Note "${title}" not found.`, type: 'error' }
+                            }));
                         }
                         return;
                     }

@@ -988,6 +988,8 @@ function App() {
                 onClose={() => setTableModalOpen(false)}
                 onInsert={handleTableInsert}
             />
+
+            <ToastContainer />
         </div>
     );
 }
