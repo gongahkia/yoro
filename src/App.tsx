@@ -16,6 +16,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import { FlowchartBuilder } from './components/FlowchartBuilder';
 import { StateDiagramBuilder } from './components/StateDiagramBuilder';
 import { TableInsertModal } from './components/TableInsertModal';
+import { ToastContainer, showToast } from './components/Toast';
 import './App.css';
 
 interface NoteEditorWrapperProps {
