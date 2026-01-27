@@ -891,21 +891,24 @@ function App() {
                 label: 'Insert Table',
                 action: () => setTableModalOpen(true),
                 category: 'Editor',
-                context: 'editor' as const
+                context: 'editor' as const,
+                groupId: 'editor-settings'
             },
             {
                 id: 'insert-code-block',
                 label: 'Insert Code Block',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-code-block' } })),
                 category: 'Editor',
-                context: 'editor' as const
+                context: 'editor' as const,
+                groupId: 'editor-settings'
             },
             {
                 id: 'insert-hr',
                 label: 'Insert Horizontal Rule',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-horizontal-rule' } })),
                 category: 'Editor',
-                context: 'editor' as const
+                context: 'editor' as const,
+                groupId: 'editor-settings'
             },
             {
                 id: 'insert-mermaid-flowchart',
@@ -917,7 +920,8 @@ function App() {
                     }
                 },
                 category: 'Editor',
-                context: 'editor' as const
+                context: 'editor' as const,
+                groupId: 'editor-settings'
             },
             {
                 id: 'insert-mermaid-state-diagram',
@@ -927,7 +931,8 @@ function App() {
                     if (id) handleUpdateNote(id, { viewMode: 'state' });
                 },
                 category: 'Editor',
-                context: 'editor' as const
+                context: 'editor' as const,
+                groupId: 'editor-settings'
             }
         ] : [])
     ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate]);
@@ -1028,6 +1033,7 @@ function App() {
                         searchQuery={searchQuery}
                         selectedTag={selectedTag}
                         onTagChange={setSelectedTag}
+                        viewMode={data.preferences.homeViewMode}
                     />
                 } />
                 <Route path="/note/:id" element={
