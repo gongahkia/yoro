@@ -99,7 +99,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-secondary, #888);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
 }
 
 .tag-label {
@@ -117,20 +117,24 @@
 /* Hierarchical Command Palette Styles */
 .command-palette-item.group-header {
     padding: 6px 16px;
-    margin-top: 4px;
+    margin-top: 8px;
+    padding-top: 12px;
     background: transparent;
     border-bottom: none;
+    justify-content: flex-start;
+    border-top: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
 }
 
 .command-palette-item.group-header:first-child {
     margin-top: 0;
+    padding-top: 6px;
+    border-top: none;
 }
 
 .group-header-content {
     display: flex;
     align-items: center;
     gap: 6px;
-    width: 100%;
 }
 
 .group-toggle {
