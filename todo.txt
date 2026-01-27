@@ -1,10 +1,9 @@
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
 (A) Make the command palette command context-specific within the specific page the user is currently in
-(A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered automatically 
-(A) Test all mermaid diagram rendering syntax actually works 
+(A) Test all mermaid diagram rendering syntax actually works when rendered
 (A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
-(A) Fix how the insert table works where it asks for how many rows and columns you want 
+(A) Fix how the insert table works where it asks for how many rows and columns you want before inserting the table
 (A) Implement command categories/grouping for organized browsing
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)
 (A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
