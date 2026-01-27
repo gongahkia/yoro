@@ -69,12 +69,16 @@ export const NoteList: React.FC<NoteListProps> = ({
             e.preventDefault();
             // Rotate based on scroll
             const delta = e.deltaY * 0.1; // Sensitivity
-            setRotation(prev => prev + delta);
+            if (viewMode === '3d-carousel') {
+                setRotation(prev => prev + delta);
+            } else {
+                setRotation2D(prev => prev + delta);
+            }
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, []);
+    }, [viewMode]);
 
     // Constants for layout
     // Radius depends on count to avoid overlap? 
