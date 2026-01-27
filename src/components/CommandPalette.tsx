@@ -1,13 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './styles/CommandPalette.css';
+
+export interface CommandParameter {
+    name: string;
+    type: 'number' | 'text' | 'select';
+    label: string;
+    placeholder?: string;
+    defaultValue?: string | number;
+    min?: number;
+    max?: number;
+    options?: { value: string; label: string }[];
+}
+
+export interface CommandGroup {
+    id: string;
+    label: string;
+}
 
 export interface Command {
     id: string;
     label: string;
     shortcut?: string;
-    action: () => void;
+    action: (params?: Record<string, string | number>) => void;
     category?: string;
     context?: 'home' | 'editor' | 'global';
+    groupId?: string;
+    parameters?: CommandParameter[];
+    isGroupHeader?: boolean;
 }
 
 interface CommandPaletteProps {
@@ -21,6 +40,8 @@ interface CommandPaletteProps {
     onTagSelect?: (tag: string | null) => void;
     allTags?: string[];
     currentContext?: 'home' | 'editor' | 'global';
+    commandGroups?: CommandGroup[];
+    onOpenParameterModal?: (command: Command) => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -33,16 +54,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     selectedTag,
     onTagSelect,
     allTags = [],
-    currentContext = 'global'
+    currentContext = 'global',
+    commandGroups = [],
+    onOpenParameterModal
 }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
 
     const isSearchMode = query.startsWith('/');
 
-    const filteredCommands = React.useMemo(() => {
+    const toggleGroup = (groupId: string) => {
+        setExpandedGroups(prev => {
+            const next = new Set(prev);
+            if (next.has(groupId)) {
+                next.delete(groupId);
+            } else {
+                next.add(groupId);
+            }
+            return next;
+        });
+    };
+
+    // Build hierarchical command list
+    const displayItems = useMemo(() => {
         if (isSearchMode) return [];
 
         // Filter by context first
@@ -50,47 +87,93 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             !cmd.context || cmd.context === 'global' || cmd.context === currentContext
         );
 
-        if (!query) {
-            const recent = recentCommandIds
-                .map(id => contextFilteredCommands.find(c => c.id === id))
-                .filter((c): c is Command => !!c);
+        // When searching, bypass hierarchy - show matching commands directly
+        if (query) {
+            const lowerQuery = query.toLowerCase();
+            return contextFilteredCommands
+                .map(cmd => {
+                    const label = cmd.label.toLowerCase();
+                    let score = 0;
+                    let qIdx = 0;
+                    let lIdx = 0;
 
-            const uniqueRecent = Array.from(new Set(recent));
-            const recentIds = new Set(uniqueRecent.map(c => c.id));
+                    while (qIdx < lowerQuery.length && lIdx < label.length) {
+                        if (lowerQuery[qIdx] === label[lIdx]) {
+                            score += 10;
+                            if (lIdx === 0 || label[lIdx - 1] === ' ') score += 5;
+                            qIdx++;
+                        } else {
+                            score -= 1;
+                        }
+                        lIdx++;
+                    }
 
-            const others = contextFilteredCommands.filter(c => !recentIds.has(c.id));
-            return [...uniqueRecent, ...others];
+                    if (qIdx < lowerQuery.length) return null;
+
+                    score -= (label.length - lowerQuery.length) * 0.1;
+
+                    return { cmd, score };
+                })
+                .filter((item): item is { cmd: Command, score: number } => item !== null)
+                .sort((a, b) => b.score - a.score)
+                .map(item => item.cmd);
         }
 
-        const lowerQuery = query.toLowerCase();
-        return contextFilteredCommands
-            .map(cmd => {
-                const label = cmd.label.toLowerCase();
-                let score = 0;
-                let qIdx = 0;
-                let lIdx = 0;
+        // No query - show hierarchical view
+        const items: Command[] = [];
 
-                while (qIdx < lowerQuery.length && lIdx < label.length) {
-                    if (lowerQuery[qIdx] === label[lIdx]) {
-                        score += 10;
-                        if (lIdx === 0 || label[lIdx - 1] === ' ') score += 5;
-                        qIdx++;
-                    } else {
-                        score -= 1;
-                    }
-                    lIdx++;
+        // Add recent commands first
+        const recent = recentCommandIds
+            .map(id => contextFilteredCommands.find(c => c.id === id))
+            .filter((c): c is Command => !!c);
+        const uniqueRecent = Array.from(new Set(recent));
+        const recentIds = new Set(uniqueRecent.map(c => c.id));
+        items.push(...uniqueRecent);
+
+        // Group remaining commands
+        const groupedCommands = new Map<string, Command[]>();
+        const ungroupedCommands: Command[] = [];
+
+        contextFilteredCommands.forEach(cmd => {
+            if (recentIds.has(cmd.id)) return; // Skip already added recent
+            if (cmd.groupId) {
+                if (!groupedCommands.has(cmd.groupId)) {
+                    groupedCommands.set(cmd.groupId, []);
                 }
+                groupedCommands.get(cmd.groupId)!.push(cmd);
+            } else {
+                ungroupedCommands.push(cmd);
+            }
+        });
 
-                if (qIdx < lowerQuery.length) return null;
+        // Add grouped commands with headers
+        commandGroups.forEach(group => {
+            const groupCmds = groupedCommands.get(group.id);
+            if (groupCmds && groupCmds.length > 0) {
+                // Add group header
+                items.push({
+                    id: `group-header-${group.id}`,
+                    label: group.label,
+                    action: () => toggleGroup(group.id),
+                    isGroupHeader: true,
+                    groupId: group.id
+                });
 
-                score -= (label.length - lowerQuery.length) * 0.1;
+                // Add children if expanded
+                if (expandedGroups.has(group.id)) {
+                    items.push(...groupCmds);
+                }
+            }
+        });
 
-                return { cmd, score };
-            })
-            .filter((item): item is { cmd: Command, score: number } => item !== null)
-            .sort((a, b) => b.score - a.score)
-            .map(item => item.cmd);
-    }, [commands, query, recentCommandIds, isSearchMode, currentContext]);
+        // Add ungrouped commands at the end
+        items.push(...ungroupedCommands);
+
+        return items;
+    }, [commands, query, recentCommandIds, isSearchMode, currentContext, commandGroups, expandedGroups]);
+
+    // For backwards compatibility
+    const filteredCommands = displayItems;
 
     useEffect(() => {
         if (isOpen) {
@@ -112,6 +195,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }, [query, isSearchMode, onSearchChange]);
 
     const executeCommand = (cmd: Command) => {
+        // Handle group headers
+        if (cmd.isGroupHeader && cmd.groupId) {
+            toggleGroup(cmd.groupId);
+            return;
+        }
+
+        // Handle parameterized commands
+        if (cmd.parameters && cmd.parameters.length > 0 && onOpenParameterModal) {
+            onOpenParameterModal(cmd);
+            onClose();
+            return;
+        }
+
         cmd.action();
         onCommandExecuted?.(cmd.id);
         onClose();
@@ -211,17 +307,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     </div>
                 ) : (
                     <ul className="command-palette-list" ref={listRef}>
-                        {filteredCommands.map((cmd, index) => (
-                            <li
-                                key={cmd.id}
-                                className={`command-palette-item ${index === selectedIndex ? 'selected' : ''}`}
-                                onClick={() => executeCommand(cmd)}
-                                onMouseEnter={() => setSelectedIndex(index)}
-                            >
-                                <span className="command-label">{cmd.label}</span>
-                                {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
-                            </li>
-                        ))}
+                        {filteredCommands.map((cmd, index) => {
+                            const isGroupHeader = cmd.isGroupHeader;
+                            const isExpanded = cmd.groupId ? expandedGroups.has(cmd.groupId) : false;
+                            const isChildOfGroup = !isGroupHeader && cmd.groupId && expandedGroups.has(cmd.groupId);
+
+                            return (
+                                <li
+                                    key={cmd.id}
+                                    className={`command-palette-item ${index === selectedIndex ? 'selected' : ''} ${isGroupHeader ? 'group-header' : ''} ${isChildOfGroup ? 'group-child' : ''}`}
+                                    onClick={() => executeCommand(cmd)}
+                                    onMouseEnter={() => setSelectedIndex(index)}
+                                >
+                                    {isGroupHeader ? (
+                                        <>
+                                            <span className="group-toggle">{isExpanded ? '▼' : '▶'}</span>
+                                            <span className="command-label group-label">{cmd.label}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="command-label">{cmd.label}</span>
+                                            {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
+                                            {cmd.parameters && cmd.parameters.length > 0 && (
+                                                <span className="command-params-hint">...</span>
+                                            )}
+                                        </>
+                                    )}
+                                </li>
+                            );
+                        })}
                         {filteredCommands.length === 0 && (
                             <li className="command-palette-empty">No commands found</li>
                         )}

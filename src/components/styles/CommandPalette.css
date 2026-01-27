@@ -113,3 +113,44 @@
     padding: 2px 6px;
     border-radius: 4px;
 }
+
+/* Hierarchical Command Palette Styles */
+.command-palette-item.group-header {
+    font-weight: 600;
+    background-color: var(--bg-secondary, #f5f5f5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 8px 20px;
+}
+
+.command-palette-item.group-header:hover {
+    background-color: var(--bg-secondary, #f0f0f0);
+}
+
+.command-palette-item.group-child {
+    padding-left: 40px;
+}
+
+.group-toggle {
+    font-size: 0.7em;
+    margin-right: 8px;
+    opacity: 0.6;
+    width: 12px;
+    display: inline-block;
+}
+
+.group-label {
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary, #666);
+}
+
+.command-palette-item.group-header.selected .group-label {
+    color: var(--primary, #007bff);
+}
+
+.command-params-hint {
+    font-size: 0.85em;
+    color: var(--text-secondary, #888);
+    margin-left: 4px;
+}

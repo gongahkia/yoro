@@ -12,6 +12,7 @@ interface NoteListProps {
     searchQuery: string;
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
+    viewMode?: '3d-carousel' | '2d-semicircle';
 }
 
 export const NoteList: React.FC<NoteListProps> = ({
