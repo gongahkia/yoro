@@ -1086,6 +1086,19 @@ function App() {
                 onInsert={handleTableInsert}
             />
 
+            <ParameterInputModal
+                isOpen={paramModalOpen}
+                onClose={() => {
+                    setParamModalOpen(false);
+                    setParamModalCommand(null);
+                }}
+                command={paramModalCommand}
+                onSubmit={(cmd, params) => {
+                    cmd.action(params);
+                    handleCommandExecuted(cmd.id);
+                }}
+            />
+
             <ToastContainer />
         </div>
     );
