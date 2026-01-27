@@ -1,9 +1,13 @@
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-(A) Make the command palette command context-specific within the specific page the user is currently in
+(A) fix how images are rendered to allow them to be rendered just by URL and have them automtically sized to be within the frame and centred on the line. lines with image URLs shouldn't have any other text since they're rendered as images when scrolled off of
+(A) add user sharing each file as core functionality with all file data encapsulated within the generated URL and openable in another user's local yoro
+(A) Make the command palette command context-specific within the specific page the user is currently in for the commands they should actually be able to invoke at their current state
+(A) Fix how the insert table works where it asks for how many rows and columns you want before inserting the table of the appropriate size
+(A) Ensure that when scrolled off the current few lines the table occupires, the current markodwn tables render nicely as well as actual tables 
+
 (A) Test all mermaid diagram rendering syntax actually works when rendered
 (A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
-(A) Fix how the insert table works where it asks for how many rows and columns you want before inserting the table
 (A) Implement command categories/grouping for organized browsing
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)
 (A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
@@ -11,9 +15,7 @@
 (A) Add a help manual within the command palette
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
-(B) fix how images are rendered
 (B) fix how links are rendered
-(B) add user sharing each file as core functionality with all file data encapsulated within the generated URL
 (B) Add export notes to docx, pdf, md
 (B) Add commands: note linking, tag management, search and replace
 (B) Add commands: flashcard mode, pomodoro timer, study stats
