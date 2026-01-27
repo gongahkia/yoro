@@ -1,12 +1,11 @@
 import {
     Decoration,
     EditorView,
-    ViewPlugin,
     WidgetType,
 } from '@codemirror/view';
-import type { DecorationSet, ViewUpdate } from '@codemirror/view';
+import type { DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { Range } from '@codemirror/state';
+import { StateField, StateEffect } from '@codemirror/state';
 
 class TableWidget extends WidgetType {
     readonly tableText: string;
@@ -74,9 +73,7 @@ class TableWidget extends WidgetType {
         }
 
         const parseRow = (line: string): string[] => {
-            // Split by | and remove empty first/last elements from leading/trailing |
             const cells = line.split('|');
-            // If line starts with |, first element is empty; if ends with |, last is empty
             const trimmedCells = cells.slice(
                 cells[0].trim() === '' ? 1 : 0,
                 cells[cells.length - 1].trim() === '' ? -1 : undefined
@@ -102,54 +99,60 @@ class TableWidget extends WidgetType {
 
         return { header, data, alignments };
     }
-}
 
-class TablePreviewPlugin {
-    decorations: DecorationSet;
-
-    constructor(view: EditorView) {
-        this.decorations = this.computeDecorations(view);
-    }
-
-    update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged || update.selectionSet) {
-            this.decorations = this.computeDecorations(update.view);
-        }
-    }
-
-    computeDecorations(view: EditorView): DecorationSet {
-        const widgets: Range<Decoration>[] = [];
-        const { state } = view;
-        const selection = state.selection.main;
-
-        for (const { from, to } of view.visibleRanges) {
-            syntaxTree(state).iterate({
-                from,
-                to,
-                enter: (node) => {
-                    if (node.name === 'Table') {
-                        const tableFrom = node.from;
-                        const tableTo = node.to;
-
-                        // Check if cursor is within table
-                        const isFocused = (selection.from >= tableFrom && selection.from <= tableTo) ||
-                            (selection.to >= tableFrom && selection.to <= tableTo);
-
-                        if (!isFocused) {
-                            const tableText = state.sliceDoc(tableFrom, tableTo);
-                            widgets.push(Decoration.replace({
-                                widget: new TableWidget(tableText)
-                            }).range(tableFrom, tableTo));
-                        }
-                    }
-                }
-            });
-        }
-
-        return Decoration.set(widgets, true);
+    ignoreEvent() {
+        return false;
     }
 }
 
-export const tablePreview = ViewPlugin.fromClass(TablePreviewPlugin, {
-    decorations: (v) => v.decorations,
+// Use StateField for multi-line decorations (required by CodeMirror for line-spanning replacements)
+export const tablePreview = StateField.define<DecorationSet>({
+    create(state) {
+        return computeTableDecorations(state);
+    },
+    update(decorations, tr) {
+        if (tr.docChanged || tr.selection) {
+            return computeTableDecorations(tr.state);
+        }
+        return decorations;
+    },
+    provide: f => EditorView.decorations.from(f)
 });
+
+function computeTableDecorations(state: import('@codemirror/state').EditorState): DecorationSet {
+    const widgets: { from: number; to: number; decoration: Decoration }[] = [];
+    const selection = state.selection.main;
+
+    syntaxTree(state).iterate({
+        enter: (node) => {
+            if (node.name === 'Table') {
+                const tableFrom = node.from;
+                const tableTo = node.to;
+
+                // Check if cursor is within table (including the line the table is on)
+                const fromLine = state.doc.lineAt(tableFrom);
+                const toLine = state.doc.lineAt(tableTo);
+
+                const isFocused = (selection.from >= fromLine.from && selection.from <= toLine.to) ||
+                    (selection.to >= fromLine.from && selection.to <= toLine.to);
+
+                if (!isFocused) {
+                    const tableText = state.sliceDoc(tableFrom, tableTo);
+                    widgets.push({
+                        from: tableFrom,
+                        to: tableTo,
+                        decoration: Decoration.replace({
+                            widget: new TableWidget(tableText),
+                            block: true
+                        })
+                    });
+                }
+            }
+        }
+    });
+
+    // Sort by from position (required by CodeMirror)
+    widgets.sort((a, b) => a.from - b.from);
+
+    return Decoration.set(widgets.map(w => w.decoration.range(w.from, w.to)));
+}
