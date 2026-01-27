@@ -92,8 +92,14 @@ export const NoteList: React.FC<NoteListProps> = ({
     const deckTilt = -5; // degrees X-axis
 
     // 2D Semicircle constants
-    // Use dynamic radius similar to 3D view to prevent overlap
-    const semicircleRadius = Math.max(400, (count * cardWidth) / (2 * Math.PI));
+    const baseRadius = 400;
+    const circumference = 2 * Math.PI * baseRadius;
+    // Calculate how much space each card gets on the circle
+    const spacePerCard = count > 0 ? circumference / count : circumference;
+    // Scale cards down if they don't fit (with min scale of 0.4 for readability)
+    const cardScale2D = Math.max(0.4, Math.min(1, spacePerCard / cardWidth));
+    // Adjust radius slightly when scaling down to keep cards visible
+    const semicircleRadius = baseRadius;
 
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
@@ -188,12 +194,15 @@ export const NoteList: React.FC<NoteListProps> = ({
                             const distanceFrom270 = Math.abs(normalizedAngle - 270);
                             const baseZIndex = Math.round(100 - distanceFrom270 / 3.6);
 
+                            // Apply base scale with hover boost
+                            const finalScale = isHovered ? cardScale2D * 1.15 : cardScale2D;
+
                             return (
                                 <div
                                     key={note.id}
                                     className="semicircle-card-wrapper"
                                     style={{
-                                        transform: `translate(${x}px, ${y + hoverOffset}px) rotate(${cardRotation}deg) scale(${isHovered ? 1.08 : 1})`,
+                                        transform: `translate(${x}px, ${y + hoverOffset}px) rotate(${cardRotation}deg) scale(${finalScale})`,
                                         zIndex: isHovered ? 1000 : baseZIndex
                                     }}
                                     onMouseEnter={() => setHoveredId(note.id)}

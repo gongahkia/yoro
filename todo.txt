@@ -1,110 +1,19 @@
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
-
 (A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
-(A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
+(A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
-(A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme or personlsation, then when clicked through it goes to that)
-(A) For the current home page also add a new rendering option where notes are shown in a 2d circle shape with only the top half visible at the bottom of the screen. it should rotate with the scroll motion clockwise/anti-clockwise accordingly
-(A) Allow users to switch between the 2d and 3d view in the command palette
-(B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
-
-(B) fix how links are rendered
+(B) Test the existing parameterized commands for set font size and see if it even works
+(B) Support parameterized commands for other commands that can support it
 (B) Add export notes to docx, pdf, md
-(B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
-(B) Add commands: note linking, tag management, search and replace, knwoledge graph view
-(B) Add commands: flashcard mode, pomodoro timer
-(A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
+(B) Generate knowledge graph view so that when multiple documents link each other then they will be connected within the knowledge graph via wikilinks
+(B) Add knowledge graph to the command palette as a viewable option
+(A) Rework how config.toml works to ensure it configures all configurable items within yoro and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
 (A) Add a help manual within the command palette
+(B) Refactor the sidebar as necessary to add more functionality
+(B) Add emacs keybinds as necessary
 
 (B) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
 
-(B) Add add notes to google drive that automatically handles the docx export
-
-=== PRIORITY 2B: MINDMAPPING FEATURES ===
-(A) Implement drag-and-drop node repositioning (Persistence)
-(A) Support collapsing and expanding branches
-(A) Navigation: Click node to jump to source line in Editor
-(A) Visual Polish: Theme synchronization (match app colors/fonts)
-(A) Content: Display plain text paragraphs as note attachments/children
-(B) Support different node shapes (rectangle, circle, rounded)
-(B) Add edge styling (straight, curved, orthogonal)
-(B) Implement node relationships beyond parent-child
-(B) Support floating notes and images on mindmap
-(B) Add zoom and pan controls for large mindmaps (Default exists, needs polish)
-(A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
-
-=== THEME SYSTEM ===
-(A) Design theme structure: colors, fonts, spacing, editor styles
-(A) Implement light theme as default
-(A) Implement dark theme with OLED-friendly option
-(A) Add sepia/reading theme for reduced eye strain
-(A) Create dracula/monokai theme for developers
-(B) Support custom theme creation via command palette
-(B) Add theme preview before applying
-(B) Store theme preference in localStorage
-(B) Implement theme sync with system dark mode
-(C) Create themed templates for different subjects
-(C) Add seasonal/festive theme packs
-(C) Support theme import/export as JSON
-
-=== STORAGE & PERSISTENCE ===
-(A) Add visual indicator for save status (saved/saving/error) — minimal, unobtrusive
-(A) Handle localStorage quota exceeded errors gracefully
-(A) Implement note compression for larger storage capacity
-(A) Add warning when storage is 80%+ full
-(B) Support clearing old notes or unused data
-(B) Implement note archiving system
-(B) Add data integrity check on app load
-(C) Support export all notes as single JSON file
-(C) Add import from JSON backup file
-
-=== STUDY-SPECIFIC FEATURES ===
-(A) Add flashcard mode: convert notes to Q&A cards
-(A) Implement spaced repetition algorithm for flashcard review
-(A) Support Cornell note-taking template
-(A) Add Pomodoro timer integration for study sessions
-(B) Implement note linking and backlinks for Zettelkasten method
-(B) Add tag-based organization and tag cloud
-(B) Support note templates for different subjects
-(B) Add quick capture mode for rapid note entry
-(C) Implement daily notes with automatic date insertion
-(C) Add study statistics and insights dashboard
-(C) Support bibliography and citation management
-
-=== EXPORT CAPABILITIES ===
-(A) Export individual note as markdown file
-(A) Export rich text notes as HTML
-(A) Export drawings as PNG with transparent background
-(B) Export entire workspace as ZIP archive
-(B) Support PDF export with proper formatting
-(C) Add print-friendly CSS for physical notes
-
-=== UI/UX POLISH ===
-(A) Ultra-minimalist interface: centered typing area dominates the screen
-(A) No visible toolbar, menubar, or chrome by default — just the document
-(A) Sidebar hidden by default, toggled via command palette or keyboard shortcut
-(A) Implement smooth transitions and animations (subtle, non-distracting)
-(A) Add loading states and skeleton screens
-(A) Support drag-and-drop note reordering (when sidebar is visible)
-(A) Implement context menus for quick actions
-(B) Add tooltips and onboarding for first-time users
-(B) Support keyboard navigation for accessibility
-(B) Implement focus mode that dims everything except current paragraph
-(C) Add customizable workspace layouts
-(C) Support split-pane editing for referencing multiple notes
-
-=== TECHNICAL DEBT & OPTIMIZATION ===
-(B) Add comprehensive error boundaries and fallbacks
-(B) Implement lazy loading for heavy components (Excalidraw, Mermaid)
-(B) Optimize re-renders with React.memo and useMemo
-(B) Add unit tests for core functionality
-(B) Implement E2E tests for critical user flows
-(C) Add performance monitoring and optimization
-(C) Audit bundle size and optimize imports
-(C) Implement code splitting for faster initial load
-
-Priority Legend: (A) = Must have | (B) = Should have | (C) = Nice to have
-Feature Priority Order: 1. Markdown Editor → 2A. Command Palette → 2B. Mindmaps → 3. Excalidraw → 4. Mermaid
