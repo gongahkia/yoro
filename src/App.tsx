@@ -435,37 +435,63 @@ function App() {
             id: 'font-sans',
             label: 'Font: Sans Serif',
             action: () => handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
         },
         {
             id: 'font-serif',
             label: 'Font: Serif',
             action: () => handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
         },
         {
             id: 'font-mono',
             label: 'Font: Monospace',
             action: () => handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
         },
         {
             id: 'font-size-increase',
             label: 'Font Size: Increase',
             action: () => handleUpdatePreferences({ fontSize: Math.min(data.preferences.fontSize + 2, 32) }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
         },
         {
             id: 'font-size-decrease',
             label: 'Font Size: Decrease',
             action: () => handleUpdatePreferences({ fontSize: Math.max(data.preferences.fontSize - 2, 10) }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
         },
         {
             id: 'font-size-reset',
             label: 'Font Size: Reset (16px)',
             action: () => handleUpdatePreferences({ fontSize: 16 }),
-            category: 'Font'
+            category: 'Font',
+            groupId: 'font-settings'
+        },
+        // Parameterized font size command
+        {
+            id: 'set-font-size',
+            label: 'Set Font Size...',
+            action: (params) => {
+                if (params?.fontSize) {
+                    handleUpdatePreferences({ fontSize: params.fontSize as number });
+                }
+            },
+            category: 'Font',
+            groupId: 'font-settings',
+            parameters: [{
+                name: 'fontSize',
+                type: 'number',
+                label: 'Size (px)',
+                min: 10,
+                max: 32,
+                defaultValue: data.preferences.fontSize
+            }]
         },
         {
             id: 'toggle-alignment',
@@ -479,42 +505,50 @@ function App() {
                 const current = data.preferences.editorAlignment || 'left';
                 handleUpdatePreferences({ editorAlignment: map[current] || 'left' });
             },
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'align-left',
             label: 'Align Editor Left (Natural)',
             action: () => handleUpdatePreferences({ editorAlignment: 'left' }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'align-center',
             label: 'Align Editor Center',
             action: () => handleUpdatePreferences({ editorAlignment: 'center' }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'align-right',
             label: 'Align Editor Right',
             action: () => handleUpdatePreferences({ editorAlignment: 'right' }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
-            id: 'toggle-vim', label: 'Toggle Vim Mode',
+            id: 'toggle-vim',
+            label: 'Toggle Vim Mode',
             action: () => handleUpdatePreferences({ vimMode: !data.preferences.vimMode }),
-            category: 'Editor'
+            category: 'Editor',
+            groupId: 'editor-settings'
         },
         {
             id: 'toggle-sidebar',
             label: 'Toggle Sidebar',
             action: () => handleUpdatePreferences({ sidebarVisible: !data.preferences.sidebarVisible }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'toggle-line-numbers',
             label: 'Toggle Line Numbers',
             action: () => handleUpdatePreferences({ showLineNumbers: !data.preferences.showLineNumbers }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'toggle-mindmap',
@@ -529,158 +563,196 @@ function App() {
                 }
             },
             category: 'View',
-            context: 'editor' as const
+            context: 'editor' as const,
+            groupId: 'view-settings'
         },
         {
             id: 'toggle-focus-mode',
             label: 'Toggle Focus Mode',
             action: () => handleUpdatePreferences({ focusMode: !data.preferences.focusMode }),
-            category: 'View'
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'toggle-line-wrapping',
             label: 'Toggle Line Wrapping (Soft)',
             action: () => handleUpdatePreferences({ lineWrapping: !data.preferences.lineWrapping }),
-            category: 'View'
+            category: 'View',
+            groupId: 'editor-settings'
         },
         {
             id: 'hard-wrap',
             label: 'Hard Wrap Text (80 cols)',
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
             category: 'Editor',
-            context: 'editor' as const
+            context: 'editor' as const,
+            groupId: 'editor-settings'
+        },
+        // Home View Toggle
+        {
+            id: 'toggle-home-view',
+            label: 'Switch Home View (2D/3D)',
+            action: () => handleUpdatePreferences({
+                homeViewMode: data.preferences.homeViewMode === '3d-carousel'
+                    ? '2d-semicircle' : '3d-carousel'
+            }),
+            category: 'View',
+            context: 'home' as const,
+            groupId: 'view-settings'
         },
         {
             id: 'theme-light',
             label: 'Theme: Yoro Light',
             action: () => handleUpdatePreferences({ theme: 'light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-dark',
             label: 'Theme: Yoro Dark',
             action: () => handleUpdatePreferences({ theme: 'dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-sepia-light',
             label: 'Theme: Sepia Light',
             action: () => handleUpdatePreferences({ theme: 'sepia-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-sepia-dark',
             label: 'Theme: Sepia Dark',
             action: () => handleUpdatePreferences({ theme: 'sepia-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-dracula-light',
             label: 'Theme: Dracula Light',
             action: () => handleUpdatePreferences({ theme: 'dracula-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-dracula-dark',
             label: 'Theme: Dracula Dark',
             action: () => handleUpdatePreferences({ theme: 'dracula-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-nord-light',
             label: 'Theme: Nord Light',
             action: () => handleUpdatePreferences({ theme: 'nord-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-nord-dark',
             label: 'Theme: Nord Dark',
             action: () => handleUpdatePreferences({ theme: 'nord-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-gruvbox-light',
             label: 'Theme: Gruvbox Light',
             action: () => handleUpdatePreferences({ theme: 'gruvbox-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-gruvbox-dark',
             label: 'Theme: Gruvbox Dark',
             action: () => handleUpdatePreferences({ theme: 'gruvbox-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-everforest-light',
             label: 'Theme: Everforest Light',
             action: () => handleUpdatePreferences({ theme: 'everforest-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-everforest-dark',
             label: 'Theme: Everforest Dark',
             action: () => handleUpdatePreferences({ theme: 'everforest-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-catppuccin-light',
             label: 'Theme: Catppuccin Light',
             action: () => handleUpdatePreferences({ theme: 'catppuccin-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-catppuccin-dark',
             label: 'Theme: Catppuccin Dark',
             action: () => handleUpdatePreferences({ theme: 'catppuccin-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-solarized-light',
             label: 'Theme: Solarized Light',
             action: () => handleUpdatePreferences({ theme: 'solarized-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-solarized-dark',
             label: 'Theme: Solarized Dark',
             action: () => handleUpdatePreferences({ theme: 'solarized-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-rose-pine-light',
             label: 'Theme: Rose Pine Light',
             action: () => handleUpdatePreferences({ theme: 'rose-pine-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-rose-pine-dark',
             label: 'Theme: Rose Pine Dark',
             action: () => handleUpdatePreferences({ theme: 'rose-pine-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-tokyo-night-light',
             label: 'Theme: Tokyo Night Light',
             action: () => handleUpdatePreferences({ theme: 'tokyo-night-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-tokyo-night-dark',
             label: 'Theme: Tokyo Night Dark',
             action: () => handleUpdatePreferences({ theme: 'tokyo-night-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-kanagawa-light',
             label: 'Theme: Kanagawa Light',
             action: () => handleUpdatePreferences({ theme: 'kanagawa-light' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'theme-kanagawa-dark',
             label: 'Theme: Kanagawa Dark',
             action: () => handleUpdatePreferences({ theme: 'kanagawa-dark' }),
-            category: 'Theme'
+            category: 'Theme',
+            groupId: 'theme-settings'
         },
         {
             id: 'go-home',
