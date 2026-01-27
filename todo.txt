@@ -3,6 +3,7 @@
 (A) Make the command palette command context-specific within the specific page the user is currently in
 (A) Add rendering of the mermaid diagram in line in the same way other markdown elemetns are rendered automatically 
 (A) Test all mermaid diagram rendering syntax actually works 
+(A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 (A) Fix how the insert table works where it asks for how many rows and columns you want 
 (A) Implement command categories/grouping for organized browsing
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)

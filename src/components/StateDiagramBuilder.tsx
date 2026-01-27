@@ -220,8 +220,18 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
     }, [onLabelChange, setNodes]);
 
     const onConnect = useCallback(
-        (params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
-        [setEdges]
+        (params: Connection) => {
+            // Prevent multiple outgoing edges from start state (mermaid only allows one [*] --> X)
+            if (params.source === 'start') {
+                const hasStartEdge = edges.some(e => e.source === 'start');
+                if (hasStartEdge) {
+                    console.warn('[StateDiagram] Only one transition from start state is allowed');
+                    return;
+                }
+            }
+            setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds));
+        },
+        [setEdges, edges]
     );
 
     const handleAddState = useCallback(() => {
@@ -238,13 +248,19 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
         const newEdges = [...edges];
         if (selectedNodes.length === 1) {
             const parentId = selectedNodes[0];
-            newEdges.push({
-                id: `${parentId}-${newId}`,
-                source: parentId,
-                target: newId,
-                markerEnd: { type: MarkerType.ArrowClosed },
-                type: 'smoothstep'
-            });
+            // Prevent multiple outgoing edges from start state
+            const isStartNode = parentId === 'start';
+            const startAlreadyHasEdge = edges.some(e => e.source === 'start');
+
+            if (!isStartNode || !startAlreadyHasEdge) {
+                newEdges.push({
+                    id: `${parentId}-${newId}`,
+                    source: parentId,
+                    target: newId,
+                    markerEnd: { type: MarkerType.ArrowClosed },
+                    type: 'smoothstep'
+                });
+            }
         }
 
         const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes, newNode], newEdges);
@@ -315,58 +331,96 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
     }, []);
 
     const generateMermaid = () => {
-        let code = '```mermaid\nstateDiagram-v2\n';
-
         // Helper to create valid state ID from label
+        // Mermaid state IDs must be valid identifiers (alphanumeric, starting with letter)
         const toStateId = (label: string, nodeId: string): string => {
-            // Convert label to valid identifier (alphanumeric and underscores only)
-            const sanitized = label
+            // Convert label to valid identifier
+            let sanitized = label
                 .replace(/[^a-zA-Z0-9]/g, '_')
                 .replace(/_+/g, '_')
                 .replace(/^_|_$/g, '');
+
+            // Ensure it starts with a letter
+            if (sanitized && !/^[a-zA-Z]/.test(sanitized)) {
+                sanitized = 's_' + sanitized;
+            }
+
             return sanitized || nodeId.replace(/-/g, '_');
         };
 
-        // Build a map of node id to state id and label
-        const stateMap = new Map<string, { stateId: string; label: string }>();
+        // Build a map of node id to state id
+        const stateMap = new Map<string, string>();
         nodes.forEach(n => {
             if (n.type === 'state') {
                 const label = (n.data.label as string) || 'State';
                 const stateId = toStateId(label, n.id);
-                stateMap.set(n.id, { stateId, label });
+                stateMap.set(n.id, stateId);
             }
         });
 
-        // Define states with labels (only if label differs from id or has spaces)
-        stateMap.forEach(({ stateId, label }) => {
-            // Always use the state definition to ensure proper display
-            const safeLabel = label.replace(/"/g, "'");
-            code += `    state "${safeLabel}" as ${stateId}\n`;
-        });
+        // Separate transitions into [*] transitions and regular transitions
+        const startTransitions: string[] = [];
+        const endTransitions: string[] = [];
+        const regularTransitions: string[] = [];
 
-        // Define transitions
         edges.forEach(e => {
             const sourceNode = nodes.find(n => n.id === e.source);
             const targetNode = nodes.find(n => n.id === e.target);
             if (sourceNode && targetNode) {
                 let sId: string;
                 let tId: string;
+                let isStartTransition = false;
+                let isEndTransition = false;
 
-                if (sourceNode.type === 'startState' || sourceNode.type === 'endState') {
+                if (sourceNode.type === 'startState') {
+                    sId = '[*]';
+                    isStartTransition = true;
+                } else if (sourceNode.type === 'endState') {
                     sId = '[*]';
                 } else {
-                    sId = stateMap.get(sourceNode.id)?.stateId || sourceNode.id;
+                    sId = stateMap.get(sourceNode.id) || sourceNode.id;
                 }
 
-                if (targetNode.type === 'startState' || targetNode.type === 'endState') {
+                if (targetNode.type === 'endState') {
+                    tId = '[*]';
+                    isEndTransition = true;
+                } else if (targetNode.type === 'startState') {
                     tId = '[*]';
                 } else {
-                    tId = stateMap.get(targetNode.id)?.stateId || targetNode.id;
+                    tId = stateMap.get(targetNode.id) || targetNode.id;
                 }
 
-                code += `    ${sId} --> ${tId}\n`;
+                const transition = `    ${sId} --> ${tId}`;
+
+                if (isStartTransition) {
+                    startTransitions.push(transition);
+                } else if (isEndTransition) {
+                    endTransitions.push(transition);
+                } else {
+                    regularTransitions.push(transition);
+                }
             }
         });
+
+        // Build the mermaid code with proper ordering:
+        // 1. Start transition ([*] --> State) - ONLY ONE ALLOWED in mermaid
+        // 2. Regular transitions
+        // 3. End transitions (State --> [*]) - multiple allowed
+        let code = '```mermaid\nstateDiagram-v2\n';
+
+        // Add only the FIRST start transition (mermaid only allows one [*] --> X)
+        if (startTransitions.length > 0) {
+            code += startTransitions[0] + '\n';
+            if (startTransitions.length > 1) {
+                console.warn('[StateDiagram] Multiple start transitions found, only using the first one');
+            }
+        }
+
+        // Add all regular transitions
+        regularTransitions.forEach(t => { code += t + '\n'; });
+
+        // Add all end transitions (multiple allowed)
+        endTransitions.forEach(t => { code += t + '\n'; });
 
         code += '```';
         return code;
