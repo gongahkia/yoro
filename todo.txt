@@ -14,6 +14,7 @@
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
 (B) fix how images are rendered
 (B) fix how links are rendered
+(B) add user sharing each file as core functionality with all file data encapsulated within the generated URL
 (B) Add export notes to docx, pdf, md
 (B) Add commands: note linking, tag management, search and replace
 (B) Add commands: flashcard mode, pomodoro timer, study stats
