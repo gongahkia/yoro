@@ -1,74 +1,38 @@
 === PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
 
+
 (A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 (A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
-(A) Have mermaid errors render gracefully
-
 
 (A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)
-(A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
 (A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
-(A) Add a help manual within the command palette
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
 (B) fix how links are rendered
 (B) Add export notes to docx, pdf, md
-(B) Add commands: note linking, tag management, search and replace
-(B) Add commands: flashcard mode, pomodoro timer, study stats
 (B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
-(B) Add add notes to google drive that automatically handles the docx export
+(B) Add commands: note linking, tag management, search and replace, knwoledge graph view
+(B) Add commands: flashcard mode, pomodoro timer
+(A) Rework how config.toml works and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
+(A) Add a help manual within the command palette
+
 (B) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
+
+(B) Add add notes to google drive that automatically handles the docx export
 
 === PRIORITY 2B: MINDMAPPING FEATURES ===
 (A) Implement drag-and-drop node repositioning (Persistence)
-(B) Add import notes from google drive 
-(x) Add/delete/edit nodes with keyboard shortcuts (Bi-directional editing: Edit Label & Add Child)
 (A) Support collapsing and expanding branches
-(A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
-(x) Convert markdown headings and lists into mindmap nodes automatically
-(A) [MISSING] Navigation: Click node to jump to source line in Editor
-(A) [MISSING] Visual Polish: Theme synchronization (match app colors/fonts)
-(A) [MISSING] Content: Display plain text paragraphs as note attachments/children
+(A) Navigation: Click node to jump to source line in Editor
+(A) Visual Polish: Theme synchronization (match app colors/fonts)
+(A) Content: Display plain text paragraphs as note attachments/children
 (B) Support different node shapes (rectangle, circle, rounded)
 (B) Add edge styling (straight, curved, orthogonal)
 (B) Implement node relationships beyond parent-child
 (B) Support floating notes and images on mindmap
 (B) Add zoom and pan controls for large mindmaps (Default exists, needs polish)
-(B) Implement minimap for navigation
-(C) Add mindmap export as image or structured format
-(C) Support importing from other mindmap tools
-
-=== PRIORITY 3: EXCALIDRAW INTEGRATION ===
-(B) Embed Excalidraw library as a drawing mode within notes
-(B) Create toggle between text editing and drawing mode
-(B) Store Excalidraw data in note content with proper serialization
-(B) Support basic shapes: rectangle, circle, arrow, line, text
-(B) Implement freehand drawing with pen tool
-(B) Add selection, move, resize, and rotate tools
-(B) Support multiple colors and stroke widths
-(B) Implement layers/z-index control (bring to front, send to back)
-(B) Add eraser tool for removing elements
-(B) Support grouping and ungrouping elements
-(C) Implement snap-to-grid and alignment guides
-(C) Add shape libraries for common study diagrams (biology, chemistry, etc)
-(C) Support image insertion into drawings
-(C) Add arrow connectors that stick to shapes
-(C) Add export drawing as PNG/SVG
-(C) Support drawing templates (flowchart, org chart)
-
-=== PRIORITY 4: MERMAID DIAGRAMS ===
-(B) Integrate Mermaid.js for code-to-diagram rendering within fenced code blocks
-(B) Support flowcharts with standard notation
-(B) Support sequence diagrams for process flows
-(B) Add class diagrams for OOP concepts
-(B) Implement state diagrams for FSM visualization
-(C) Support ER diagrams for database design
-(C) Add Gantt charts for project planning
-(C) Implement pie charts and bar charts for data viz
-(C) Support git graphs for version control concepts
-(C) Add live preview while typing mermaid code
-(C) Implement syntax validation and error highlighting
+(A) Store mindmap data alongside note content with proper serialization (Currently read-only projection)
 
 === THEME SYSTEM ===
 (A) Design theme structure: colors, fonts, spacing, editor styles
@@ -85,7 +49,6 @@
 (C) Support theme import/export as JSON
 
 === STORAGE & PERSISTENCE ===
-(A) Implement auto-save every 2-3 seconds while editing
 (A) Add visual indicator for save status (saved/saving/error) — minimal, unobtrusive
 (A) Handle localStorage quota exceeded errors gracefully
 (A) Implement note compression for larger storage capacity
