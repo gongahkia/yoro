@@ -5,10 +5,12 @@
 (A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
 
-(A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme marketplace/personlsation)
-(A) Tweak the notes current frontend to instead of a 3d barrel as it currently is, make it a 2d barrel that renders as a circular fan-clock like rotation, not 3d
+(A) Refactor the command palette to have all related commands shelved under a higher level command (eg. all themes should be under theme or personlsation, then when clicked through it goes to that)
+(A) For the current home page also add a new rendering option where notes are shown in a 2d circle shape with only the top half visible at the bottom of the screen. it should rotate with the scroll motion clockwise/anti-clockwise accordingly
+(A) Allow users to switch between the 2d and 3d view in the command palette
 (B) Support parameterized commands (e.g. "Set font size" then type a number)
 (B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
+
 (B) fix how links are rendered
 (B) Add export notes to docx, pdf, md
 (B) generate knowledge graph view so that when multiple documents link each other then they will be connected within the knwoledge graph
