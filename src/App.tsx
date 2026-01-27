@@ -407,7 +407,8 @@ function App() {
                             lineWrapping: prev.preferences.lineWrapping,
                             editorAlignment: prev.preferences.editorAlignment,
                             fontFamily: prev.preferences.fontFamily,
-                            fontSize: prev.preferences.fontSize
+                            fontSize: prev.preferences.fontSize,
+                            homeViewMode: prev.preferences.homeViewMode
                         };
                         const newNote: Note = {
                             id: newId,
