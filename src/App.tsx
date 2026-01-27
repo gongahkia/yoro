@@ -6,7 +6,8 @@ import { parse, stringify } from 'smol-toml';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import type { AppState, Note } from './types';
-import { CommandPalette, type Command } from './components/CommandPalette';
+import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
+import { ParameterInputModal } from './components/ParameterInputModal';
 
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
@@ -92,6 +93,7 @@ function App() {
                 fontFamily: loaded.preferences.fontFamily || "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
                 fontSize: loaded.preferences.fontSize || 16,
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
+                homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
             }
         };
     });
@@ -171,7 +173,8 @@ function App() {
                             lineWrapping: newPrefs.lineWrapping,
                             editorAlignment: newPrefs.editorAlignment,
                             fontFamily: newPrefs.fontFamily,
-                            fontSize: newPrefs.fontSize
+                            fontSize: newPrefs.fontSize,
+                            homeViewMode: newPrefs.homeViewMode
                         };
                         const newContent = stringify(configObj);
                         if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -257,6 +260,16 @@ function App() {
     });
 
     const [tableModalOpen, setTableModalOpen] = useState(false);
+    const [paramModalOpen, setParamModalOpen] = useState(false);
+    const [paramModalCommand, setParamModalCommand] = useState<Command | null>(null);
+
+    // Command groups for hierarchical palette
+    const commandGroups: CommandGroup[] = useMemo(() => [
+        { id: 'theme-settings', label: 'Theme' },
+        { id: 'font-settings', label: 'Font' },
+        { id: 'view-settings', label: 'View' },
+        { id: 'editor-settings', label: 'Editor' },
+    ], []);
 
     const getCurrentNoteId = useCallback(() => {
         const match = location.pathname.match(/\/note\/(.+)/);
@@ -348,7 +361,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
