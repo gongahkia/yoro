@@ -116,41 +116,71 @@
 
 /* Hierarchical Command Palette Styles */
 .command-palette-item.group-header {
-    font-weight: 600;
-    background-color: var(--bg-secondary, #f5f5f5);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 8px 20px;
+    padding: 6px 16px;
+    margin-top: 4px;
+    background: transparent;
+    border-bottom: none;
 }
 
-.command-palette-item.group-header:hover {
-    background-color: var(--bg-secondary, #f0f0f0);
+.command-palette-item.group-header:first-child {
+    margin-top: 0;
 }
 
-.command-palette-item.group-child {
-    padding-left: 40px;
+.group-header-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
 }
 
 .group-toggle {
-    font-size: 0.7em;
-    margin-right: 8px;
-    opacity: 0.6;
-    width: 12px;
-    display: inline-block;
+    font-size: 0.75em;
+    opacity: 0.5;
+    width: 10px;
+    flex-shrink: 0;
+    color: var(--text-secondary, #888);
 }
 
 .group-label {
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.85em;
-    letter-spacing: 0.03em;
-    color: var(--text-secondary, #666);
+    letter-spacing: 0.06em;
+    color: var(--text-secondary, #888);
 }
 
-.command-palette-item.group-header.selected .group-label {
+.command-palette-item.group-header:hover .group-label,
+.command-palette-item.group-header:hover .group-toggle {
+    color: var(--text-primary, #333);
+    opacity: 1;
+}
+
+.command-palette-item.group-header.selected {
+    background-color: transparent;
+}
+
+.command-palette-item.group-header.selected .group-label,
+.command-palette-item.group-header.selected .group-toggle {
     color: var(--primary, #007bff);
+    opacity: 1;
+}
+
+/* Group children - indented */
+.command-palette-item.group-child {
+    padding-left: 32px;
+    font-size: 0.9rem;
+}
+
+/* Right side content container */
+.command-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .command-params-hint {
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: var(--text-secondary, #888);
-    margin-left: 4px;
+    opacity: 0.6;
 }
