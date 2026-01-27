@@ -16,6 +16,7 @@ const initialState: AppState = {
         fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
         fontSize: 16,
         recentCommandIds: [],
+        homeViewMode: '3d-carousel',
     },
 };
 
