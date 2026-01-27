@@ -226,6 +226,9 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
                 const hasStartEdge = edges.some(e => e.source === 'start');
                 if (hasStartEdge) {
                     console.warn('[StateDiagram] Only one transition from start state is allowed');
+                    window.dispatchEvent(new CustomEvent('yoro-toast', {
+                        detail: { message: 'Only one transition from start state is allowed in Mermaid', type: 'error' }
+                    }));
                     return;
                 }
             }
@@ -413,6 +416,9 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
             code += startTransitions[0] + '\n';
             if (startTransitions.length > 1) {
                 console.warn('[StateDiagram] Multiple start transitions found, only using the first one');
+                window.dispatchEvent(new CustomEvent('yoro-toast', {
+                    detail: { message: 'Multiple start transitions found, only using the first one', type: 'info' }
+                }));
             }
         }
 

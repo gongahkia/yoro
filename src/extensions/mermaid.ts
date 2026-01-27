@@ -188,6 +188,14 @@ class MermaidWidget extends WidgetType {
             console.log(this.code);
             console.groupEnd();
 
+            // Show toast notification
+            const toastMessage = parsed.details
+                ? `Mermaid syntax error: ${parsed.details}`
+                : 'Mermaid syntax error. Check console for details.';
+            window.dispatchEvent(new CustomEvent('yoro-toast', {
+                detail: { message: toastMessage, type: 'error', duration: 5000 }
+            }));
+
             // Show user-friendly error in the editor
             const errorHtml = `
                 <div class="cm-mermaid-error">
