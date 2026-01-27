@@ -13,7 +13,7 @@ const nodeWidth = 150;
 const nodeHeight = 50;
 
 // Start state node - filled black circle
-const StartStateNode = ({ id }: NodeProps) => {
+const StartStateNode = (_props: NodeProps) => {
     return (
         <div
             style={{
@@ -30,7 +30,7 @@ const StartStateNode = ({ id }: NodeProps) => {
 };
 
 // End state node - hollow circle with inner filled circle
-const EndStateNode = ({ id }: NodeProps) => {
+const EndStateNode = (_props: NodeProps) => {
     return (
         <div
             style={{
@@ -333,7 +333,12 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
         setSelectedNodes(nodes.map(n => n.id));
     }, []);
 
-    const generateMermaid = () => {
+    const generateMermaid = (): { code: string; isValid: boolean; error?: string } => {
+        // Check for minimum valid state diagram (at least one transition)
+        if (edges.length === 0) {
+            return { code: '', isValid: false, error: 'State diagram has no transitions. Connect states before inserting.' };
+        }
+
         // Helper to create valid state ID from label
         // Mermaid state IDs must be valid identifiers (alphanumeric, starting with letter)
         const toStateId = (label: string, nodeId: string): string => {
@@ -351,12 +356,25 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
             return sanitized || nodeId.replace(/-/g, '_');
         };
 
-        // Build a map of node id to state id
+        // Build a map of node id to state id, handling duplicates
         const stateMap = new Map<string, string>();
+        const usedStateIds = new Set<string>();
+
         nodes.forEach(n => {
             if (n.type === 'state') {
                 const label = (n.data.label as string) || 'State';
-                const stateId = toStateId(label, n.id);
+                let stateId = toStateId(label, n.id);
+
+                // Handle duplicate state IDs by appending a counter
+                if (usedStateIds.has(stateId)) {
+                    let counter = 2;
+                    while (usedStateIds.has(`${stateId}_${counter}`)) {
+                        counter++;
+                    }
+                    stateId = `${stateId}_${counter}`;
+                }
+
+                usedStateIds.add(stateId);
                 stateMap.set(n.id, stateId);
             }
         });
@@ -429,12 +447,19 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
         endTransitions.forEach(t => { code += t + '\n'; });
 
         code += '```';
-        return code;
+        return { code, isValid: true };
     };
 
     const handleInsert = () => {
-        const code = generateMermaid();
-        const newContent = note.content + '\n\n' + code;
+        const result = generateMermaid();
+        if (!result.isValid) {
+            console.error('[StateDiagram] Invalid mermaid:', result.error);
+            window.dispatchEvent(new CustomEvent('yoro-toast', {
+                detail: { message: result.error || 'Cannot generate state diagram', type: 'error' }
+            }));
+            return;
+        }
+        const newContent = note.content + '\n\n' + result.code;
         onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
     };
 

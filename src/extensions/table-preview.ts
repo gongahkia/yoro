@@ -5,7 +5,7 @@ import {
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { StateField, StateEffect } from '@codemirror/state';
+import { StateField } from '@codemirror/state';
 
 class TableWidget extends WidgetType {
     readonly tableText: string;

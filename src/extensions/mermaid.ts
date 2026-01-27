@@ -28,7 +28,7 @@ const getMermaidThemeConfig = () => {
     const syntaxComment = getCSSVar('--syntax-comment', '#676e95');
 
     return {
-        theme: 'base',
+        theme: 'base' as const,
         themeVariables: {
             // General
             background: bgPrimary,

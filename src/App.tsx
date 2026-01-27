@@ -352,7 +352,7 @@ function App() {
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
-                        updates[key] = parsed[key];
+                        (updates as Record<string, unknown>)[key] = parsed[key];
                         hasUpdates = true;
                     }
                 }

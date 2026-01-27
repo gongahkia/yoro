@@ -56,12 +56,18 @@ interface MindMapNodeData {
     children: MindMapNodeData[];
 }
 
-const nodesToMermaid = (rootNode: MindMapNodeData): string => {
+const nodesToMermaid = (rootNode: MindMapNodeData): { code: string; isValid: boolean; error?: string } => {
     const lines: string[] = ['```mermaid', 'mindmap'];
 
     const sanitizeLabel = (label: string): string => {
-        // Remove or escape characters that could break mermaid syntax
-        return label.replace(/[()[\]{}]/g, '').trim() || 'Node';
+        // Remove or escape characters that could break mermaid mindmap syntax
+        // Mermaid mindmap is particularly sensitive to: (), [], {}, <>, ", ', `
+        return (label || 'Node')
+            .replace(/[()[\]{}<>"'`]/g, '')  // Remove problematic characters
+            .replace(/\n/g, ' ')              // Replace newlines with space
+            .replace(/\s+/g, ' ')             // Collapse multiple spaces
+            .replace(/:/g, '-')               // Colons can cause issues
+            .trim() || 'Node';
     };
 
     const traverse = (node: MindMapNodeData, depth: number) => {
@@ -79,7 +85,8 @@ const nodesToMermaid = (rootNode: MindMapNodeData): string => {
     traverse(rootNode, 1);
     lines.push('```');
 
-    return lines.join('\n');
+    const code = lines.join('\n');
+    return { code, isValid: true };
 };
 
 const buildTreeFromNodes = (nodes: Node[], edges: Edge[], rootId: string): MindMapNodeData => {
@@ -224,9 +231,17 @@ const MindMapInner: React.FC<MindMapProps> = ({ markdown, title, onViewModeChang
 
     const handleExitMindmap = useCallback(() => {
         const tree = buildTreeFromNodes(nodes, edges, rootId);
-        const mermaidCode = nodesToMermaid(tree);
+        const result = nodesToMermaid(tree);
 
-        const newMarkdown = markdown + '\n\n' + mermaidCode;
+        if (!result.isValid) {
+            console.error('[MindMap] Invalid mermaid:', result.error);
+            window.dispatchEvent(new CustomEvent('yoro-toast', {
+                detail: { message: result.error || 'Cannot generate mindmap', type: 'error' }
+            }));
+            return;
+        }
+
+        const newMarkdown = markdown + '\n\n' + result.code;
         onMarkdownChange(newMarkdown);
         onViewModeChange('editor');
     }, [nodes, edges, markdown, onMarkdownChange, onViewModeChange]);

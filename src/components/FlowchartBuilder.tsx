@@ -227,26 +227,49 @@ export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = ({ note, onUpda
         setSelectedNodes(nodes.map(n => n.id));
     }, []);
 
-    const generateMermaid = () => {
+    const generateMermaid = (): { code: string; isValid: boolean; error?: string } => {
+        if (nodes.length === 0) {
+            return { code: '', isValid: false, error: 'Flowchart has no nodes' };
+        }
+
+        // Helper to create valid mermaid node ID (alphanumeric only)
+        const toNodeId = (id: string): string => {
+            return id.replace(/-/g, '_');
+        };
+
+        // Helper to sanitize labels for mermaid
+        const sanitizeLabel = (label: string): string => {
+            return (label || 'Node')
+                .replace(/"/g, "'")          // Replace double quotes with single
+                .replace(/[\[\]{}()<>]/g, '') // Remove brackets and special chars
+                .replace(/\n/g, ' ')          // Replace newlines with space
+                .replace(/\s+/g, ' ')         // Collapse multiple spaces
+                .trim() || 'Node';
+        };
+
         let code = '```mermaid\nflowchart TD\n';
         nodes.forEach(n => {
-            // Escape quotes and remove problematic characters for mermaid
-            const label = (n.data.label as string)
-                .replace(/"/g, "'")
-                .replace(/[\[\]]/g, '')
-                .trim() || 'Node';
-            code += `    ${n.id}["${label}"]\n`;
+            const nodeId = toNodeId(n.id);
+            const label = sanitizeLabel(n.data.label as string);
+            code += `    ${nodeId}["${label}"]\n`;
         });
         edges.forEach(e => {
-            code += `    ${e.source} --> ${e.target}\n`;
+            code += `    ${toNodeId(e.source)} --> ${toNodeId(e.target)}\n`;
         });
         code += '```';
-        return code;
+        return { code, isValid: true };
     };
 
     const handleInsert = () => {
-        const code = generateMermaid();
-        const newContent = note.content + '\n\n' + code;
+        const result = generateMermaid();
+        if (!result.isValid) {
+            console.error('[Flowchart] Invalid mermaid:', result.error);
+            window.dispatchEvent(new CustomEvent('yoro-toast', {
+                detail: { message: result.error || 'Cannot generate flowchart', type: 'error' }
+            }));
+            return;
+        }
+        const newContent = note.content + '\n\n' + result.code;
         onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
     };
 
