@@ -320,17 +320,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                     onMouseEnter={() => setSelectedIndex(index)}
                                 >
                                     {isGroupHeader ? (
-                                        <>
-                                            <span className="group-toggle">{isExpanded ? '▼' : '▶'}</span>
-                                            <span className="command-label group-label">{cmd.label}</span>
-                                        </>
+                                        <div className="group-header-content">
+                                            <span className="group-toggle">{isExpanded ? '▾' : '▸'}</span>
+                                            <span className="group-label">{cmd.label}</span>
+                                        </div>
                                     ) : (
                                         <>
                                             <span className="command-label">{cmd.label}</span>
-                                            {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
-                                            {cmd.parameters && cmd.parameters.length > 0 && (
-                                                <span className="command-params-hint">...</span>
-                                            )}
+                                            <span className="command-right">
+                                                {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
+                                                {cmd.parameters && cmd.parameters.length > 0 && (
+                                                    <span className="command-params-hint">...</span>
+                                                )}
+                                            </span>
                                         </>
                                     )}
                                 </li>
