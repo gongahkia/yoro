@@ -92,8 +92,8 @@ export const NoteList: React.FC<NoteListProps> = ({
     const deckTilt = -5; // degrees X-axis
 
     // 2D Semicircle constants
-    const semicircleRadius = 400;
-    const arcSpan = 150; // degrees of arc to use (centered on bottom)
+    // Use dynamic radius similar to 3D view to prevent overlap
+    const semicircleRadius = Math.max(400, (count * cardWidth) / (2 * Math.PI));
 
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
@@ -149,10 +149,9 @@ export const NoteList: React.FC<NoteListProps> = ({
     );
 
     const render2DSemicircle = () => {
-        // Cards are arranged along the bottom semicircle arc
-        // The arc is centered at the bottom of the screen
-        const angleStep = count > 1 ? arcSpan / (count - 1) : 0;
-        const startAngle = 180 + (180 - arcSpan) / 2; // Start from left side of arc
+        // Cards are distributed evenly around the full 360° circle
+        // (same as 3D carousel), but only the bottom semicircle is visible
+        // This ensures cards never overlap regardless of count
 
         return (
             <div className="semicircle-deck-container" ref={deckRef}>
@@ -165,22 +164,29 @@ export const NoteList: React.FC<NoteListProps> = ({
                     >
                         {filteredNotes.map((note, index) => {
                             const isHovered = hoveredId === note.id;
-                            // Calculate angle for this card
-                            const angle = count > 1
-                                ? startAngle + index * angleStep
-                                : 270; // Single card at bottom center
+
+                            // Distribute evenly around full 360° circle (like 3D carousel)
+                            // Start at 270° (bottom center) so first card appears at bottom
+                            const angleStep = 360 / Math.max(count, 1);
+                            const angle = 270 + index * angleStep;
 
                             // Convert angle to radians
                             const rad = (angle * Math.PI) / 180;
 
-                            // Calculate position on arc
+                            // Calculate position on circle
                             const x = Math.cos(rad) * semicircleRadius;
                             const y = Math.sin(rad) * semicircleRadius;
 
-                            // Card rotation to face outward from arc center
+                            // Card rotation to face outward from circle center
                             const cardRotation = angle - 270;
 
                             const hoverOffset = isHovered ? -30 : 0;
+
+                            // Z-index: cards closer to bottom (270°) should be on top
+                            // Normalize angle to 0-360, then calculate distance from 270
+                            const normalizedAngle = ((angle % 360) + 360) % 360;
+                            const distanceFrom270 = Math.abs(normalizedAngle - 270);
+                            const baseZIndex = Math.round(100 - distanceFrom270 / 3.6);
 
                             return (
                                 <div
@@ -188,7 +194,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                                     className="semicircle-card-wrapper"
                                     style={{
                                         transform: `translate(${x}px, ${y + hoverOffset}px) rotate(${cardRotation}deg) scale(${isHovered ? 1.08 : 1})`,
-                                        zIndex: isHovered ? 1000 : count - Math.abs(index - Math.floor(count / 2))
+                                        zIndex: isHovered ? 1000 : baseZIndex
                                     }}
                                     onMouseEnter={() => setHoveredId(note.id)}
                                     onMouseLeave={() => setHoveredId(null)}
