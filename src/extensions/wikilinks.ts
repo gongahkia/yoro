@@ -200,10 +200,10 @@ export const createWikilinkPlugin = (notes: Note[], onNavigate: (id: string) => 
                         if (noteMatch) {
                             e.preventDefault();
                             onNavigate(noteMatch[1]);
-                        } else {
-                            // External link? Let browser handle or open in new tab
-                            // e.preventDefault(); 
-                            // window.open(url, '_blank');
+                        } else if (url.match(/^https?:\/\//)) {
+                            // External link - open in new tab
+                            e.preventDefault();
+                            window.open(url, '_blank', 'noopener,noreferrer');
                         }
                     }
                 }

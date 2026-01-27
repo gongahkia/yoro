@@ -37,6 +37,7 @@ export interface UserPreferences {
     fontFamily: string;
     fontSize: number;
     recentCommandIds: string[];
+    homeViewMode: '3d-carousel' | '2d-semicircle';
 }
 
 export interface AppState {
