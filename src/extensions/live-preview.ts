@@ -73,6 +73,32 @@ class HRWidget extends WidgetType {
     }
 }
 
+class URLImageWidget extends WidgetType {
+    readonly src: string;
+
+    constructor(src: string) {
+        super();
+        this.src = src;
+    }
+
+    eq(other: URLImageWidget) {
+        return other.src === this.src;
+    }
+
+    toDOM() {
+        const img = document.createElement('img');
+        img.src = this.src;
+        img.alt = 'Image';
+        img.className = 'cm-image-url-widget';
+        img.style.display = 'block';
+        img.style.margin = '1em auto';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '60vh';
+        img.style.objectFit = 'contain';
+        return img;
+    }
+}
+
 class LivePreviewPlugin {
     decorations: DecorationSet;
 
@@ -231,6 +257,25 @@ class LivePreviewPlugin {
                     }
                 }
             });
+
+            // Check for bare image URLs (lines containing only an image URL)
+            const imageUrlPattern = /^https?:\/\/.*\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i;
+            const doc = state.doc;
+            for (let lineNum = 1; lineNum <= doc.lines; lineNum++) {
+                const line = doc.line(lineNum);
+                if (line.from < from || line.to > to) continue; // Skip lines outside visible range
+
+                const lineText = line.text.trim();
+                if (imageUrlPattern.test(lineText)) {
+                    // Check if cursor is on this line
+                    const isFocused = this.isFocused(selection, line.from, line.to);
+                    if (!isFocused) {
+                        widgets.push(Decoration.replace({
+                            widget: new URLImageWidget(lineText)
+                        }).range(line.from, line.to));
+                    }
+                }
+            }
         }
 
         return Decoration.set(widgets, true);

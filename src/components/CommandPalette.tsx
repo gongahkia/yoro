@@ -7,6 +7,7 @@ export interface Command {
     shortcut?: string;
     action: () => void;
     category?: string;
+    context?: 'home' | 'editor' | 'global';
 }
 
 interface CommandPaletteProps {
@@ -19,6 +20,7 @@ interface CommandPaletteProps {
     selectedTag?: string | null;
     onTagSelect?: (tag: string | null) => void;
     allTags?: string[];
+    currentContext?: 'home' | 'editor' | 'global';
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -30,7 +32,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onSearchChange,
     selectedTag,
     onTagSelect,
-    allTags = []
+    allTags = [],
+    currentContext = 'global'
 }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -42,20 +45,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     const filteredCommands = React.useMemo(() => {
         if (isSearchMode) return [];
 
+        // Filter by context first
+        const contextFilteredCommands = commands.filter(cmd =>
+            !cmd.context || cmd.context === 'global' || cmd.context === currentContext
+        );
+
         if (!query) {
             const recent = recentCommandIds
-                .map(id => commands.find(c => c.id === id))
+                .map(id => contextFilteredCommands.find(c => c.id === id))
                 .filter((c): c is Command => !!c);
 
             const uniqueRecent = Array.from(new Set(recent));
             const recentIds = new Set(uniqueRecent.map(c => c.id));
 
-            const others = commands.filter(c => !recentIds.has(c.id));
+            const others = contextFilteredCommands.filter(c => !recentIds.has(c.id));
             return [...uniqueRecent, ...others];
         }
 
         const lowerQuery = query.toLowerCase();
-        return commands
+        return contextFilteredCommands
             .map(cmd => {
                 const label = cmd.label.toLowerCase();
                 let score = 0;
@@ -82,7 +90,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             .filter((item): item is { cmd: Command, score: number } => item !== null)
             .sort((a, b) => b.score - a.score)
             .map(item => item.cmd);
-    }, [commands, query, recentCommandIds, isSearchMode]);
+    }, [commands, query, recentCommandIds, isSearchMode, currentContext]);
 
     useEffect(() => {
         if (isOpen) {

@@ -23,6 +23,7 @@ import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } fro
 import { focusModeExtension } from '../extensions/focus-mode';
 import { inlineCode } from '../extensions/inline-code';
 import { mermaidPreview } from '../extensions/mermaid';
+import { tablePreview } from '../extensions/table-preview';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -148,11 +149,17 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             const { command } = e.detail;
 
             if (command === 'insert-table') {
-                const tableTemplate = `
-| Header 1 | Header 2 |
-| :--- | :--- |
-| Cell 1 | Cell 2 |
-`;
+                const rows = e.detail.rows || 3;
+                const cols = e.detail.cols || 2;
+                const generateTable = (r: number, c: number) => {
+                    const header = '| ' + Array(c).fill('Header').map((h, i) => `${h} ${i + 1}`).join(' | ') + ' |';
+                    const separator = '| ' + Array(c).fill(':---').join(' | ') + ' |';
+                    const dataRows = Array(r - 1).fill(null).map((_, ri) =>
+                        '| ' + Array(c).fill('Cell').map((_, ci) => `Cell ${ri + 1}-${ci + 1}`).join(' | ') + ' |'
+                    );
+                    return [header, separator, ...dataRows].join('\n');
+                };
+                const tableTemplate = '\n' + generateTable(rows, cols) + '\n';
                 view.dispatch(view.state.replaceSelection(tableTemplate));
             } else if (command === 'insert-code-block') {
                 const codeBlock = "```language\n\n```";
@@ -277,6 +284,7 @@ stateDiagram-v2
                         callouts,
                         inlineCode,
                         mermaidPreview,
+                        tablePreview,
                         autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
                         highlightActiveLine(),

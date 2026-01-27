@@ -15,6 +15,7 @@ import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { FlowchartBuilder } from './components/FlowchartBuilder';
 import { StateDiagramBuilder } from './components/StateDiagramBuilder';
+import { TableInsertModal } from './components/TableInsertModal';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -254,9 +255,17 @@ function App() {
         isPermanent: false
     });
 
+    const [tableModalOpen, setTableModalOpen] = useState(false);
+
     const getCurrentNoteId = useCallback(() => {
         const match = location.pathname.match(/\/note\/(.+)/);
         return match ? match[1] : null;
+    }, [location.pathname]);
+
+    const currentContext = useMemo((): 'home' | 'editor' | 'global' => {
+        if (location.pathname === '/') return 'home';
+        if (location.pathname.startsWith('/note/')) return 'editor';
+        return 'global';
     }, [location.pathname]);
 
     const handleDeleteNote = useCallback((id: string, e?: React.MouseEvent) => {
@@ -298,16 +307,21 @@ function App() {
             try {
                 const decompressed = LZString.decompressFromEncodedURIComponent(shareData);
                 if (decompressed) {
-                    const { title, content } = JSON.parse(decompressed);
+                    const parsed = JSON.parse(decompressed);
+                    const { title, content, tags, format, viewMode, isFavorite } = parsed;
+                    // Merge existing tags with 'shared' tag
+                    const existingTags = Array.isArray(tags) ? tags : [];
+                    const mergedTags = existingTags.includes('shared') ? existingTags : [...existingTags, 'shared'];
                     const newNote: Note = {
                         id: crypto.randomUUID(),
                         title: title || 'Shared Note',
                         content: content || '',
-                        format: 'markdown',
-                        tags: ['shared'],
+                        format: format || 'markdown',
+                        tags: mergedTags,
                         createdAt: Date.now(),
                         updatedAt: Date.now(),
-                        isFavorite: false,
+                        isFavorite: isFavorite || false,
+                        viewMode: viewMode,
                     };
                     setTimeout(() => {
                         setData(prev => ({
@@ -499,7 +513,8 @@ function App() {
                     }
                 }
             },
-            category: 'View'
+            category: 'View',
+            context: 'editor' as const
         },
         {
             id: 'toggle-focus-mode',
@@ -517,7 +532,8 @@ function App() {
             id: 'hard-wrap',
             label: 'Hard Wrap Text (80 cols)',
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
-            category: 'Editor'
+            category: 'Editor',
+            context: 'editor' as const
         },
         {
             id: 'theme-light',
@@ -716,7 +732,7 @@ function App() {
             },
             category: 'Export'
         },
-        // Current Note Actions
+        // Current Note Actions (editor context)
         ...(getCurrentNoteId() ? [
             {
                 id: 'delete-note',
@@ -725,7 +741,8 @@ function App() {
                     const id = getCurrentNoteId();
                     if (id) handleDeleteNote(id, { stopPropagation: () => { } } as React.MouseEvent);
                 },
-                category: 'Note'
+                category: 'Note',
+                context: 'editor' as const
             },
             {
                 id: 'duplicate-note',
@@ -734,7 +751,8 @@ function App() {
                     const id = getCurrentNoteId();
                     if (id) handleDuplicateNote(id, { stopPropagation: () => { } } as React.MouseEvent);
                 },
-                category: 'Note'
+                category: 'Note',
+                context: 'editor' as const
             },
             {
                 id: 'export-markdown',
@@ -752,7 +770,8 @@ function App() {
                         URL.revokeObjectURL(url);
                     }
                 },
-                category: 'Export'
+                category: 'Export',
+                context: 'editor' as const
             },
             {
                 id: 'share-note',
@@ -761,7 +780,14 @@ function App() {
                     const id = getCurrentNoteId();
                     const note = data.notes.find(n => n.id === id);
                     if (note) {
-                        const dataToCompress = JSON.stringify({ title: note.title, content: note.content });
+                        const dataToCompress = JSON.stringify({
+                            title: note.title,
+                            content: note.content,
+                            tags: note.tags,
+                            format: note.format,
+                            viewMode: note.viewMode,
+                            isFavorite: note.isFavorite
+                        });
                         const compressed = LZString.compressToEncodedURIComponent(dataToCompress);
                         const url = `${window.location.origin}/?share=${compressed}`;
                         navigator.clipboard.writeText(url).then(() => {
@@ -769,26 +795,30 @@ function App() {
                         });
                     }
                 },
-                category: 'Share'
+                category: 'Share',
+                context: 'editor' as const
             },
             // Editor Insert Commands
             {
                 id: 'insert-table',
                 label: 'Insert Table',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-table' } })),
-                category: 'Editor'
+                action: () => setTableModalOpen(true),
+                category: 'Editor',
+                context: 'editor' as const
             },
             {
                 id: 'insert-code-block',
                 label: 'Insert Code Block',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-code-block' } })),
-                category: 'Editor'
+                category: 'Editor',
+                context: 'editor' as const
             },
             {
                 id: 'insert-hr',
                 label: 'Insert Horizontal Rule',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-horizontal-rule' } })),
-                category: 'Editor'
+                category: 'Editor',
+                context: 'editor' as const
             },
             {
                 id: 'insert-mermaid-flowchart',
@@ -799,7 +829,8 @@ function App() {
                         handleUpdateNote(id, { viewMode: 'flowchart' });
                     }
                 },
-                category: 'Editor'
+                category: 'Editor',
+                context: 'editor' as const
             },
             {
                 id: 'insert-mermaid-state-diagram',
@@ -808,7 +839,8 @@ function App() {
                     const id = getCurrentNoteId();
                     if (id) handleUpdateNote(id, { viewMode: 'state' });
                 },
-                category: 'Editor'
+                category: 'Editor',
+                context: 'editor' as const
             }
         ] : [])
     ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate]);
@@ -872,7 +904,15 @@ function App() {
     };
 
     const handleSidebarCommand = (command: string) => {
-        window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command } }));
+        if (command === 'insert-table') {
+            setTableModalOpen(true);
+        } else {
+            window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command } }));
+        }
+    };
+
+    const handleTableInsert = (rows: number, cols: number) => {
+        window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-table', rows, cols } }));
     };
 
     const handleCommandExecuted = (id: string) => {
@@ -929,6 +969,7 @@ function App() {
                 selectedTag={selectedTag}
                 onTagSelect={setSelectedTag}
                 allTags={allTags}
+                currentContext={currentContext}
             />
 
             <ConfirmationModal
@@ -939,6 +980,12 @@ function App() {
                     : "Are you sure you want to move this note to the bin?"}
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false })}
+            />
+
+            <TableInsertModal
+                isOpen={tableModalOpen}
+                onClose={() => setTableModalOpen(false)}
+                onInsert={handleTableInsert}
             />
         </div>
     );
