@@ -1063,6 +1063,11 @@ function App() {
                 onTagSelect={setSelectedTag}
                 allTags={allTags}
                 currentContext={currentContext}
+                commandGroups={commandGroups}
+                onOpenParameterModal={(cmd) => {
+                    setParamModalCommand(cmd);
+                    setParamModalOpen(true);
+                }}
             />
 
             <ConfirmationModal
