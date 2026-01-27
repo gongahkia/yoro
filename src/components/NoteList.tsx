@@ -23,10 +23,13 @@ export const NoteList: React.FC<NoteListProps> = ({
     onRestoreNote,
     searchQuery,
     selectedTag,
-    onTagChange
+    onTagChange,
+    viewMode = '3d-carousel'
 }) => {
-    // Circular Deck State
+    // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
+    // 2D Semicircle State
+    const [rotation2D, setRotation2D] = useState(0);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const deckRef = useRef<HTMLDivElement>(null);
 
