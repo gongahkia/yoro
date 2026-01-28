@@ -28,6 +28,7 @@ import { emacsMode as emacsModeExtension } from '../extensions/emacs-mode';
 import { smartLists } from '../extensions/smart-lists';
 import { syntaxErrors } from '../extensions/syntax-errors';
 import { bracketPulse } from '../extensions/bracket-pulse';
+import { DocumentStats } from './DocumentStats';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -44,9 +45,10 @@ interface EditorProps {
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
+    showDocumentStats: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
@@ -308,6 +310,7 @@ stateDiagram-v2
                     }}
                 />
             </div>
+            <DocumentStats content={note.content} visible={showDocumentStats} />
         </div>
     );
 };

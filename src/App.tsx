@@ -33,9 +33,10 @@ interface NoteEditorWrapperProps {
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
+    showDocumentStats: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -84,6 +85,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             lineWrapping={lineWrapping}
             showLineNumbers={showLineNumbers}
             editorAlignment={editorAlignment}
+            showDocumentStats={showDocumentStats}
         />
     );
 };
@@ -100,6 +102,7 @@ function App() {
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
                 homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
                 emacsMode: loaded.preferences.emacsMode || false,
+                showDocumentStats: loaded.preferences.showDocumentStats !== false,
             }
         };
     });
@@ -183,7 +186,8 @@ function App() {
                             editorAlignment: newPrefs.editorAlignment,
                             fontFamily: newPrefs.fontFamily,
                             fontSize: newPrefs.fontSize,
-                            homeViewMode: newPrefs.homeViewMode
+                            homeViewMode: newPrefs.homeViewMode,
+                            showDocumentStats: newPrefs.showDocumentStats
                         };
                         const newContent = stringify(configObj);
                         if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -370,7 +374,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -431,7 +435,8 @@ function App() {
                             editorAlignment: prev.preferences.editorAlignment,
                             fontFamily: prev.preferences.fontFamily,
                             fontSize: prev.preferences.fontSize,
-                            homeViewMode: prev.preferences.homeViewMode
+                            homeViewMode: prev.preferences.homeViewMode,
+                            showDocumentStats: prev.preferences.showDocumentStats
                         };
                         const newNote: Note = {
                             id: newId,
@@ -707,6 +712,13 @@ function App() {
             action: () => handleUpdatePreferences({ lineWrapping: !data.preferences.lineWrapping }),
             category: 'View',
             groupId: 'editor-settings'
+        },
+        {
+            id: 'toggle-document-stats',
+            label: 'Toggle Document Stats',
+            action: () => handleUpdatePreferences({ showDocumentStats: !data.preferences.showDocumentStats }),
+            category: 'View',
+            groupId: 'view-settings'
         },
         {
             id: 'hard-wrap',

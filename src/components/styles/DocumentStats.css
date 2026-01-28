@@ -1,0 +1,30 @@
+.document-stats {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8em;
+    color: var(--text-tertiary, #888);
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    background-color: var(--bg-primary, #fff);
+    padding: 4px 12px;
+    border-radius: 4px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.document-stats:hover {
+    opacity: 1;
+}
+
+.document-stats-item {
+    white-space: nowrap;
+}
+
+.document-stats-separator {
+    color: var(--text-tertiary, #888);
+    opacity: 0.5;
+}
