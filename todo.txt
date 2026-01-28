@@ -27,49 +27,6 @@ All features should:
 (A) Test the pulsing brackets that match
 
 
-(B) Smart List Continuation
-    - Pressing Enter on list item auto-creates next bullet with proper indent
-    - Pressing Enter twice closes the list
-    - Works for bullets (-, *), numbered (1.), and task lists (- [ ])
-
-(B) Breadcrumb Navigation for Headings
-    - Show path at top: "## Section > ### Subsection > #### Topic"
-    - Click any level to jump to that section
-    - Gray, unobtrusive text that fades when typing
-
-(B) Live Document Stats in Footer
-    - Subtle bar: "234 words | 1,456 chars | 5 paragraphs | ~2 min read"
-    - Toggleable via config.toml (showDocumentStats = true)
-    - Updates on every keystroke (debounced)
-
-(C) Inline Syntax Error Highlighting
-    - Unpaired backticks highlighted in red
-    - Unmatched brackets in links [text](url
-    - Unclosed bold/italic markers
-
-(C) Typewriter/Focus Scroll Mode
-    - Cursor stays vertically centered, text scrolls around it
-    - Toggle via command palette: "Toggle Typewriter Mode"
-    - Config: typewriterMode = false
-
-(C) Smart Heading Auto-Level
-    - Command: "Insert Heading (Auto-Level)"
-    - Analyzes current section depth, creates appropriate level
-    - Example: Inside ## Section, creates ### Subsection
-
-(B) Wikilink Hover Preview
-    - Hovering [[Note Title]] shows popup with first 3 lines of linked note
-    - 200ms delay before showing, fade in/out animation
-    - Click popup to navigate, Esc to dismiss
-
-(C) Pulse Animation on Matching Brackets
-    - When cursor is on bracket/paren, matching pair pulses gently
-    - Subtle glow effect (0.3s animation)
-    - Works for (), [], {}, ``
-    - Works for nested brackets
-
-
-
 (C) Enhanced Focus Mode with Blur
     - Current focus mode: dims inactive lines
     - Enhancement: slight blur (opacity 0.4) on lines beyond +/-3 of cursor
