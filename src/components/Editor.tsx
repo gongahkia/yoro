@@ -25,6 +25,7 @@ import { inlineCode } from '../extensions/inline-code';
 import { mermaidPreview } from '../extensions/mermaid';
 import { tablePreview } from '../extensions/table-preview';
 import { emacsMode as emacsModeExtension } from '../extensions/emacs-mode';
+import { smartLists } from '../extensions/smart-lists';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -292,6 +293,7 @@ stateDiagram-v2
                         createWikilinkPlugin(notes, onNavigate),
                         highlightActiveLine(),
                         focusMode ? focusModeExtension : [],
+                        smartLists,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
