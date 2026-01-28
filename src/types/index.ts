@@ -40,6 +40,7 @@ export interface UserPreferences {
     recentCommandIds: string[];
     homeViewMode: '3d-carousel' | '2d-semicircle';
     showDocumentStats: boolean;
+    typewriterMode: boolean;
 }
 
 export interface AppState {

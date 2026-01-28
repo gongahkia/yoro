@@ -29,6 +29,7 @@ import { smartLists } from '../extensions/smart-lists';
 import { syntaxErrors } from '../extensions/syntax-errors';
 import { bracketPulse } from '../extensions/bracket-pulse';
 import { DocumentStats } from './DocumentStats';
+import { typewriterMode as typewriterModeExtension } from '../extensions/typewriter-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -46,9 +47,10 @@ interface EditorProps {
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
+    typewriterMode: boolean;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
@@ -300,6 +302,7 @@ stateDiagram-v2
                         smartLists,
                         syntaxErrors,
                         bracketPulse,
+                        typewriterMode ? typewriterModeExtension : [],
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}

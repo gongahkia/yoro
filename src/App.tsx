@@ -34,9 +34,10 @@ interface NoteEditorWrapperProps {
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
+    typewriterMode: boolean;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -86,6 +87,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             showLineNumbers={showLineNumbers}
             editorAlignment={editorAlignment}
             showDocumentStats={showDocumentStats}
+            typewriterMode={typewriterMode}
         />
     );
 };
@@ -103,6 +105,7 @@ function App() {
                 homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
+                typewriterMode: loaded.preferences.typewriterMode || false,
             }
         };
     });
@@ -187,7 +190,8 @@ function App() {
                             fontFamily: newPrefs.fontFamily,
                             fontSize: newPrefs.fontSize,
                             homeViewMode: newPrefs.homeViewMode,
-                            showDocumentStats: newPrefs.showDocumentStats
+                            showDocumentStats: newPrefs.showDocumentStats,
+                            typewriterMode: newPrefs.typewriterMode
                         };
                         const newContent = stringify(configObj);
                         if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -374,7 +378,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'typewriterMode'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -436,7 +440,8 @@ function App() {
                             fontFamily: prev.preferences.fontFamily,
                             fontSize: prev.preferences.fontSize,
                             homeViewMode: prev.preferences.homeViewMode,
-                            showDocumentStats: prev.preferences.showDocumentStats
+                            showDocumentStats: prev.preferences.showDocumentStats,
+                            typewriterMode: prev.preferences.typewriterMode
                         };
                         const newNote: Note = {
                             id: newId,
@@ -717,6 +722,13 @@ function App() {
             id: 'toggle-document-stats',
             label: 'Toggle Document Stats',
             action: () => handleUpdatePreferences({ showDocumentStats: !data.preferences.showDocumentStats }),
+            category: 'View',
+            groupId: 'view-settings'
+        },
+        {
+            id: 'toggle-typewriter-mode',
+            label: 'Toggle Typewriter Mode',
+            action: () => handleUpdatePreferences({ typewriterMode: !data.preferences.typewriterMode }),
             category: 'View',
             groupId: 'view-settings'
         },
@@ -1281,6 +1293,7 @@ function App() {
                             showLineNumbers={data.preferences.showLineNumbers}
                             editorAlignment={data.preferences.editorAlignment}
                             showDocumentStats={data.preferences.showDocumentStats}
+                            typewriterMode={data.preferences.typewriterMode}
                         />
                         <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
                     </div>
