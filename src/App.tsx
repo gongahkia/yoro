@@ -1155,6 +1155,14 @@ function App() {
                 groupId: 'editor-settings'
             },
             {
+                id: 'insert-heading-auto',
+                label: 'Insert Heading (Auto-Level)',
+                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-heading-auto' } })),
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings'
+            },
+            {
                 id: 'insert-mermaid-flowchart',
                 label: 'Create Flowchart',
                 action: () => {

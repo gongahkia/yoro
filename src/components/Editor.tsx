@@ -227,6 +227,29 @@ stateDiagram-v2
 \`\`\`
 `;
                 view.dispatch(view.state.replaceSelection(template));
+            } else if (command === 'insert-heading-auto') {
+                // Smart heading auto-level: find nearest heading above cursor and use level + 1
+                const { from } = view.state.selection.main;
+                const currentLine = view.state.doc.lineAt(from);
+
+                // Scan backwards for nearest heading
+                let headingLevel = 1;
+                for (let lineNum = currentLine.number - 1; lineNum >= 1; lineNum--) {
+                    const line = view.state.doc.line(lineNum);
+                    const match = line.text.match(/^(#{1,6})\s/);
+                    if (match) {
+                        // Use level + 1, max 6
+                        headingLevel = Math.min(match[1].length + 1, 6);
+                        break;
+                    }
+                }
+
+                const headingMarker = '#'.repeat(headingLevel) + ' ';
+                const insert = '\n' + headingMarker;
+                view.dispatch({
+                    changes: { from, to: from, insert },
+                    selection: { anchor: from + insert.length }
+                });
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }
