@@ -37,6 +37,7 @@ import { multiCursorExtension } from '../extensions/multi-cursor';
 import { codeBlockEnhancements } from '../extensions/code-block-enhancements';
 import { markdownFolding } from '../extensions/markdown-folding';
 import { lineMoveExtension } from '../extensions/line-move';
+import { smartPaste } from '../extensions/smart-paste';
 import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
 import type { Note } from '../types';
 import './styles/Editor.css';
@@ -307,6 +308,12 @@ stateDiagram-v2
                     changes: { from, to: from, insert },
                     selection: { anchor: from + insert.length }
                 });
+            } else if (command === 'insert-template') {
+                const { content } = e.detail;
+                if (content) {
+                    const filledContent = content.replace('{{date}}', new Date().toLocaleDateString());
+                    view.dispatch(view.state.replaceSelection(filledContent));
+                }
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }
@@ -412,7 +419,8 @@ stateDiagram-v2
                         multiCursorExtension,
                         codeBlockEnhancements,
                         markdownFolding,
-                        lineMoveExtension
+                        lineMoveExtension,
+                        smartPaste
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"

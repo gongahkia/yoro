@@ -5,6 +5,7 @@ import LZString from 'lz-string';
 import { parse, stringify } from 'smol-toml';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
+import { templates } from './utils/templates';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
@@ -1219,12 +1220,36 @@ function App() {
                 id: 'insert-heading-auto',
                 label: 'Insert Heading (Auto-Level)',
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-heading-auto' } })),
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            },
-            {
-                id: 'insert-mermaid-flowchart',
+                            category: 'Editor',
+                            context: 'editor' as const,
+                            groupId: 'editor-settings'
+                        },
+                        {
+                            id: 'insert-template',
+                            label: 'Insert Template...',
+                            action: (params?: Record<string, string | number>) => {
+                                if (params?.templateId) {
+                                    const template = templates.find(t => t.id === params.templateId);
+                                    if (template) {
+                                        window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { 
+                                            detail: { command: 'insert-template', content: template.content } 
+                                        }));
+                                    }
+                                }
+                            },
+                            category: 'Editor',
+                            context: 'editor' as const,
+                            groupId: 'editor-settings',
+                            parameters: [{
+                                name: 'templateId',
+                                type: 'select' as const,
+                                label: 'Template',
+                                options: templates.map(t => ({ value: t.id, label: t.name }))
+                            }]
+                        },
+                        {
+                            id: 'insert-mermaid-flowchart',
+                
                 label: 'Create Flowchart',
                 action: () => {
                     const id = getCurrentNoteId();
