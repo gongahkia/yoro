@@ -509,7 +509,7 @@ function App() {
             groupId: 'font-settings',
             parameters: [{
                 name: 'fontSize',
-                type: 'number',
+                type: 'number' as const,
                 label: 'Size (px)',
                 min: 10,
                 max: 32,
@@ -529,7 +529,7 @@ function App() {
             groupId: 'theme-settings',
             parameters: [{
                 name: 'theme',
-                type: 'select',
+                type: 'select' as const,
                 label: 'Theme',
                 defaultValue: data.preferences.theme,
                 options: [
@@ -571,7 +571,7 @@ function App() {
             groupId: 'font-settings',
             parameters: [{
                 name: 'fontFamily',
-                type: 'select',
+                type: 'select' as const,
                 label: 'Font Family',
                 defaultValue: data.preferences.fontFamily,
                 options: [
@@ -597,7 +597,7 @@ function App() {
             category: 'Navigation',
             parameters: [{
                 name: 'query',
-                type: 'text',
+                type: 'text' as const,
                 label: 'Search Query',
                 placeholder: 'Enter search term...'
             }]
@@ -1009,7 +1009,7 @@ function App() {
                 context: 'editor' as const,
                 parameters: [{
                     name: 'filename',
-                    type: 'text',
+                    type: 'text' as const,
                     label: 'Filename (without extension)',
                     placeholder: 'my-note'
                 }]
@@ -1057,7 +1057,7 @@ function App() {
             {
                 id: 'export-pdf-custom',
                 label: 'Export as PDF (Custom Filename)...',
-                action: async (params) => {
+                action: async (params?: Record<string, string | number>) => {
                     const id = getCurrentNoteId();
                     const note = data.notes.find(n => n.id === id);
                     if (note && params?.filename) {
@@ -1075,7 +1075,7 @@ function App() {
                 context: 'editor' as const,
                 parameters: [{
                     name: 'filename',
-                    type: 'text',
+                    type: 'text' as const,
                     label: 'Filename (without extension)',
                     placeholder: 'my-document'
                 }]
