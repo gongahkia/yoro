@@ -159,3 +159,19 @@
     text-decoration-color: #ff6b6b;
     background-color: rgba(255, 107, 107, 0.1);
 }
+
+/* Bracket Match Pulse Animation */
+.cm-bracket-match {
+    animation: bracketPulse 0.3s ease-out;
+    background-color: var(--primary-light, rgba(0, 123, 255, 0.2));
+    border-radius: 2px;
+}
+
+@keyframes bracketPulse {
+    0%, 100% {
+        box-shadow: none;
+    }
+    50% {
+        box-shadow: 0 0 8px 2px var(--primary, #007bff);
+    }
+}

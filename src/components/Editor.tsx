@@ -27,6 +27,7 @@ import { tablePreview } from '../extensions/table-preview';
 import { emacsMode as emacsModeExtension } from '../extensions/emacs-mode';
 import { smartLists } from '../extensions/smart-lists';
 import { syntaxErrors } from '../extensions/syntax-errors';
+import { bracketPulse } from '../extensions/bracket-pulse';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -296,6 +297,7 @@ stateDiagram-v2
                         focusMode ? focusModeExtension : [],
                         smartLists,
                         syntaxErrors,
+                        bracketPulse,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
