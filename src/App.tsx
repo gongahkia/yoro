@@ -13,6 +13,7 @@ import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { SimilarNotesModal } from './components/SimilarNotesModal';
 import { OutlinePanel } from './components/OutlinePanel';
 import { ImageLightbox } from './components/ImageLightbox';
+import { PresentationMode } from './components/PresentationMode';
 import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
@@ -1517,6 +1518,9 @@ function App() {
                         />
                         <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
                     </div>
+                } />
+                <Route path="/note/:id/presentation" element={
+                    <PresentationMode notes={data.notes} theme={data.preferences.theme} />
                 } />
             </Routes>
             <CommandPalette

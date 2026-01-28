@@ -151,6 +151,9 @@
 .cm-table-widget th {
     background: var(--bg-secondary);
     font-weight: 600;
+    resize: horizontal;
+    overflow: hidden;
+    min-width: 50px;
 }
 
 .cm-table-widget tbody tr:nth-child(even) {

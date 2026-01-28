@@ -43,3 +43,57 @@
 .read-the-docs {
   color: #888;
 }
+
+@media print {
+  .sidebar,
+  .command-palette-overlay,
+  .toast-container,
+  .note-list-container,
+  .presentation-controls,
+  .progress-bar,
+  .find-replace-panel,
+  .outline-panel,
+  .backlinks-panel {
+    display: none !important;
+  }
+
+  .app-container,
+  .main-editor-layout,
+  .editor-container,
+  .editor-content {
+    height: auto !important;
+    overflow: visible !important;
+    width: 100% !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  .cm-editor {
+    height: auto !important;
+  }
+
+  .cm-scroller {
+    overflow: visible !important;
+  }
+
+  /* Hide UI elements in editor that shouldn't print */
+  .heading-breadcrumb, .document-stats {
+    display: none !important;
+  }
+
+  .editor-title {
+    border: none !important;
+    color: black !important;
+  }
+
+  /* Ensure text is black and background white */
+  body, .editor-container, .cm-editor, .cm-scroller, .cm-content {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 2cm;
+  }
+}
