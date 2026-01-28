@@ -18,6 +18,14 @@ All features should:
 (A) Test the knowledge graph
 (A) Test the emacs keybindings and whether they conflict with the vim keybindings
 (A) Test the newly added export to PDF/DOCx feature
+(A) Test the smart list continuation
+(A) Test the breadcrumb navigation
+(A) Test the live document stats in footer
+(A) Test the typewriter/scroll focus mode
+(A) Test the smart heading auto level
+(A) Test the wikilink hover preview
+(A) Test the pulsing brackets that match
+
 
 (B) Smart List Continuation
     - Pressing Enter on list item auto-creates next bullet with proper indent
@@ -58,6 +66,9 @@ All features should:
     - When cursor is on bracket/paren, matching pair pulses gently
     - Subtle glow effect (0.3s animation)
     - Works for (), [], {}, ``
+    - Works for nested brackets
+
+
 
 (C) Enhanced Focus Mode with Blur
     - Current focus mode: dims inactive lines
