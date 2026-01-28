@@ -31,6 +31,7 @@ import { bracketPulse } from '../extensions/bracket-pulse';
 import { DocumentStats } from './DocumentStats';
 import { typewriterMode as typewriterModeExtension } from '../extensions/typewriter-mode';
 import { HeadingBreadcrumb } from './HeadingBreadcrumb';
+import { createWikilinkPreview } from '../extensions/wikilink-preview';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -334,6 +335,7 @@ stateDiagram-v2
                         tablePreview,
                         autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
+                        createWikilinkPreview(notes, onNavigate),
                         highlightActiveLine(),
                         focusMode ? focusModeExtension : [],
                         smartLists,

@@ -17,7 +17,6 @@ const BRACKETS: { [key: string]: string } = {
 };
 
 const OPENING_BRACKETS = new Set(['(', '[', '{']);
-const CLOSING_BRACKETS = new Set([')', ']', '}']);
 
 const bracketMark = Decoration.mark({ class: 'cm-bracket-match' });
 
