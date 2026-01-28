@@ -30,6 +30,7 @@ import { syntaxErrors } from '../extensions/syntax-errors';
 import { bracketPulse } from '../extensions/bracket-pulse';
 import { DocumentStats } from './DocumentStats';
 import { typewriterMode as typewriterModeExtension } from '../extensions/typewriter-mode';
+import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -53,6 +54,18 @@ interface EditorProps {
 export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
+    const [cursorLine, setCursorLine] = React.useState(1);
+
+    // Extension to track cursor line
+    const cursorLineTracker = React.useMemo(() =>
+        EditorView.updateListener.of((update) => {
+            if (update.selectionSet) {
+                const line = update.state.doc.lineAt(update.state.selection.main.head);
+                setCursorLine(line.number);
+            }
+        }),
+        []
+    );
 
     const handleFormatting = useCallback((view: EditorView, type: string) => {
         const { from, to } = view.state.selection.main;
@@ -268,6 +281,7 @@ stateDiagram-v2
                     onChange={(e) => onTitleChange(e.target.value)}
                     placeholder="Untitled"
                 />
+                <HeadingBreadcrumb content={note.content} cursorLine={cursorLine} noteId={note.id} />
                 <CodeMirror
                     ref={editorRef}
                     value={note.content}
@@ -303,6 +317,7 @@ stateDiagram-v2
                         syntaxErrors,
                         bracketPulse,
                         typewriterMode ? typewriterModeExtension : [],
+                        cursorLineTracker,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
