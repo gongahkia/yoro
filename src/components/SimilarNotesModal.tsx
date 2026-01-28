@@ -1,6 +1,6 @@
 import React from 'react';
-import { Note } from '../types';
-import { SearchResult } from '../utils/similarity';
+import type { Note } from '../types';
+import type { SearchResult } from '../utils/similarity';
 import './styles/SimilarNotesModal.css';
 
 interface SimilarNotesModalProps {

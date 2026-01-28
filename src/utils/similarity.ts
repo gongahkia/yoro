@@ -1,4 +1,4 @@
-import { Note } from '../types';
+import type { Note } from '../types';
 
 export interface SearchResult {
     note: Note;

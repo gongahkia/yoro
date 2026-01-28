@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
-import { Note } from '../types';
+import type { Note } from '../types';
 import './styles/PresentationMode.css';
 
 interface PresentationModeProps {
