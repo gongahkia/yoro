@@ -2,7 +2,7 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
-    ViewUpdate,
+    type ViewUpdate,
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import type { Range } from '@codemirror/state';
