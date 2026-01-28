@@ -3,17 +3,12 @@
 (A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
 (A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
-
-(B) Test the existing parameterized commands for set font size and see if it even works
-
-(B) Support parameterized commands for other commands that can support it, including theme and possibly other commands. be logical and ensure that parameterized commands make sense for users
-(B) Allow hyperlinks and relative links to other notes to be clicked through with ctrl click or cmd click
-(B) Generate knowledge graph view so that when multiple documents link each other then they will be connected within the knowledge graph via wikilinks
-(B) Add knowledge graph to the command palette as a viewable option
-(A) Rework how config.toml works to ensure it configures all configurable items within yoro and how it can be edited (it should not be saved as a local note but should be accessible via the command palette
-(A) Add a help manual within the command palette
-(B) Refactor the sidebar as necessary to add more functionality but ensure it still renders only vertically and aligned to the textbox
-(B) Add emacs keybinds as well
-(B) Add export notes to docx, pdf and ensure everything renders properly
+(A) Test the Config.toml Rework to see if it is functioning
+(A) Test the newly added Parameterized Commands to see if it is functioning (theme, font family, notes, export as md, export as pdf)
+(A) Test the refactored sidebar in the editor block
+(A) Test the newly added help manual
+(A) Test the knowledge graph
+(A) Test the emacs keybindings and whether they conflict with the vim keybindings
+(A) Test the newly added export to PDF/DOCx feature
 
 (C) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
