@@ -10,5 +10,3 @@
 (A) Test the knowledge graph
 (A) Test the emacs keybindings and whether they conflict with the vim keybindings
 (A) Test the newly added export to PDF/DOCx feature
-
-(C) Feed the entire project repository to claude code and ask it to suggest various improvements to make editing even more useful and fun first and polish AND add those to this todo.txt
