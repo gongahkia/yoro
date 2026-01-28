@@ -1280,6 +1280,7 @@ function App() {
                             lineWrapping={data.preferences.lineWrapping}
                             showLineNumbers={data.preferences.showLineNumbers}
                             editorAlignment={data.preferences.editorAlignment}
+                            showDocumentStats={data.preferences.showDocumentStats}
                         />
                         <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
                     </div>
