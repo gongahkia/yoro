@@ -11,6 +11,7 @@ import { CommandPalette, type Command, type CommandGroup } from './components/Co
 import { ParameterInputModal } from './components/ParameterInputModal';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { SimilarNotesModal } from './components/SimilarNotesModal';
+import { OutlinePanel } from './components/OutlinePanel';
 import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
@@ -135,6 +136,7 @@ function App() {
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
     const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
+    const [isOutlineOpen, setIsOutlineOpen] = useState(false);
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
     const [similarNotesState, setSimilarNotesState] = useState<{ isOpen: boolean; results: SearchResult[] }>({ isOpen: false, results: [] });
 
@@ -447,6 +449,14 @@ function App() {
             id: 'open-backlinks',
             label: 'Show Backlinks',
             action: () => setIsBacklinksPanelOpen(true),
+            category: 'View',
+            context: 'editor' as const,
+            groupId: 'view-settings'
+        },
+        {
+            id: 'toggle-outline',
+            label: 'Toggle Outline',
+            action: () => setIsOutlineOpen(prev => !prev),
             category: 'View',
             context: 'editor' as const,
             groupId: 'view-settings'
@@ -1551,6 +1561,13 @@ function App() {
                     setIsBacklinksPanelOpen(false);
                     handleSelectNote(id);
                 }}
+            />
+
+            <OutlinePanel
+                isOpen={isOutlineOpen}
+                onClose={() => setIsOutlineOpen(false)}
+                content={data.notes.find(n => n.id === getCurrentNoteId())?.content || ''}
+                noteId={getCurrentNoteId() || ''}
             />
         </div>
     );

@@ -8,6 +8,7 @@ import {
 import type { DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 import { Range } from '@codemirror/state';
+import { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 
 const CALLOUT_REGEX = /^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DANGER|QUESTION|ABSTRACT|EXAMPLE|QUOTE)\]/i;
 
@@ -90,47 +91,16 @@ class CalloutsPlugin {
                             const isFocused = (selection.from >= node.from && selection.from <= node.to) ||
                                               (selection.to >= node.from && selection.to <= node.to);
 
-                            // Apply class to the whole blockquote
-                            // Note: Block decoration works on lines usually.
-                            // But here we might want to wrap or mark?
-                            // CodeMirror 6 Block decorations are line-based.
-                            // We can use LineDecoration.
-                            
-                            // But wait, syntaxTree node covers the range.
-                            // Let's just decorate the header line for now and maybe add a class to the text?
-                            // Replacing the header line `> [!NOTE]` with the widget is good.
-                            
-                            // If focused, show source.
                             if (!isFocused) {
-                                // Replace the definition line
                                 widgets.push(Decoration.replace({
                                     widget: new CalloutHeaderWidget(type),
                                     block: true 
                                 }).range(line.from, line.to));
-                                
-                                // We also want to style the content.
-                                // It's hard to wrap the whole block in a div with CM6 without a block decoration on all lines.
-                                // Instead, we can add a line class to all lines in the blockquote?
-                                // That requires iterating lines.
-                                
-                                // Let's just style the header for now and maybe the blockquote itself if possible.
-                                // Standard blockquote styling (border-left) is already in Editor.css.
-                                // We can perhaps override the border color via a line decoration on the header?
-                                // Or use `attributes` to add a class to the line?
                             }
                             
-                            // Add a line decoration to color the border
-                            // We can add a class to the line(s) of the blockquote
-                            // But syntaxTree node gives us the range.
-                            
-                            // Let's add a LineDecoration to the start line at least.
                             widgets.push(Decoration.line({
                                 attributes: { class: `cm-callout-line cm-callout-${type.toLowerCase()}` }
                             }).range(line.from));
-                            
-                            // And for subsequent lines?
-                            // We'd need to iterate lines from node.from to node.to
-                            // Be careful not to overlap if nested.
                         }
                     }
                 }
@@ -143,3 +113,22 @@ class CalloutsPlugin {
 export const callouts = ViewPlugin.fromClass(CalloutsPlugin, {
     decorations: (v) => v.decorations,
 });
+
+export const calloutCompletion = (context: CompletionContext): CompletionResult | null => {
+    const word = context.matchBefore(/>\s*\[!(\w*)/);
+    if (!word) return null;
+    if (word.from === word.to && !context.explicit) return null;
+
+    const types = Object.keys(ICONS);
+    
+    return {
+        from: word.from + word.text.indexOf('[!') + 2,
+        options: types.map(type => ({
+            label: type,
+            displayLabel: type,
+            detail: ICONS[type],
+            type: 'keyword',
+            apply: type + ']'
+        }))
+    };
+};

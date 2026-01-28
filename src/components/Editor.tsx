@@ -17,7 +17,7 @@ import { markdownPairs } from '../extensions/markdown-pairs';
 import { footnoteTooltip } from '../extensions/footnotes';
 import { FootnoteExtension } from '../extensions/markdown-footnotes';
 import { textHighlight } from '../extensions/text-highlight';
-import { callouts } from '../extensions/callouts';
+import { callouts, calloutCompletion } from '../extensions/callouts';
 import { emojiCompletion } from '../extensions/emojis';
 import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } from '../extensions/wikilinks';
 import { createFocusModeExtension } from '../extensions/focus-mode';
@@ -407,7 +407,7 @@ stateDiagram-v2
                         inlineCode,
                         mermaidPreview,
                         tablePreview,
-                        autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
+                        autocompletion({ override: [emojiCompletion, calloutCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
                         createWikilinkPreview(notes, onNavigate),
                         headingColors,
