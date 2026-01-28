@@ -28,51 +28,12 @@ All features should:
 (A) Test the smart heading auto level
 (A) Test the wikilink hover preview
 (A) Test the pulsing brackets that match
+(A) Test the enhanced focus mode with blur
+(A) Test the smooth theme transitions
+(A) Test the cursor micro-animations
+(A) Test the find and replace panel
 
 
-(C) Enhanced Focus Mode with Blur
-    - Current focus mode: dims inactive lines
-    - Enhancement: slight blur (opacity 0.4) on lines beyond +/-3 of cursor
-    - Config: focusModeBlur = true
-
-(C) Smooth Theme Transitions
-    - When switching themes, crossfade colors over 300ms
-    - Hardware-accelerated CSS transitions
-
-(C) Cursor Micro-Animations
-    - Subtle blink variation (not harsh on/off)
-    - Optional: tiny particle trail on fast movement (configurable)
-    - Config: cursorAnimations = "subtle" | "particles" | "none"
-
-(B) Save Indicator Flash
-    - When note auto-saves, brief "Saved" flash near title or in corner
-    - Green checkmark that fades after 1s
-
-(B) Find and Replace Panel
-    - Cmd+H or command palette: "Find and Replace..."
-    - Live match count, highlight all occurrences
-    - Regex support toggle
-    - Replace one / Replace all buttons
-
-(B) Markdown Template Insertion
-    - Command: "Insert Template..."
-    - Built-in templates:
-      * Meeting Notes (date, attendees, agenda, action items)
-      * Daily Journal (date, gratitude, tasks, reflection)
-      * Book Notes (title, author, summary, quotes, thoughts)
-      * Cornell Notes (questions, notes, summary)
-      * Project Plan (overview, milestones, tasks, risks)
-    - Config allows custom templates via templates/ folder
-
-(C) Smart Paste Options
-    - Paste URL on selected text: auto-create [text](url) link
-    - Paste image: auto-upload to data URL or show as base64
-    - Paste from Word/Google Docs: strip formatting or convert to markdown
-
-(C) Note Linking Suggestions
-    - After creating note, show: "Link to similar notes?"
-    - Lists notes with matching keywords in title/content
-    - One-click to insert [[wikilink]]
 
 (C) Undo History Preview
     - Cmd+Z shows last 5 states as small previews
@@ -107,6 +68,27 @@ All features should:
     - Show which notes link TO the current note
     - Sidebar panel or command palette view
     - Click to navigate to linking note
+
+
+(C) Smart Paste Options
+    - Paste URL on selected text: auto-create [text](url) link
+    - Paste image: auto-upload to data URL or show as base64
+    - Paste from Word/Google Docs: strip formatting or convert to markdown
+
+(B) Markdown Template Insertion
+    - Command: "Insert Template..."
+    - Built-in templates:
+      * Meeting Notes (date, attendees, agenda, action items)
+      * Daily Journal (date, gratitude, tasks, reflection)
+      * Book Notes (title, author, summary, quotes, thoughts)
+      * Cornell Notes (questions, notes, summary)
+      * Project Plan (overview, milestones, tasks, risks)
+    - Config allows custom templates via templates/ folder
+
+(C) Note Linking Suggestions
+    - After creating note, show: "Link to similar notes?"
+    - Lists notes with matching keywords in title/content
+    - One-click to insert [[wikilink]]
 
 (C) Quick Capture / Inbox
     - Global hotkey to capture quick thought (even when app minimized)
@@ -184,10 +166,6 @@ All features should:
 (C) Customizable Keyboard Shortcuts
     - config.toml section for keybindings
     - Override defaults for common commands
-
-(C) Auto-save Interval Setting
-    - Currently saves on every change
-    - Option: autoSaveDebounce = 1000 (ms)
 
 (C) Custom CSS Injection
     - config.toml: customCSS = "path/to/custom.css"
