@@ -1,0 +1,35 @@
+.similar-notes-modal {
+    width: 400px;
+}
+
+.similar-notes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.similar-note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.similar-note-item:last-child {
+    border-bottom: none;
+}
+
+.similar-note-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.similar-note-title {
+    font-weight: 500;
+}
+
+.similar-note-score {
+    font-size: 0.8em;
+    color: var(--text-muted);
+}

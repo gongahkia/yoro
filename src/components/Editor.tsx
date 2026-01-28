@@ -314,6 +314,11 @@ stateDiagram-v2
                     const filledContent = content.replace('{{date}}', new Date().toLocaleDateString());
                     view.dispatch(view.state.replaceSelection(filledContent));
                 }
+            } else if (command === 'insert-text') {
+                const { text } = e.detail;
+                if (text) {
+                    view.dispatch(view.state.replaceSelection(text));
+                }
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }

@@ -9,6 +9,9 @@ import { templates } from './utils/templates';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
+import { QuickCaptureModal } from './components/QuickCaptureModal';
+import { SimilarNotesModal } from './components/SimilarNotesModal';
+import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
@@ -132,6 +135,8 @@ function App() {
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
     const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
+    const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
+    const [similarNotesState, setSimilarNotesState] = useState<{ isOpen: boolean; results: SearchResult[] }>({ isOpen: false, results: [] });
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -1186,14 +1191,29 @@ function App() {
                 id: 'find-replace',
                 label: 'Find and Replace',
                 action: () => setIsFindReplaceOpen(true),
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings',
-                shortcut: 'Cmd+h'
-            },
-            // Editor Insert Commands
-            {
-                id: 'insert-table',
+                            category: 'Editor',
+                            context: 'editor' as const,
+                            groupId: 'editor-settings',
+                            shortcut: 'Cmd+h'
+                        },
+                        {
+                            id: 'find-similar',
+                            label: 'Show Similar Notes',
+                            action: () => {
+                                const id = getCurrentNoteId();
+                                const note = data.notes.find(n => n.id === id);
+                                if (note) {
+                                    const results = findSimilarNotes(note, data.notes);
+                                    setSimilarNotesState({ isOpen: true, results });
+                                }
+                            },
+                            category: 'Note',
+                            context: 'editor' as const
+                        },
+                        // Editor Insert Commands
+                        {
+                            id: 'insert-table',
+                
                 label: 'Insert Table',
                 action: () => setTableModalOpen(true),
                 category: 'Editor',
@@ -1290,8 +1310,41 @@ function App() {
         );
     }, []);
 
+    const handleQuickCapture = useCallback((text: string) => {
+        const newId = crypto.randomUUID();
+        const now = Date.now();
+        // Extract first line as title if possible
+        const lines = text.split('\n');
+        const title = lines[0]?.slice(0, 50) || 'Quick Capture';
+        
+        const newNote: Note = {
+            id: newId,
+            title: title,
+            content: text,
+            format: 'markdown',
+            tags: ['inbox'],
+            createdAt: now,
+            updatedAt: now,
+            isFavorite: false,
+        };
+        
+        setData(prev => ({
+            ...prev,
+            notes: [newNote, ...prev.notes]
+        }));
+        analytics.track('quick_capture');
+        showToast('Saved to Inbox', 'success');
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Quick Capture: Cmd+Shift+I
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'i' || e.key === 'I')) {
+                e.preventDefault();
+                setIsQuickCaptureOpen(true);
+                return;
+            }
+
             // Global shortcuts not in commands list (yet)
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
                 e.preventDefault();
@@ -1458,6 +1511,24 @@ function App() {
                 onClose={() => setIsHelpOpen(false)}
                 vimMode={data.preferences.vimMode}
                 emacsMode={data.preferences.emacsMode}
+            />
+
+            <QuickCaptureModal
+                isOpen={isQuickCaptureOpen}
+                onClose={() => setIsQuickCaptureOpen(false)}
+                onCapture={handleQuickCapture}
+            />
+
+            <SimilarNotesModal
+                isOpen={similarNotesState.isOpen}
+                onClose={() => setSimilarNotesState(prev => ({ ...prev, isOpen: false }))}
+                results={similarNotesState.results}
+                onLink={(note) => {
+                    window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { 
+                        detail: { command: 'insert-text', text: `[[${note.title || 'Untitled'}]]` } 
+                    }));
+                    setSimilarNotesState(prev => ({ ...prev, isOpen: false }));
+                }}
             />
 
             {isKnowledgeGraphOpen && (
