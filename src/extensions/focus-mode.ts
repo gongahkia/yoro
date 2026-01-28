@@ -1,5 +1,5 @@
 import { type Extension, Facet } from '@codemirror/state';
-import { EditorView, Decoration, type DecorationSet, ViewPlugin, ViewUpdate } from '@codemirror/view';
+import { EditorView, Decoration, type DecorationSet, ViewPlugin, type ViewUpdate } from '@codemirror/view';
 
 // Configuration facet for blur setting
 const focusModeBlurConfig = Facet.define<boolean, boolean>({

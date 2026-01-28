@@ -5,7 +5,7 @@ import {
     ViewUpdate,
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
-import { Range } from '@codemirror/state';
+import type { Range } from '@codemirror/state';
 
 const BRACKETS: { [key: string]: string } = {
     '(': ')',

@@ -1,4 +1,4 @@
-import { CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
+import type { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 
 import { gemoji } from 'gemoji';
 

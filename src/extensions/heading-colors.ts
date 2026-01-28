@@ -2,10 +2,10 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
-    ViewUpdate,
+    type ViewUpdate,
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
-import { Range } from '@codemirror/state';
+import type { Range } from '@codemirror/state';
 
 const headingClasses = [
     Decoration.mark({ class: 'cm-heading-1' }),

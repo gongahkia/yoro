@@ -1,4 +1,4 @@
-import { EditorView, ViewUpdate } from '@codemirror/view';
+import { EditorView, type ViewUpdate } from '@codemirror/view';
 
 export const typewriterMode = EditorView.updateListener.of((update: ViewUpdate) => {
     // Only trigger on selection changes (cursor movement)

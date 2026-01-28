@@ -3,12 +3,12 @@ import {
     EditorView,
     ViewPlugin,
     WidgetType,
-    ViewUpdate
+    type ViewUpdate
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { Range } from '@codemirror/state';
-import { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import type { Range } from '@codemirror/state';
+import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 
 const CALLOUT_REGEX = /^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DANGER|QUESTION|ABSTRACT|EXAMPLE|QUOTE)\]/i;
 

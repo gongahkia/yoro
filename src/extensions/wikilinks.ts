@@ -2,11 +2,11 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
-    ViewUpdate,
+    type ViewUpdate,
     type DecorationSet
 } from '@codemirror/view';
-import { CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
-import { Range } from '@codemirror/state';
+import type { CompletionContext, CompletionResult, Completion } from "@codemirror/autocomplete";
+import type { Range } from '@codemirror/state';
 import type { Note } from '../types';
 
 

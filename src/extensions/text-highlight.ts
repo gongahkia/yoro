@@ -2,11 +2,11 @@ import {
     Decoration,
     EditorView,
     ViewPlugin,
-    ViewUpdate,
+    type ViewUpdate,
 } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { Range } from '@codemirror/state';
+import type { Range } from '@codemirror/state';
 
 class TextHighlightPlugin {
     decorations: DecorationSet;
