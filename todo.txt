@@ -32,43 +32,14 @@ All features should:
 (A) Test the smooth theme transitions
 (A) Test the cursor micro-animations
 (A) Test the find and replace panel
+(A) Test the reading position memory
+(A) Test the multi-cursor editing
+(A) Test the code block enhancements
+(A) Test the Drag-and-Drop List Reordering
+(A) Test the Folding for Headings/Code Blocks
+(A) Test the Backlinks Panel
 
-
-
-(C) Undo History Preview
-    - Cmd+Z shows last 5 states as small previews
-    - Click to jump to specific state
-    - Or just navigate with repeated Cmd+Z as usual
-
-(C) Reading Position Memory
-    - When returning to a note, scroll to last read position
-    - Store in note metadata or preferences
-
-(B) Multi-Cursor Editing
-    - Cmd+Click to add additional cursors
-    - Cmd+D to select next occurrence of current word
-    - All cursors edit simultaneously
-
-(B) Code Block Enhancements
-    - Copy button on hover (top-right corner)
-    - Line numbers inside code blocks
-    - Syntax name label (```javascript shows "JavaScript")
-
-(C) Drag-and-Drop List Reordering
-    - Drag list items up/down to reorder
-    - Keyboard: Cmd+Alt+Up/Down moves current line
-    - Maintains indentation level
-
-(B) Folding for Headings/Code Blocks
-    - Click gutter arrow to collapse section under heading
-    - Fold all: Cmd+K Cmd+0, Unfold all: Cmd+K Cmd+J
-    - Code blocks foldable too
-
-(B) Backlinks Panel
-    - Show which notes link TO the current note
-    - Sidebar panel or command palette view
-    - Click to navigate to linking note
-
+---
 
 (C) Smart Paste Options
     - Paste URL on selected text: auto-create [text](url) link
@@ -158,15 +129,5 @@ All features should:
     - Command: "Start Presentation"
     - Each heading becomes a slide
     - Arrow keys to navigate
-
-================================================================================
-                                 SETTINGS
-================================================================================
-
-(C) Customizable Keyboard Shortcuts
-    - config.toml section for keybindings
-    - Override defaults for common commands
-
-(C) Custom CSS Injection
-    - config.toml: customCSS = "path/to/custom.css"
-    - Or inline CSS in config
+    - Some type of autoformatting occurs to the "content" of each "slide"
+    - Ensure all the while color theming still works

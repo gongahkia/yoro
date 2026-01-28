@@ -33,6 +33,7 @@ import { typewriterMode as typewriterModeExtension } from '../extensions/typewri
 import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import { createWikilinkPreview } from '../extensions/wikilink-preview';
 import { headingColors } from '../extensions/heading-colors';
+import { multiCursorExtension } from '../extensions/multi-cursor';
 import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
 import type { Note } from '../types';
 import './styles/Editor.css';
@@ -357,7 +358,8 @@ stateDiagram-v2
                         typewriterMode ? typewriterModeExtension : [],
                         cursorLineTracker,
                         keymap.of(markdownKeymap),
-                        createSearchHighlightExtension()
+                        createSearchHighlightExtension(),
+                        multiCursorExtension
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"
