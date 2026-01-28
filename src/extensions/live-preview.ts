@@ -61,6 +61,11 @@ class ImageWidget extends WidgetType {
         img.alt = this.alt;
         img.className = 'cm-image-widget';
         img.style.maxWidth = '100%';
+        img.style.cursor = 'zoom-in';
+        img.onclick = (e) => {
+            e.preventDefault();
+            window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src, alt: this.alt } }));
+        };
         return img;
     }
 }
@@ -95,6 +100,11 @@ class URLImageWidget extends WidgetType {
         img.style.maxWidth = '100%';
         img.style.maxHeight = '60vh';
         img.style.objectFit = 'contain';
+        img.style.cursor = 'zoom-in';
+        img.onclick = (e) => {
+            e.preventDefault();
+            window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src } }));
+        };
         return img;
     }
 }

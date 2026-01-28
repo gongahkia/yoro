@@ -12,6 +12,7 @@ import { ParameterInputModal } from './components/ParameterInputModal';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { SimilarNotesModal } from './components/SimilarNotesModal';
 import { OutlinePanel } from './components/OutlinePanel';
+import { ImageLightbox } from './components/ImageLightbox';
 import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
@@ -139,6 +140,7 @@ function App() {
     const [isOutlineOpen, setIsOutlineOpen] = useState(false);
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
     const [similarNotesState, setSimilarNotesState] = useState<{ isOpen: boolean; results: SearchResult[] }>({ isOpen: false, results: [] });
+    const [lightboxState, setLightboxState] = useState<{ isOpen: boolean; src: string | null; alt?: string }>({ isOpen: false, src: null });
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -1347,6 +1349,16 @@ function App() {
     }, []);
 
     useEffect(() => {
+        const handleImageClick = (e: CustomEvent) => {
+            const { src, alt } = e.detail;
+            setLightboxState({ isOpen: true, src, alt });
+        };
+
+        window.addEventListener('yoro-image-click', handleImageClick as EventListener);
+        return () => window.removeEventListener('yoro-image-click', handleImageClick as EventListener);
+    }, []);
+
+    useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Quick Capture: Cmd+Shift+I
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'i' || e.key === 'I')) {
@@ -1568,6 +1580,12 @@ function App() {
                 onClose={() => setIsOutlineOpen(false)}
                 content={data.notes.find(n => n.id === getCurrentNoteId())?.content || ''}
                 noteId={getCurrentNoteId() || ''}
+            />
+
+            <ImageLightbox
+                src={lightboxState.src}
+                alt={lightboxState.alt}
+                onClose={() => setLightboxState({ isOpen: false, src: null })}
             />
         </div>
     );
