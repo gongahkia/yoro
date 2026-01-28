@@ -26,6 +26,7 @@ import { mermaidPreview } from '../extensions/mermaid';
 import { tablePreview } from '../extensions/table-preview';
 import { emacsMode as emacsModeExtension } from '../extensions/emacs-mode';
 import { smartLists } from '../extensions/smart-lists';
+import { syntaxErrors } from '../extensions/syntax-errors';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -294,6 +295,7 @@ stateDiagram-v2
                         highlightActiveLine(),
                         focusMode ? focusModeExtension : [],
                         smartLists,
+                        syntaxErrors,
                         keymap.of(markdownKeymap)
                     ]}
                     onChange={onChange}
