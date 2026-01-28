@@ -1,133 +1,48 @@
-All features should:
-- Have keyboard shortcuts (command palette accessible)
-- Be toggleable via config.toml where appropriate
-- Match existing visual style (use CSS variables)
-- Not require new external dependencies if possible
-- Degrade gracefully (no crashes on edge cases)
+Change the 2d view to instead of being rotating 2d circle, make it like a folder of files that literally is sorted by file drawer, have an actual render
+Have the web appm detect whether a user is accessing the web app via mobile or computer and if mobiel, dissuade them from using it since its meant to be a desktop browser text editorq
+Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
+Clarify/tweak what focus mode or zen mode currently does
+Fix visual mode highlighting in vim mode where the highlighted selection isn't shown
 
-(A) Change the 2d view to instead of being rotating 2d circle, make it like a folder of files that literally is sorted by file drawer, have an actual render
-(A) Have the web appm detect whether a user is accessing the web app via mobile or computer and if mobiel, dissuade them from using it since its meant to be a desktop browser text editorq
-(A) Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
-(A) Clarify/tweak what focus mode or zen mode currently does
-(A) Fix visual mode highlighting in vim mode where the highlighted selection isn't shown
+Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
+Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
+Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
-(A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
-(A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
-(A) Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
-(A) Test the Config.toml Rework to see if it is functioning
-(A) Test the newly added Parameterized Commands to see if it is functioning (theme, font family, notes, export as md, export as pdf)
-(A) Test the refactored sidebar in the editor block
-(A) Test the newly added help manual
-(A) Test the knowledge graph
-(A) Test the emacs keybindings and whether they conflict with the vim keybindings
-(A) Test the newly added export to PDF/DOCx feature
-(A) Test the smart list continuation
-(A) Test the breadcrumb navigation
-(A) Test the live document stats in footer
-(A) Test the typewriter/scroll focus mode
-(A) Test the smart heading auto level
-(A) Test the wikilink hover preview
-(A) Test the pulsing brackets that match
-(A) Test the enhanced focus mode with blur
-(A) Test the smooth theme transitions
-(A) Test the cursor micro-animations
-(A) Test the find and replace panel
-(A) Test the reading position memory
-(A) Test the multi-cursor editing
-(A) Test the code block enhancements
-(A) Test the Drag-and-Drop List Reordering
-(A) Test the Folding for Headings/Code Blocks
-(A) Test the Backlinks Panel
-
----
-
-(C) Smart Paste Options
-    - Paste URL on selected text: auto-create [text](url) link
-    - Paste image: auto-upload to data URL or show as base64
-    - Paste from Word/Google Docs: strip formatting or convert to markdown
-
-(B) Markdown Template Insertion
-    - Command: "Insert Template..."
-    - Built-in templates:
-      * Meeting Notes (date, attendees, agenda, action items)
-      * Daily Journal (date, gratitude, tasks, reflection)
-      * Book Notes (title, author, summary, quotes, thoughts)
-      * Cornell Notes (questions, notes, summary)
-      * Project Plan (overview, milestones, tasks, risks)
-    - Config allows custom templates via templates/ folder
-
-(C) Note Linking Suggestions
-    - After creating note, show: "Link to similar notes?"
-    - Lists notes with matching keywords in title/content
-    - One-click to insert [[wikilink]]
-
-(C) Quick Capture / Inbox
-    - Global hotkey to capture quick thought (even when app minimized)
-    - Creates note in "Inbox" tag for later processing
-
-(B) Slash Commands
-    - Type "/" at start of line to see inline command menu
-    - /table, /code, /callout, /todo, /heading, etc.
-    - Notion-style quick insertion
-
-(B) Smooth Scroll on Navigation
-    - When following wikilinks or jumping to headings, scroll smoothly
-    - scrollIntoView with behavior: 'smooth'
-
-(C) Context Menu (Right-Click)
-    - Right-click on word: "Bold", "Italic", "Make Heading", "Look up"
-    - Right-click on link: "Open", "Copy URL", "Edit", "Remove link"
-    - Right-click on list: "Sort A-Z", "Reverse", "Convert to numbered"
-
-(C) Image Zoom on Click
-    - Clicking embedded image opens fullscreen lightbox
-    - Esc or click outside to close
-
-(C) Table Column Resize
-    - Drag column borders to resize in preview mode
-    - Updates markdown source automatically
-
-(C) Callout Type Autocomplete
-    - Typing "> [!" shows dropdown of callout types
-    - NOTE, TIP, WARNING, IMPORTANT, CAUTION, etc.
-
-(B) Outline/Table of Contents Panel
-    - Toggle via command: "Show Outline"
-    - Lists all headings with indentation
-    - Click to jump, current section highlighted
-
-(C) Quick Switcher Enhancement
-    - Cmd+P or Cmd+O for quick note switcher (separate from command palette)
-    - Fuzzy search by title, recent notes first
-    - Preview first line in dropdown
-
-(C) Pin Notes to Top
-    - Pin important notes so they appear first in home view
-    - Star/pin icon or command: "Pin Note"
-
-(C) Note Sorting Options
-    - Sort by: Date modified, Date created, Title A-Z, Title Z-A
-    - Toggle in home view or via command
-
-(C) Archive (vs Delete)
-    - "Archive Note" moves to archive (not bin)
-    - Archived notes hidden from main view but searchable
-
-================================================================================
-                              EXPORT & SHARING
-================================================================================
-
-(C) Export with Frontmatter Options
-    - When exporting markdown, option to include YAML frontmatter
-    - title, tags, created, modified dates
-
-(C) Print Stylesheet
-    - Cmd+P to print current note
-    - Clean print layout with proper margins
-
-(C) Presentation Mode
-    - Command: "Start Presentation"
-    - Each heading becomes a slide
-    - Arrow keys to navigate
-    - Some type of autoformatting occurs to the "content" of each "slide"
-    - Ensure all the while color theming still works
+Test the Config.toml Rework to see if it is functioning
+Test the newly added Parameterized Commands to see if it is functioning (theme, font family, notes, export as md, export as pdf)
+Test the refactored sidebar in the editor block
+Test the newly added help manual
+Test the knowledge graph
+Test the emacs keybindings and whether they conflict with the vim keybindings
+Test the newly added export to PDF/DOCx feature
+Test the smart list continuation
+Test the breadcrumb navigation
+Test the live document stats in footer
+Test the typewriter/scroll focus mode
+Test the smart heading auto level
+Test the wikilink hover preview
+Test the pulsing brackets that match
+Test the enhanced focus mode with blur
+Test the smooth theme transitions
+Test the cursor micro-animations
+Test the find and replace panel
+Test the reading position memory
+Test the multi-cursor editing
+Test the code block enhancements
+Test the Drag-and-Drop List Reordering
+Test the Folding for Headings/Code Blocks
+Test the Backlinks Panel
+Test the Smart Paste Options
+Test the Markdown Template Insertion
+Test the Note Linking Suggestions
+Test the Quick Capture / Inbox
+Test the Smooth Scroll on Navigation
+Test the Context Menu (Right-Click)
+Test the Image Zoom on Click
+Test the Table Column Resize
+Test the Callout Type Autocomplete
+Test the Outline/Table of Contents Panel
+Test the Note Sorting Options
+Test the Export with Frontmatter Options
+Test the Print Stylesheet
+Test the Presentation Mode
