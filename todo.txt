@@ -7,6 +7,7 @@ All features should:
 
 (A) Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
 (A) Clarify/tweak what focus mode or zen mode currently does
+(A) Fix visual mode highlighting in vim mode where the highlighted selection isn't shown
 
 (A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
