@@ -1,4 +1,12 @@
-=== PRIORITY 1: MARKDOWN EDITOR (Obsidian-style live preview) ===
+All features should:
+- Have keyboard shortcuts (command palette accessible)
+- Be toggleable via config.toml where appropriate
+- Match existing visual style (use CSS variables)
+- Not require new external dependencies if possible
+- Degrade gracefully (no crashes on edge cases)
+
+(A) Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
+(A) Clarify/tweak what focus mode or zen mode currently does
 
 (A) Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 (A) Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
@@ -10,3 +18,206 @@
 (A) Test the knowledge graph
 (A) Test the emacs keybindings and whether they conflict with the vim keybindings
 (A) Test the newly added export to PDF/DOCx feature
+
+(B) Smart List Continuation
+    - Pressing Enter on list item auto-creates next bullet with proper indent
+    - Pressing Enter twice closes the list
+    - Works for bullets (-, *), numbered (1.), and task lists (- [ ])
+
+(B) Breadcrumb Navigation for Headings
+    - Show path at top: "## Section > ### Subsection > #### Topic"
+    - Click any level to jump to that section
+    - Gray, unobtrusive text that fades when typing
+
+(B) Live Document Stats in Footer
+    - Subtle bar: "234 words | 1,456 chars | 5 paragraphs | ~2 min read"
+    - Toggleable via config.toml (showDocumentStats = true)
+    - Updates on every keystroke (debounced)
+
+(C) Inline Syntax Error Highlighting
+    - Unpaired backticks highlighted in red
+    - Unmatched brackets in links [text](url
+    - Unclosed bold/italic markers
+
+(C) Typewriter/Focus Scroll Mode
+    - Cursor stays vertically centered, text scrolls around it
+    - Toggle via command palette: "Toggle Typewriter Mode"
+    - Config: typewriterMode = false
+
+(C) Smart Heading Auto-Level
+    - Command: "Insert Heading (Auto-Level)"
+    - Analyzes current section depth, creates appropriate level
+    - Example: Inside ## Section, creates ### Subsection
+
+(B) Wikilink Hover Preview
+    - Hovering [[Note Title]] shows popup with first 3 lines of linked note
+    - 200ms delay before showing, fade in/out animation
+    - Click popup to navigate, Esc to dismiss
+
+(C) Pulse Animation on Matching Brackets
+    - When cursor is on bracket/paren, matching pair pulses gently
+    - Subtle glow effect (0.3s animation)
+    - Works for (), [], {}, ``
+
+(C) Enhanced Focus Mode with Blur
+    - Current focus mode: dims inactive lines
+    - Enhancement: slight blur (opacity 0.4) on lines beyond +/-3 of cursor
+    - Config: focusModeBlur = true
+
+(C) Smooth Theme Transitions
+    - When switching themes, crossfade colors over 300ms
+    - Hardware-accelerated CSS transitions
+
+(C) Cursor Micro-Animations
+    - Subtle blink variation (not harsh on/off)
+    - Optional: tiny particle trail on fast movement (configurable)
+    - Config: cursorAnimations = "subtle" | "particles" | "none"
+
+(B) Save Indicator Flash
+    - When note auto-saves, brief "Saved" flash near title or in corner
+    - Green checkmark that fades after 1s
+
+(B) Find and Replace Panel
+    - Cmd+H or command palette: "Find and Replace..."
+    - Live match count, highlight all occurrences
+    - Regex support toggle
+    - Replace one / Replace all buttons
+
+(B) Markdown Template Insertion
+    - Command: "Insert Template..."
+    - Built-in templates:
+      * Meeting Notes (date, attendees, agenda, action items)
+      * Daily Journal (date, gratitude, tasks, reflection)
+      * Book Notes (title, author, summary, quotes, thoughts)
+      * Cornell Notes (questions, notes, summary)
+      * Project Plan (overview, milestones, tasks, risks)
+    - Config allows custom templates via templates/ folder
+
+(C) Smart Paste Options
+    - Paste URL on selected text: auto-create [text](url) link
+    - Paste image: auto-upload to data URL or show as base64
+    - Paste from Word/Google Docs: strip formatting or convert to markdown
+
+(C) Note Linking Suggestions
+    - After creating note, show: "Link to similar notes?"
+    - Lists notes with matching keywords in title/content
+    - One-click to insert [[wikilink]]
+
+(C) Undo History Preview
+    - Cmd+Z shows last 5 states as small previews
+    - Click to jump to specific state
+    - Or just navigate with repeated Cmd+Z as usual
+
+(C) Reading Position Memory
+    - When returning to a note, scroll to last read position
+    - Store in note metadata or preferences
+
+(B) Multi-Cursor Editing
+    - Cmd+Click to add additional cursors
+    - Cmd+D to select next occurrence of current word
+    - All cursors edit simultaneously
+
+(B) Code Block Enhancements
+    - Copy button on hover (top-right corner)
+    - Line numbers inside code blocks
+    - Syntax name label (```javascript shows "JavaScript")
+
+(C) Drag-and-Drop List Reordering
+    - Drag list items up/down to reorder
+    - Keyboard: Cmd+Alt+Up/Down moves current line
+    - Maintains indentation level
+
+(B) Folding for Headings/Code Blocks
+    - Click gutter arrow to collapse section under heading
+    - Fold all: Cmd+K Cmd+0, Unfold all: Cmd+K Cmd+J
+    - Code blocks foldable too
+
+(B) Backlinks Panel
+    - Show which notes link TO the current note
+    - Sidebar panel or command palette view
+    - Click to navigate to linking note
+
+(C) Quick Capture / Inbox
+    - Global hotkey to capture quick thought (even when app minimized)
+    - Creates note in "Inbox" tag for later processing
+
+(B) Slash Commands
+    - Type "/" at start of line to see inline command menu
+    - /table, /code, /callout, /todo, /heading, etc.
+    - Notion-style quick insertion
+
+(B) Smooth Scroll on Navigation
+    - When following wikilinks or jumping to headings, scroll smoothly
+    - scrollIntoView with behavior: 'smooth'
+
+(C) Context Menu (Right-Click)
+    - Right-click on word: "Bold", "Italic", "Make Heading", "Look up"
+    - Right-click on link: "Open", "Copy URL", "Edit", "Remove link"
+    - Right-click on list: "Sort A-Z", "Reverse", "Convert to numbered"
+
+(C) Image Zoom on Click
+    - Clicking embedded image opens fullscreen lightbox
+    - Esc or click outside to close
+
+(C) Table Column Resize
+    - Drag column borders to resize in preview mode
+    - Updates markdown source automatically
+
+(C) Callout Type Autocomplete
+    - Typing "> [!" shows dropdown of callout types
+    - NOTE, TIP, WARNING, IMPORTANT, CAUTION, etc.
+
+(B) Outline/Table of Contents Panel
+    - Toggle via command: "Show Outline"
+    - Lists all headings with indentation
+    - Click to jump, current section highlighted
+
+(C) Quick Switcher Enhancement
+    - Cmd+P or Cmd+O for quick note switcher (separate from command palette)
+    - Fuzzy search by title, recent notes first
+    - Preview first line in dropdown
+
+(C) Pin Notes to Top
+    - Pin important notes so they appear first in home view
+    - Star/pin icon or command: "Pin Note"
+
+(C) Note Sorting Options
+    - Sort by: Date modified, Date created, Title A-Z, Title Z-A
+    - Toggle in home view or via command
+
+(C) Archive (vs Delete)
+    - "Archive Note" moves to archive (not bin)
+    - Archived notes hidden from main view but searchable
+
+================================================================================
+                              EXPORT & SHARING
+================================================================================
+
+(C) Export with Frontmatter Options
+    - When exporting markdown, option to include YAML frontmatter
+    - title, tags, created, modified dates
+
+(C) Print Stylesheet
+    - Cmd+P to print current note
+    - Clean print layout with proper margins
+
+(C) Presentation Mode
+    - Command: "Start Presentation"
+    - Each heading becomes a slide
+    - Arrow keys to navigate
+
+================================================================================
+                                 SETTINGS
+================================================================================
+
+(C) Customizable Keyboard Shortcuts
+    - config.toml section for keybindings
+    - Override defaults for common commands
+
+(C) Auto-save Interval Setting
+    - Currently saves on every change
+    - Option: autoSaveDebounce = 1000 (ms)
+
+(C) Custom CSS Injection
+    - config.toml: customCSS = "path/to/custom.css"
+    - Or inline CSS in config
