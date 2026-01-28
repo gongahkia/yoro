@@ -500,7 +500,7 @@ function App() {
         {
             id: 'set-font-size',
             label: 'Set Font Size...',
-            action: (params) => {
+            action: (params?: Record<string, string | number>) => {
                 if (params?.fontSize) {
                     handleUpdatePreferences({ fontSize: params.fontSize as number });
                 }
@@ -520,7 +520,7 @@ function App() {
         {
             id: 'select-theme',
             label: 'Select Theme...',
-            action: (params) => {
+            action: (params?: Record<string, string | number>) => {
                 if (params?.theme) {
                     handleUpdatePreferences({ theme: params.theme as typeof data.preferences.theme });
                 }
@@ -562,7 +562,7 @@ function App() {
         {
             id: 'select-font-family',
             label: 'Select Font Family...',
-            action: (params) => {
+            action: (params?: Record<string, string | number>) => {
                 if (params?.fontFamily) {
                     handleUpdatePreferences({ fontFamily: params.fontFamily as string });
                 }
@@ -588,7 +588,7 @@ function App() {
         {
             id: 'search-notes',
             label: 'Search Notes...',
-            action: (params) => {
+            action: (params?: Record<string, string | number>) => {
                 if (params?.query) {
                     navigate('/');
                     setSearchQuery(params.query as string);
@@ -991,7 +991,7 @@ function App() {
             {
                 id: 'export-markdown-custom',
                 label: 'Export as Markdown (Custom Filename)...',
-                action: (params) => {
+                action: (params?: Record<string, string | number>) => {
                     const id = getCurrentNoteId();
                     const note = data.notes.find(n => n.id === id);
                     if (note && params?.filename) {

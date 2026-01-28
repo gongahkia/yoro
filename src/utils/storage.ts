@@ -9,6 +9,7 @@ const initialState: AppState = {
         theme: 'light',
         sidebarVisible: false,
         vimMode: false,
+        emacsMode: false,
         showLineNumbers: true,
         focusMode: false,
         lineWrapping: true,

@@ -22,7 +22,7 @@ interface KnowledgeGraphProps {
     onClose: () => void;
 }
 
-interface GraphNodeData {
+interface GraphNodeData extends Record<string, unknown> {
     label: string;
     noteId: string;
     linkCount: number;

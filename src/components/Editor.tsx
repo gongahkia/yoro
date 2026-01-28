@@ -24,7 +24,7 @@ import { focusModeExtension } from '../extensions/focus-mode';
 import { inlineCode } from '../extensions/inline-code';
 import { mermaidPreview } from '../extensions/mermaid';
 import { tablePreview } from '../extensions/table-preview';
-import { emacsMode } from '../extensions/emacs-mode';
+import { emacsMode as emacsModeExtension } from '../extensions/emacs-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -267,7 +267,7 @@ stateDiagram-v2
                     height="100%"
                     extensions={[
                         vimMode ? vim() : [],
-                        emacsMode && !vimMode ? emacsMode : [],
+                        emacsMode && !vimMode ? emacsModeExtension : [],
                         lineWrapping ? EditorView.lineWrapping : [],
                         themeSyntaxHighlighting,
                         yamlFrontmatter({

@@ -6,13 +6,12 @@ import {
     cursorLineStart, cursorLineEnd,
     selectCharLeft, selectCharRight,
     selectLineUp, selectLineDown,
-    deleteToLineEnd,
     cursorDocStart, cursorDocEnd,
     cursorPageUp, cursorPageDown,
     selectAll, deleteCharBackward, deleteCharForward,
-    cursorWordForward, cursorWordBackward,
-    selectWordForward, selectWordBackward,
-    deleteWordBackward, deleteWordForward
+    cursorGroupForward, cursorGroupBackward,
+    selectGroupForward, selectGroupBackward,
+    deleteGroupBackward, deleteGroupForward
 } from '@codemirror/commands';
 import { undo, redo } from '@codemirror/commands';
 import { openSearchPanel, closeSearchPanel } from '@codemirror/search';
@@ -24,7 +23,7 @@ let killRing: string[] = [];
 let lastKillPos: number | null = null;
 
 const killToLineEnd = (view: EditorView): boolean => {
-    const { from, to } = view.state.selection.main;
+    const { from } = view.state.selection.main;
     const line = view.state.doc.lineAt(from);
     const endPos = line.to;
 
@@ -165,8 +164,8 @@ export const emacsKeymap: KeyBinding[] = [
     { key: 'Ctrl-e', run: cursorLineEnd },
 
     // Word movement
-    { key: 'Alt-f', run: cursorWordForward },
-    { key: 'Alt-b', run: cursorWordBackward },
+    { key: 'Alt-f', run: cursorGroupForward },
+    { key: 'Alt-b', run: cursorGroupBackward },
 
     // Document movement
     { key: 'Alt-<', run: cursorDocStart },
@@ -179,8 +178,8 @@ export const emacsKeymap: KeyBinding[] = [
     { key: 'Ctrl-Shift-b', run: selectCharLeft },
     { key: 'Ctrl-Shift-n', run: selectLineDown },
     { key: 'Ctrl-Shift-p', run: selectLineUp },
-    { key: 'Alt-Shift-f', run: selectWordForward },
-    { key: 'Alt-Shift-b', run: selectWordBackward },
+    { key: 'Alt-Shift-f', run: selectGroupForward },
+    { key: 'Alt-Shift-b', run: selectGroupBackward },
 
     // Kill/Yank
     { key: 'Ctrl-k', run: killToLineEnd },
@@ -191,8 +190,8 @@ export const emacsKeymap: KeyBinding[] = [
     // Delete
     { key: 'Ctrl-d', run: deleteCharForward },
     { key: 'Ctrl-h', run: deleteCharBackward },
-    { key: 'Alt-d', run: deleteWordForward },
-    { key: 'Alt-Backspace', run: deleteWordBackward },
+    { key: 'Alt-d', run: deleteGroupForward },
+    { key: 'Alt-Backspace', run: deleteGroupBackward },
 
     // Edit
     { key: 'Ctrl-t', run: transposeChars },

@@ -114,7 +114,7 @@ export async function exportToPDF(content: string, title: string): Promise<void>
     document.body.appendChild(container);
 
     const options = {
-        margin: [10, 10, 10, 10],
+        margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: `${title || 'untitled'}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
@@ -220,12 +220,11 @@ export async function exportToDOCX(content: string, title: string): Promise<void
         } else if (line.trim()) {
             // Parse inline formatting
             const runs: TextRun[] = [];
-            let remaining = line;
 
             // Simple regex-based parsing for bold, italic, code
             const regex = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)/g;
             let lastIndex = 0;
-            let match;
+            let match: RegExpExecArray | null;
 
             while ((match = regex.exec(line)) !== null) {
                 if (match.index > lastIndex) {
