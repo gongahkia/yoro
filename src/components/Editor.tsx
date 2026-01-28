@@ -32,6 +32,7 @@ import { DocumentStats } from './DocumentStats';
 import { typewriterMode as typewriterModeExtension } from '../extensions/typewriter-mode';
 import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import { createWikilinkPreview } from '../extensions/wikilink-preview';
+import { headingColors } from '../extensions/heading-colors';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -336,6 +337,7 @@ stateDiagram-v2
                         autocompletion({ override: [emojiCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
                         createWikilinkPlugin(notes, onNavigate),
                         createWikilinkPreview(notes, onNavigate),
+                        headingColors,
                         highlightActiveLine(),
                         focusMode ? focusModeExtension : [],
                         smartLists,

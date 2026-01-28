@@ -601,6 +601,14 @@
    --syntax-link: #1e66f5;
    --syntax-heading: #8839ef;
    --syntax-invalid: #d20f39;
+
+   /* Heading Hierarchy Colors (Catppuccin Light) */
+   --heading-1: #8839ef;
+   --heading-2: #1e66f5;
+   --heading-3: #40a02b;
+   --heading-4: #df8e1d;
+   --heading-5: #d20f39;
+   --heading-6: #9ca0b0;
  }
 
  /* Rose Pine */
@@ -635,6 +643,14 @@
    --syntax-link: #ebbcba;
    --syntax-heading: #c4a7e7;
    --syntax-invalid: #eb6f92;
+
+   /* Heading Hierarchy Colors (Rose Pine Dark) */
+   --heading-1: #c4a7e7;
+   --heading-2: #9ccfd8;
+   --heading-3: #ebbcba;
+   --heading-4: #f6c177;
+   --heading-5: #eb6f92;
+   --heading-6: #6e6a86;
  }
 
  [data-theme='rose-pine-light'] {
@@ -666,6 +682,14 @@
    --syntax-link: #d7827e;
    --syntax-heading: #907aa9;
    --syntax-invalid: #b4637a;
+
+   /* Heading Hierarchy Colors (Rose Pine Light) */
+   --heading-1: #907aa9;
+   --heading-2: #56949f;
+   --heading-3: #d7827e;
+   --heading-4: #ea9a97;
+   --heading-5: #b4637a;
+   --heading-6: #9893a5;
  }
 
  /* Tokyo Night */
@@ -696,6 +720,14 @@
    --syntax-link: #73daca;
    --syntax-heading: #7aa2f7;
    --syntax-invalid: #db4b4b;
+
+   /* Heading Hierarchy Colors (Tokyo Night Dark) */
+   --heading-1: #7aa2f7;
+   --heading-2: #bb9af7;
+   --heading-3: #9ece6a;
+   --heading-4: #7dcfff;
+   --heading-5: #ff9e64;
+   --heading-6: #565f89;
  }
 
  [data-theme='tokyo-night-light'] {
@@ -725,6 +757,14 @@
    --syntax-link: #33635c;
    --syntax-heading: #34548a;
    --syntax-invalid: #8c4351;
+
+   /* Heading Hierarchy Colors (Tokyo Night Light) */
+   --heading-1: #34548a;
+   --heading-2: #5a4a78;
+   --heading-3: #485e30;
+   --heading-4: #0f4b6e;
+   --heading-5: #8c5a15;
+   --heading-6: #9699a3;
  }
 
  /* Kanagawa */
@@ -756,6 +796,14 @@
    --syntax-link: #7fb4ca;
    --syntax-heading: #7fb4ca;
    --syntax-invalid: #ff5d62;
+
+   /* Heading Hierarchy Colors (Kanagawa Dark) */
+   --heading-1: #7fb4ca;
+   --heading-2: #7e9cd8;
+   --heading-3: #98bb6c;
+   --heading-4: #ffa066;
+   --heading-5: #d27e99;
+   --heading-6: #727169;
  }
 
  [data-theme='kanagawa-light'] {
@@ -788,4 +836,12 @@
    --syntax-link: #597b91;
    --syntax-heading: #597b91;
    --syntax-invalid: #c34043;
+
+   /* Heading Hierarchy Colors (Kanagawa Light) */
+   --heading-1: #597b91;
+   --heading-2: #43559a;
+   --heading-3: #6f894e;
+   --heading-4: #d55fde;
+   --heading-5: #d27e99;
+   --heading-6: #716e61;
  }

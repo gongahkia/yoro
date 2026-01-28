@@ -218,3 +218,34 @@
         transform: translateY(0);
     }
 }
+
+/* Heading Hierarchy Colors */
+.cm-heading-1 {
+    color: var(--heading-1) !important;
+    font-weight: bold;
+}
+
+.cm-heading-2 {
+    color: var(--heading-2) !important;
+    font-weight: bold;
+}
+
+.cm-heading-3 {
+    color: var(--heading-3) !important;
+    font-weight: bold;
+}
+
+.cm-heading-4 {
+    color: var(--heading-4) !important;
+    font-weight: bold;
+}
+
+.cm-heading-5 {
+    color: var(--heading-5) !important;
+    font-weight: bold;
+}
+
+.cm-heading-6 {
+    color: var(--heading-6) !important;
+    font-weight: bold;
+}
