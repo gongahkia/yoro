@@ -27,6 +27,14 @@
    --syntax-link: #0366d6;
    --syntax-heading: #24292e;
    --syntax-invalid: #cb2431;
+
+   /* Heading Hierarchy Colors (Light) */
+   --heading-1: #0550ae;
+   --heading-2: #0969da;
+   --heading-3: #1a7f37;
+   --heading-4: #8250df;
+   --heading-5: #bf3989;
+   --heading-6: #57606a;
  }
 
  [data-theme='dark'] {
