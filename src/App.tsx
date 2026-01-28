@@ -20,6 +20,7 @@ import { TableInsertModal } from './components/TableInsertModal';
 import { ToastContainer, showToast } from './components/Toast';
 import { HelpManual } from './components/HelpManual';
 import { KnowledgeGraph } from './components/KnowledgeGraph';
+import { exportToPDF, exportToDOCX } from './utils/exportUtils';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -1011,6 +1012,72 @@ function App() {
                     type: 'text',
                     label: 'Filename (without extension)',
                     placeholder: 'my-note'
+                }]
+            },
+            {
+                id: 'export-pdf',
+                label: 'Export as PDF',
+                action: async () => {
+                    const id = getCurrentNoteId();
+                    const note = data.notes.find(n => n.id === id);
+                    if (note) {
+                        try {
+                            showToast('Generating PDF...', 'success');
+                            await exportToPDF(note.content, note.title || 'Untitled');
+                            showToast('PDF exported successfully', 'success');
+                        } catch (err) {
+                            console.error('PDF export error:', err);
+                            showToast('Failed to export PDF', 'error');
+                        }
+                    }
+                },
+                category: 'Export',
+                context: 'editor' as const
+            },
+            {
+                id: 'export-docx',
+                label: 'Export as Word Document',
+                action: async () => {
+                    const id = getCurrentNoteId();
+                    const note = data.notes.find(n => n.id === id);
+                    if (note) {
+                        try {
+                            showToast('Generating DOCX...', 'success');
+                            await exportToDOCX(note.content, note.title || 'Untitled');
+                            showToast('DOCX exported successfully', 'success');
+                        } catch (err) {
+                            console.error('DOCX export error:', err);
+                            showToast('Failed to export DOCX', 'error');
+                        }
+                    }
+                },
+                category: 'Export',
+                context: 'editor' as const
+            },
+            {
+                id: 'export-pdf-custom',
+                label: 'Export as PDF (Custom Filename)...',
+                action: async (params) => {
+                    const id = getCurrentNoteId();
+                    const note = data.notes.find(n => n.id === id);
+                    if (note && params?.filename) {
+                        try {
+                            showToast('Generating PDF...', 'success');
+                            await exportToPDF(note.content, (params.filename as string).trim() || note.title || 'Untitled');
+                            showToast('PDF exported successfully', 'success');
+                        } catch (err) {
+                            console.error('PDF export error:', err);
+                            showToast('Failed to export PDF', 'error');
+                        }
+                    }
+                },
+                category: 'Export',
+                context: 'editor' as const,
+                parameters: [{
+                    name: 'filename',
+                    type: 'text',
+                    label: 'Filename (without extension)',
+                    placeholder: 'my-document'
                 }]
             },
             {
