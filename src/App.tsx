@@ -129,6 +129,7 @@ function App() {
                 typewriterMode: loaded.preferences.typewriterMode || false,
                 focusModeBlur: loaded.preferences.focusModeBlur !== false,
                 cursorAnimations: loaded.preferences.cursorAnimations || 'subtle',
+                sortOrder: loaded.preferences.sortOrder || 'updated',
             }
         };
     });
@@ -220,6 +221,7 @@ function App() {
                             fontFamily: newPrefs.fontFamily,
                             fontSize: newPrefs.fontSize,
                             homeViewMode: newPrefs.homeViewMode,
+                            sortOrder: newPrefs.sortOrder,
                             showDocumentStats: newPrefs.showDocumentStats,
                             typewriterMode: newPrefs.typewriterMode,
                             cursorAnimations: newPrefs.cursorAnimations
@@ -459,6 +461,19 @@ function App() {
             id: 'toggle-outline',
             label: 'Toggle Outline',
             action: () => setIsOutlineOpen(prev => !prev),
+            category: 'View',
+            context: 'editor' as const,
+            groupId: 'view-settings'
+        },
+        {
+            id: 'toggle-presentation',
+            label: 'Start Presentation',
+            action: () => {
+                const id = getCurrentNoteId();
+                if (id) {
+                    navigate(`/note/${id}/presentation`);
+                }
+            },
             category: 'View',
             context: 'editor' as const,
             groupId: 'view-settings'
@@ -1083,13 +1098,28 @@ function App() {
             },
             {
                 id: 'export-markdown-custom',
-                label: 'Export as Markdown (Custom Filename)...',
-                action: (params?: Record<string, string | number>) => {
+                label: 'Export as Markdown...',
+                action: (params?: Record<string, string | number | boolean>) => {
                     const id = getCurrentNoteId();
                     const note = data.notes.find(n => n.id === id);
-                    if (note && params?.filename) {
-                        const filename = (params.filename as string).trim() || note.title || 'untitled';
-                        const blob = new Blob([note.content], { type: 'text/markdown' });
+                    if (note) {
+                        const filename = (params?.filename as string)?.trim() || note.title || 'untitled';
+                        let content = note.content;
+                        
+                        if (params?.includeFrontmatter) {
+                            const frontmatter = [
+                                '---',
+                                `title: ${note.title}`,
+                                `tags: [${note.tags.join(', ')}]`,
+                                `created: ${new Date(note.createdAt).toISOString()}`,
+                                `updated: ${new Date(note.updatedAt).toISOString()}`,
+                                '---',
+                                ''
+                            ].join('\n');
+                            content = frontmatter + content;
+                        }
+
+                        const blob = new Blob([content], { type: 'text/markdown' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
@@ -1100,12 +1130,20 @@ function App() {
                 },
                 category: 'Export',
                 context: 'editor' as const,
-                parameters: [{
-                    name: 'filename',
-                    type: 'text' as const,
-                    label: 'Filename (without extension)',
-                    placeholder: 'my-note'
-                }]
+                parameters: [
+                    {
+                        name: 'filename',
+                        type: 'text' as const,
+                        label: 'Filename (without extension)',
+                        placeholder: 'my-note'
+                    },
+                    {
+                        name: 'includeFrontmatter',
+                        type: 'boolean' as const,
+                        label: 'Include Frontmatter (YAML)',
+                        defaultValue: false
+                    }
+                ]
             },
             {
                 id: 'export-pdf',
@@ -1454,6 +1492,8 @@ function App() {
                         selectedTag={selectedTag}
                         onTagChange={setSelectedTag}
                         viewMode={data.preferences.homeViewMode}
+                        sortOrder={data.preferences.sortOrder}
+                        onSortChange={(order) => handleUpdatePreferences({ sortOrder: order })}
                     />
                 } />
                 <Route path="/note/:id" element={

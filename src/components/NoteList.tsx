@@ -13,6 +13,8 @@ interface NoteListProps {
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
     viewMode?: '3d-carousel' | '2d-semicircle';
+    sortOrder?: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
+    onSortChange?: (order: 'updated' | 'created' | 'alpha' | 'alpha-reverse') => void;
 }
 
 export const NoteList: React.FC<NoteListProps> = ({
@@ -24,7 +26,9 @@ export const NoteList: React.FC<NoteListProps> = ({
     searchQuery,
     selectedTag,
     onTagChange,
-    viewMode = '3d-carousel'
+    viewMode = '3d-carousel',
+    sortOrder = 'updated',
+    onSortChange
 }) => {
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
@@ -60,8 +64,13 @@ export const NoteList: React.FC<NoteListProps> = ({
             const matchesTag = (selectedTag && selectedTag !== 'bin') ? note.tags.includes(selectedTag) : true;
 
             return matchesSearch && matchesTag;
+        }).sort((a, b) => {
+            if (sortOrder === 'alpha') return a.title.localeCompare(b.title);
+            if (sortOrder === 'alpha-reverse') return b.title.localeCompare(a.title);
+            if (sortOrder === 'created') return b.createdAt - a.createdAt;
+            return b.updatedAt - a.updatedAt; // default 'updated'
         });
-    }, [notes, searchQuery, selectedTag]);
+    }, [notes, searchQuery, selectedTag, sortOrder]);
 
     // Handle Wheel Rotation
     useEffect(() => {
@@ -234,6 +243,16 @@ export const NoteList: React.FC<NoteListProps> = ({
             <div className="search-hint">
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
+                <select 
+                    className="sort-select" 
+                    value={sortOrder} 
+                    onChange={(e) => onSortChange?.(e.target.value as any)}
+                >
+                    <option value="updated">Date Updated</option>
+                    <option value="created">Date Created</option>
+                    <option value="alpha">Title A-Z</option>
+                    <option value="alpha-reverse">Title Z-A</option>
+                </select>
             </div>
             {viewMode === '3d-carousel' ? render3DCarousel() : render2DSemicircle()}
         </div>

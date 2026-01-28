@@ -29,6 +29,8 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                     initial[param.name] = param.min ?? 0;
                 } else if (param.type === 'select' && param.options?.[0]) {
                     initial[param.name] = param.options[0].value;
+                } else if (param.type === 'boolean') {
+                    initial[param.name] = param.defaultValue ?? false;
                 } else {
                     initial[param.name] = '';
                 }
@@ -92,6 +94,19 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                                         </option>
                                     ))}
                                 </select>
+                            ) : param.type === 'boolean' ? (
+                                <div className="checkbox-wrapper">
+                                    <input
+                                        ref={index === 0 ? firstInputRef as React.RefObject<HTMLInputElement> : undefined}
+                                        id={`param-${param.name}`}
+                                        type="checkbox"
+                                        checked={!!values[param.name]}
+                                        onChange={e => handleValueChange(param.name, e.target.checked, param)}
+                                    />
+                                    <label htmlFor={`param-${param.name}`} className="checkbox-label">
+                                        {param.placeholder || 'Enable'}
+                                    </label>
+                                </div>
                             ) : (
                                 <input
                                     ref={index === 0 ? firstInputRef as React.RefObject<HTMLInputElement> : undefined}

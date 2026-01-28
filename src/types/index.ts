@@ -42,6 +42,7 @@ export interface UserPreferences {
     fontSize: number;
     recentCommandIds: string[];
     homeViewMode: '3d-carousel' | '2d-semicircle';
+    sortOrder: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
     showDocumentStats: boolean;
     typewriterMode: boolean;
     cursorAnimations: 'none' | 'subtle' | 'particles';

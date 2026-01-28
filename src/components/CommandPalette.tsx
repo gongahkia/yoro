@@ -3,7 +3,7 @@ import './styles/CommandPalette.css';
 
 export interface CommandParameter {
     name: string;
-    type: 'number' | 'text' | 'select';
+    type: 'number' | 'text' | 'select' | 'boolean';
     label: string;
     placeholder?: string;
     defaultValue?: string | number;
