@@ -33,6 +33,7 @@ export interface UserPreferences {
     emacsMode: boolean;
     showLineNumbers: boolean;
     focusMode: boolean;
+    focusModeBlur: boolean;
     lineWrapping: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     fontFamily: string;
@@ -41,6 +42,7 @@ export interface UserPreferences {
     homeViewMode: '3d-carousel' | '2d-semicircle';
     showDocumentStats: boolean;
     typewriterMode: boolean;
+    cursorAnimations: 'none' | 'subtle' | 'particles';
 }
 
 export interface AppState {

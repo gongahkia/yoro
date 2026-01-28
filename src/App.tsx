@@ -30,14 +30,18 @@ interface NoteEditorWrapperProps {
     vimMode: boolean;
     emacsMode: boolean;
     focusMode: boolean;
+    focusModeBlur: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
     typewriterMode: boolean;
+    cursorAnimations: 'none' | 'subtle' | 'particles';
+    findReplaceOpen: boolean;
+    onCloseFindReplace: () => void;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations, findReplaceOpen, onCloseFindReplace }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -83,11 +87,15 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             vimMode={vimMode}
             emacsMode={emacsMode}
             focusMode={focusMode}
+            focusModeBlur={focusModeBlur}
             lineWrapping={lineWrapping}
             showLineNumbers={showLineNumbers}
             editorAlignment={editorAlignment}
             showDocumentStats={showDocumentStats}
             typewriterMode={typewriterMode}
+            cursorAnimations={cursorAnimations}
+            findReplaceOpen={findReplaceOpen}
+            onCloseFindReplace={onCloseFindReplace}
         />
     );
 };
@@ -106,12 +114,15 @@ function App() {
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
                 typewriterMode: loaded.preferences.typewriterMode || false,
+                focusModeBlur: loaded.preferences.focusModeBlur !== false,
+                cursorAnimations: loaded.preferences.cursorAnimations || 'subtle',
             }
         };
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
+    const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -185,13 +196,15 @@ function App() {
                             sidebarVisible: newPrefs.sidebarVisible,
                             showLineNumbers: newPrefs.showLineNumbers,
                             focusMode: newPrefs.focusMode,
+                            focusModeBlur: newPrefs.focusModeBlur,
                             lineWrapping: newPrefs.lineWrapping,
                             editorAlignment: newPrefs.editorAlignment,
                             fontFamily: newPrefs.fontFamily,
                             fontSize: newPrefs.fontSize,
                             homeViewMode: newPrefs.homeViewMode,
                             showDocumentStats: newPrefs.showDocumentStats,
-                            typewriterMode: newPrefs.typewriterMode
+                            typewriterMode: newPrefs.typewriterMode,
+                            cursorAnimations: newPrefs.cursorAnimations
                         };
                         const newContent = stringify(configObj);
                         if (newNotes[configIndex].content.trim() !== newContent.trim()) {
@@ -378,7 +391,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'typewriterMode'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'typewriterMode', 'cursorAnimations'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -435,13 +448,15 @@ function App() {
                             sidebarVisible: prev.preferences.sidebarVisible,
                             showLineNumbers: prev.preferences.showLineNumbers,
                             focusMode: prev.preferences.focusMode,
+                            focusModeBlur: prev.preferences.focusModeBlur,
                             lineWrapping: prev.preferences.lineWrapping,
                             editorAlignment: prev.preferences.editorAlignment,
                             fontFamily: prev.preferences.fontFamily,
                             fontSize: prev.preferences.fontSize,
                             homeViewMode: prev.preferences.homeViewMode,
                             showDocumentStats: prev.preferences.showDocumentStats,
-                            typewriterMode: prev.preferences.typewriterMode
+                            typewriterMode: prev.preferences.typewriterMode,
+                            cursorAnimations: prev.preferences.cursorAnimations
                         };
                         const newNote: Note = {
                             id: newId,
@@ -712,6 +727,13 @@ function App() {
             groupId: 'view-settings'
         },
         {
+            id: 'toggle-focus-mode-blur',
+            label: 'Toggle Focus Mode Blur',
+            action: () => handleUpdatePreferences({ focusModeBlur: !data.preferences.focusModeBlur }),
+            category: 'View',
+            groupId: 'view-settings'
+        },
+        {
             id: 'toggle-line-wrapping',
             label: 'Toggle Line Wrapping (Soft)',
             action: () => handleUpdatePreferences({ lineWrapping: !data.preferences.lineWrapping }),
@@ -738,6 +760,19 @@ function App() {
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
             category: 'Editor',
             context: 'editor' as const,
+            groupId: 'editor-settings'
+        },
+        {
+            id: 'cycle-cursor-animation',
+            label: 'Cycle Cursor Animation',
+            action: () => {
+                const current = data.preferences.cursorAnimations || 'subtle';
+                const next: 'none' | 'subtle' | 'particles' =
+                    current === 'none' ? 'subtle' :
+                    current === 'subtle' ? 'particles' : 'none';
+                handleUpdatePreferences({ cursorAnimations: next });
+            },
+            category: 'Editor',
             groupId: 'editor-settings'
         },
         // Home View Toggle
@@ -1129,6 +1164,16 @@ function App() {
                 category: 'Share',
                 context: 'editor' as const
             },
+            // Find and Replace
+            {
+                id: 'find-replace',
+                label: 'Find and Replace',
+                action: () => setIsFindReplaceOpen(true),
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings',
+                shortcut: 'Cmd+h'
+            },
             // Editor Insert Commands
             {
                 id: 'insert-table',
@@ -1213,7 +1258,14 @@ function App() {
                 return;
             }
 
-
+            // Cmd+H: Find and Replace (only in editor context)
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'h' || e.key === 'H') && !e.shiftKey) {
+                if (location.pathname.startsWith('/note/')) {
+                    e.preventDefault();
+                    setIsFindReplaceOpen(prev => !prev);
+                    return;
+                }
+            }
 
             // Check commands
             for (const cmd of commands) {
@@ -1297,11 +1349,15 @@ function App() {
                             vimMode={data.preferences.vimMode}
                             emacsMode={data.preferences.emacsMode}
                             focusMode={data.preferences.focusMode}
+                            focusModeBlur={data.preferences.focusModeBlur ?? true}
                             lineWrapping={data.preferences.lineWrapping}
                             showLineNumbers={data.preferences.showLineNumbers}
                             editorAlignment={data.preferences.editorAlignment}
                             showDocumentStats={data.preferences.showDocumentStats}
                             typewriterMode={data.preferences.typewriterMode}
+                            cursorAnimations={data.preferences.cursorAnimations ?? 'subtle'}
+                            findReplaceOpen={isFindReplaceOpen}
+                            onCloseFindReplace={() => setIsFindReplaceOpen(false)}
                         />
                         <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
                     </div>

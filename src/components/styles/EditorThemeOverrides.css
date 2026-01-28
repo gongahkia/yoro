@@ -45,11 +45,13 @@
     background-color: var(--editor-gutter-bg, var(--bg-primary)) !important;
     color: var(--editor-gutter-text, #999) !important;
     border-right: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .editor-cm-wrapper .cm-activeLineGutter {
     background-color: var(--primary-light) !important;
     color: var(--text-primary) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Force Editor Background */
@@ -57,12 +59,14 @@
     height: 100%;
     background-color: var(--editor-bg, var(--bg-primary)) !important;
     color: var(--text-primary) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .editor-cm-wrapper .cm-scroller {
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
     line-height: 1.6;
     background-color: var(--editor-bg, var(--bg-primary)) !important;
+    transition: background-color 0.3s ease;
 }
 
 .editor-cm-wrapper .cm-content {
@@ -70,6 +74,7 @@
     min-width: 100%;
     /* Ensure content takes full width */
     background-color: var(--editor-bg, var(--bg-primary)) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .editor-cm-wrapper .cm-activeLine {
@@ -78,6 +83,7 @@
     /* Force active line to be full width */
     display: inline-block;
     /* Ensure block-like geometry for background */
+    transition: background-color 0.3s ease;
 }
 
 /* Fix for centered text having full width background */
@@ -248,4 +254,50 @@
 .cm-heading-6 {
     color: var(--heading-6) !important;
     font-weight: bold;
+}
+
+/* Find and Replace Search Matches */
+.cm-search-match {
+    background-color: var(--highlight);
+    border-radius: 2px;
+}
+
+.cm-search-match-current {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 2px;
+}
+
+/* Cursor Micro-Animations */
+
+/* Subtle blink animation */
+[data-cursor-animation="subtle"] .cm-cursor {
+    animation: subtleBlink 1.2s ease-in-out infinite;
+}
+
+@keyframes subtleBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* No animation - standard cursor */
+[data-cursor-animation="none"] .cm-cursor {
+    animation: none;
+}
+
+/* Particles mode - enhanced cursor glow */
+[data-cursor-animation="particles"] .cm-cursor {
+    animation: particleGlow 0.8s ease-in-out infinite;
+    box-shadow: 0 0 4px 1px var(--primary);
+}
+
+@keyframes particleGlow {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 4px 1px var(--primary);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 8px 2px var(--primary), 0 0 12px 4px var(--primary-light);
+    }
 }

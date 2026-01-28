@@ -12,6 +12,7 @@ const initialState: AppState = {
         emacsMode: false,
         showLineNumbers: true,
         focusMode: false,
+        focusModeBlur: true,
         lineWrapping: true,
         editorAlignment: 'center',
         fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
@@ -20,6 +21,7 @@ const initialState: AppState = {
         homeViewMode: '3d-carousel',
         showDocumentStats: true,
         typewriterMode: false,
+        cursorAnimations: 'subtle',
     },
 };
 

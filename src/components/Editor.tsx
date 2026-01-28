@@ -20,7 +20,7 @@ import { textHighlight } from '../extensions/text-highlight';
 import { callouts } from '../extensions/callouts';
 import { emojiCompletion } from '../extensions/emojis';
 import { createWikilinkPlugin, getWikilinkCompletion, getMentionCompletion } from '../extensions/wikilinks';
-import { focusModeExtension } from '../extensions/focus-mode';
+import { createFocusModeExtension } from '../extensions/focus-mode';
 import { inlineCode } from '../extensions/inline-code';
 import { mermaidPreview } from '../extensions/mermaid';
 import { tablePreview } from '../extensions/table-preview';
@@ -33,6 +33,7 @@ import { typewriterMode as typewriterModeExtension } from '../extensions/typewri
 import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import { createWikilinkPreview } from '../extensions/wikilink-preview';
 import { headingColors } from '../extensions/heading-colors';
+import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -46,14 +47,18 @@ interface EditorProps {
     vimMode: boolean;
     emacsMode: boolean;
     focusMode: boolean;
+    focusModeBlur?: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
     typewriterMode: boolean;
+    cursorAnimations?: 'none' | 'subtle' | 'particles';
+    findReplaceOpen?: boolean;
+    onCloseFindReplace?: () => void;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
@@ -296,8 +301,14 @@ stateDiagram-v2
     return (
         <div
             className={`editor-container ${focusMode ? 'focus-mode' : ''} editor-align-${editorAlignment}`}
+            data-cursor-animation={cursorAnimations}
             onClick={handleContainerClick}
         >
+            <FindReplacePanel
+                isOpen={findReplaceOpen}
+                onClose={onCloseFindReplace || (() => {})}
+                editorView={editorRef.current?.view || null}
+            />
             <div className="editor-content">
                 <input
                     type="text"
@@ -339,13 +350,14 @@ stateDiagram-v2
                         createWikilinkPreview(notes, onNavigate),
                         headingColors,
                         highlightActiveLine(),
-                        focusMode ? focusModeExtension : [],
+                        focusMode ? createFocusModeExtension(focusModeBlur) : [],
                         smartLists,
                         syntaxErrors,
                         bracketPulse,
                         typewriterMode ? typewriterModeExtension : [],
                         cursorLineTracker,
-                        keymap.of(markdownKeymap)
+                        keymap.of(markdownKeymap),
+                        createSearchHighlightExtension()
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"

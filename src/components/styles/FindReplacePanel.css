@@ -1,0 +1,201 @@
+.find-replace-panel {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 12px 16px;
+    min-width: 320px;
+    max-width: 400px;
+    animation: findReplaceFadeIn 0.15s ease;
+}
+
+@keyframes findReplaceFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.find-replace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.find-replace-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.find-replace-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--text-primary);
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+    border-radius: 4px;
+}
+
+.find-replace-close:hover {
+    opacity: 1;
+    background: var(--primary-light);
+}
+
+.find-replace-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.find-replace-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.find-replace-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.find-replace-input::placeholder {
+    color: var(--text-primary);
+    opacity: 0.4;
+}
+
+.find-replace-toggles {
+    display: flex;
+    gap: 4px;
+}
+
+.find-replace-toggle {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.find-replace-toggle:hover {
+    opacity: 1;
+    background: var(--primary-light);
+}
+
+.find-replace-toggle.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    opacity: 1;
+}
+
+.find-replace-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.find-replace-nav-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.find-replace-nav-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+.find-replace-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.find-replace-match-count {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    opacity: 0.7;
+    min-width: 60px;
+    text-align: center;
+}
+
+.find-replace-match-count.no-matches {
+    color: #ff6b6b;
+    opacity: 1;
+}
+
+.find-replace-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.find-replace-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.find-replace-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+.find-replace-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.find-replace-btn.primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.find-replace-btn.primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
