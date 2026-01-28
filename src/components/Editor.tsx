@@ -24,6 +24,7 @@ import { focusModeExtension } from '../extensions/focus-mode';
 import { inlineCode } from '../extensions/inline-code';
 import { mermaidPreview } from '../extensions/mermaid';
 import { tablePreview } from '../extensions/table-preview';
+import { emacsMode } from '../extensions/emacs-mode';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -35,13 +36,14 @@ interface EditorProps {
     onTitleChange: (title: string) => void;
     onNavigate: (noteId: string) => void;
     vimMode: boolean;
+    emacsMode: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
 
@@ -265,6 +267,7 @@ stateDiagram-v2
                     height="100%"
                     extensions={[
                         vimMode ? vim() : [],
+                        emacsMode && !vimMode ? emacsMode : [],
                         lineWrapping ? EditorView.lineWrapping : [],
                         themeSyntaxHighlighting,
                         yamlFrontmatter({

@@ -46,3 +46,17 @@
     color: var(--primary);
     border-color: var(--primary-light);
 }
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 12px 0;
+    width: 70%;
+}

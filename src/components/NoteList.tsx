@@ -44,6 +44,9 @@ export const NoteList: React.FC<NoteListProps> = ({
 
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
+            // Hide config.toml from note list (accessible via command palette only)
+            if (note.title === 'config.toml') return false;
+
             if (selectedTag === 'bin') {
                 // Bin View: Only show deleted notes
                 if (!note.deletedAt) return false;

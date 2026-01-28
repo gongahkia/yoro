@@ -18,6 +18,8 @@ import { FlowchartBuilder } from './components/FlowchartBuilder';
 import { StateDiagramBuilder } from './components/StateDiagramBuilder';
 import { TableInsertModal } from './components/TableInsertModal';
 import { ToastContainer, showToast } from './components/Toast';
+import { HelpManual } from './components/HelpManual';
+import { KnowledgeGraph } from './components/KnowledgeGraph';
 import './App.css';
 
 interface NoteEditorWrapperProps {
@@ -25,13 +27,14 @@ interface NoteEditorWrapperProps {
     onUpdateNote: (id: string, updates: Partial<Note>) => void;
     onNavigate: (id: string) => void;
     vimMode: boolean;
+    emacsMode: boolean;
     focusMode: boolean;
     lineWrapping: boolean;
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, lineWrapping, showLineNumbers, editorAlignment }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -75,6 +78,7 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             onTitleChange={(title) => onUpdateNote(note.id, { title })}
             onNavigate={onNavigate}
             vimMode={vimMode}
+            emacsMode={emacsMode}
             focusMode={focusMode}
             lineWrapping={lineWrapping}
             showLineNumbers={showLineNumbers}
@@ -94,10 +98,13 @@ function App() {
                 fontSize: loaded.preferences.fontSize || 16,
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
                 homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
+                emacsMode: loaded.preferences.emacsMode || false,
             }
         };
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
+    const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -167,6 +174,7 @@ function App() {
                         const configObj = {
                             theme: newPrefs.theme,
                             vimMode: newPrefs.vimMode,
+                            emacsMode: newPrefs.emacsMode,
                             sidebarVisible: newPrefs.sidebarVisible,
                             showLineNumbers: newPrefs.showLineNumbers,
                             focusMode: newPrefs.focusMode,
@@ -361,7 +369,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -387,6 +395,19 @@ function App() {
             category: 'General'
         },
         {
+            id: 'open-help',
+            label: 'Open Help Manual',
+            action: () => setIsHelpOpen(true),
+            category: 'General'
+        },
+        {
+            id: 'open-knowledge-graph',
+            label: 'Open Knowledge Graph',
+            action: () => setIsKnowledgeGraphOpen(true),
+            category: 'View',
+            groupId: 'view-settings'
+        },
+        {
             id: 'open-config',
             label: 'Open Configuration (config.toml)',
             action: () => {
@@ -401,6 +422,7 @@ function App() {
                         const configObj = {
                             theme: prev.preferences.theme,
                             vimMode: prev.preferences.vimMode,
+                            emacsMode: prev.preferences.emacsMode,
                             sidebarVisible: prev.preferences.sidebarVisible,
                             showLineNumbers: prev.preferences.showLineNumbers,
                             focusMode: prev.preferences.focusMode,
@@ -493,6 +515,92 @@ function App() {
                 defaultValue: data.preferences.fontSize
             }]
         },
+        // Parameterized theme selection
+        {
+            id: 'select-theme',
+            label: 'Select Theme...',
+            action: (params) => {
+                if (params?.theme) {
+                    handleUpdatePreferences({ theme: params.theme as typeof data.preferences.theme });
+                }
+            },
+            category: 'Theme',
+            groupId: 'theme-settings',
+            parameters: [{
+                name: 'theme',
+                type: 'select',
+                label: 'Theme',
+                defaultValue: data.preferences.theme,
+                options: [
+                    { value: 'light', label: 'Yoro Light' },
+                    { value: 'dark', label: 'Yoro Dark' },
+                    { value: 'sepia-light', label: 'Sepia Light' },
+                    { value: 'sepia-dark', label: 'Sepia Dark' },
+                    { value: 'dracula-light', label: 'Dracula Light' },
+                    { value: 'dracula-dark', label: 'Dracula Dark' },
+                    { value: 'nord-light', label: 'Nord Light' },
+                    { value: 'nord-dark', label: 'Nord Dark' },
+                    { value: 'gruvbox-light', label: 'Gruvbox Light' },
+                    { value: 'gruvbox-dark', label: 'Gruvbox Dark' },
+                    { value: 'everforest-light', label: 'Everforest Light' },
+                    { value: 'everforest-dark', label: 'Everforest Dark' },
+                    { value: 'catppuccin-light', label: 'Catppuccin Light' },
+                    { value: 'catppuccin-dark', label: 'Catppuccin Dark' },
+                    { value: 'solarized-light', label: 'Solarized Light' },
+                    { value: 'solarized-dark', label: 'Solarized Dark' },
+                    { value: 'rose-pine-light', label: 'Rose Pine Light' },
+                    { value: 'rose-pine-dark', label: 'Rose Pine Dark' },
+                    { value: 'tokyo-night-light', label: 'Tokyo Night Light' },
+                    { value: 'tokyo-night-dark', label: 'Tokyo Night Dark' },
+                    { value: 'kanagawa-light', label: 'Kanagawa Light' },
+                    { value: 'kanagawa-dark', label: 'Kanagawa Dark' },
+                ]
+            }]
+        },
+        // Parameterized font family selection
+        {
+            id: 'select-font-family',
+            label: 'Select Font Family...',
+            action: (params) => {
+                if (params?.fontFamily) {
+                    handleUpdatePreferences({ fontFamily: params.fontFamily as string });
+                }
+            },
+            category: 'Font',
+            groupId: 'font-settings',
+            parameters: [{
+                name: 'fontFamily',
+                type: 'select',
+                label: 'Font Family',
+                defaultValue: data.preferences.fontFamily,
+                options: [
+                    { value: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace", label: 'Monospace (Default)' },
+                    { value: 'Inter, system-ui, -apple-system, sans-serif', label: 'Sans Serif' },
+                    { value: 'Merriweather, Georgia, Cambria, "Times New Roman", serif', label: 'Serif' },
+                    { value: '"JetBrains Mono", "Fira Code", monospace', label: 'JetBrains Mono' },
+                    { value: '"Source Code Pro", monospace', label: 'Source Code Pro' },
+                    { value: '"IBM Plex Mono", monospace', label: 'IBM Plex Mono' },
+                ]
+            }]
+        },
+        // Parameterized note search
+        {
+            id: 'search-notes',
+            label: 'Search Notes...',
+            action: (params) => {
+                if (params?.query) {
+                    navigate('/');
+                    setSearchQuery(params.query as string);
+                }
+            },
+            category: 'Navigation',
+            parameters: [{
+                name: 'query',
+                type: 'text',
+                label: 'Search Query',
+                placeholder: 'Enter search term...'
+            }]
+        },
         {
             id: 'toggle-alignment',
             label: 'Cycle Editor Alignment',
@@ -532,7 +640,26 @@ function App() {
         {
             id: 'toggle-vim',
             label: 'Toggle Vim Mode',
-            action: () => handleUpdatePreferences({ vimMode: !data.preferences.vimMode }),
+            action: () => {
+                const newVimMode = !data.preferences.vimMode;
+                handleUpdatePreferences({
+                    vimMode: newVimMode,
+                    emacsMode: newVimMode ? false : data.preferences.emacsMode
+                });
+            },
+            category: 'Editor',
+            groupId: 'editor-settings'
+        },
+        {
+            id: 'toggle-emacs',
+            label: 'Toggle Emacs Mode',
+            action: () => {
+                const newEmacsMode = !data.preferences.emacsMode;
+                handleUpdatePreferences({
+                    emacsMode: newEmacsMode,
+                    vimMode: newEmacsMode ? false : data.preferences.vimMode
+                });
+            },
             category: 'Editor',
             groupId: 'editor-settings'
         },
@@ -771,8 +898,8 @@ function App() {
             },
             category: 'Navigation'
         }] : []),
-        // Note Navigation Commands
-        ...data.notes.map(note => ({
+        // Note Navigation Commands (exclude config.toml - has its own command)
+        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
             id: `open-note-${note.id}`,
             label: `Open Note: ${note.title || 'Untitled'}`,
             action: () => handleSelectNote(note.id),
@@ -859,6 +986,32 @@ function App() {
                 },
                 category: 'Export',
                 context: 'editor' as const
+            },
+            {
+                id: 'export-markdown-custom',
+                label: 'Export as Markdown (Custom Filename)...',
+                action: (params) => {
+                    const id = getCurrentNoteId();
+                    const note = data.notes.find(n => n.id === id);
+                    if (note && params?.filename) {
+                        const filename = (params.filename as string).trim() || note.title || 'untitled';
+                        const blob = new Blob([note.content], { type: 'text/markdown' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${filename}.md`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }
+                },
+                category: 'Export',
+                context: 'editor' as const,
+                parameters: [{
+                    name: 'filename',
+                    type: 'text',
+                    label: 'Filename (without extension)',
+                    placeholder: 'my-note'
+                }]
             },
             {
                 id: 'share-note',
@@ -1043,6 +1196,7 @@ function App() {
                             onUpdateNote={handleUpdateNote}
                             onNavigate={handleSelectNote}
                             vimMode={data.preferences.vimMode}
+                            emacsMode={data.preferences.emacsMode}
                             focusMode={data.preferences.focusMode}
                             lineWrapping={data.preferences.lineWrapping}
                             showLineNumbers={data.preferences.showLineNumbers}
@@ -1100,6 +1254,24 @@ function App() {
             />
 
             <ToastContainer />
+
+            <HelpManual
+                isOpen={isHelpOpen}
+                onClose={() => setIsHelpOpen(false)}
+                vimMode={data.preferences.vimMode}
+                emacsMode={data.preferences.emacsMode}
+            />
+
+            {isKnowledgeGraphOpen && (
+                <KnowledgeGraph
+                    notes={data.notes}
+                    onNavigate={(id) => {
+                        setIsKnowledgeGraphOpen(false);
+                        handleSelectNote(id);
+                    }}
+                    onClose={() => setIsKnowledgeGraphOpen(false)}
+                />
+            )}
         </div>
     );
 }
