@@ -20,6 +20,7 @@ import { TableInsertModal } from './components/TableInsertModal';
 import { ToastContainer, showToast } from './components/Toast';
 import { HelpManual } from './components/HelpManual';
 import { KnowledgeGraph } from './components/KnowledgeGraph';
+import { BacklinksPanel } from './components/BacklinksPanel';
 import { exportToPDF, exportToDOCX } from './utils/exportUtils';
 import './App.css';
 
@@ -84,6 +85,12 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             onChange={(content) => onUpdateNote(note.id, { content })}
             onTitleChange={(title) => onUpdateNote(note.id, { title })}
             onNavigate={onNavigate}
+            onPositionChange={(cursorPos, scrollPos) => {
+                onUpdateNote(note.id, {
+                    lastCursorPosition: cursorPos,
+                    lastScrollPosition: scrollPos
+                });
+            }}
             vimMode={vimMode}
             emacsMode={emacsMode}
             focusMode={focusMode}
@@ -123,6 +130,7 @@ function App() {
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
+    const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -427,6 +435,14 @@ function App() {
             label: 'Open Knowledge Graph',
             action: () => setIsKnowledgeGraphOpen(true),
             category: 'View',
+            groupId: 'view-settings'
+        },
+        {
+            id: 'open-backlinks',
+            label: 'Show Backlinks',
+            action: () => setIsBacklinksPanelOpen(true),
+            category: 'View',
+            context: 'editor' as const,
             groupId: 'view-settings'
         },
         {
@@ -1429,6 +1445,17 @@ function App() {
                     onClose={() => setIsKnowledgeGraphOpen(false)}
                 />
             )}
+
+            <BacklinksPanel
+                isOpen={isBacklinksPanelOpen}
+                onClose={() => setIsBacklinksPanelOpen(false)}
+                currentNote={data.notes.find(n => n.id === getCurrentNoteId()) || null}
+                notes={data.notes}
+                onNavigate={(id) => {
+                    setIsBacklinksPanelOpen(false);
+                    handleSelectNote(id);
+                }}
+            />
         </div>
     );
 }

@@ -11,6 +11,8 @@ export interface Note {
     isFavorite: boolean;
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state';
     deletedAt?: number;
+    lastCursorPosition?: number;
+    lastScrollPosition?: number;
 }
 
 export type Theme =

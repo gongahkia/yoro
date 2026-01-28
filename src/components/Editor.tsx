@@ -34,6 +34,9 @@ import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import { createWikilinkPreview } from '../extensions/wikilink-preview';
 import { headingColors } from '../extensions/heading-colors';
 import { multiCursorExtension } from '../extensions/multi-cursor';
+import { codeBlockEnhancements } from '../extensions/code-block-enhancements';
+import { markdownFolding } from '../extensions/markdown-folding';
+import { lineMoveExtension } from '../extensions/line-move';
 import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
 import type { Note } from '../types';
 import './styles/Editor.css';
@@ -45,6 +48,7 @@ interface EditorProps {
     onChange: (content: string) => void;
     onTitleChange: (title: string) => void;
     onNavigate: (noteId: string) => void;
+    onPositionChange?: (cursorPos: number, scrollPos: number) => void;
     vimMode: boolean;
     emacsMode: boolean;
     focusMode: boolean;
@@ -59,7 +63,7 @@ interface EditorProps {
     onCloseFindReplace?: () => void;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, onPositionChange, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
@@ -73,6 +77,25 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             }
         }),
         []
+    );
+
+    // Extension to track and save position (debounced)
+    const positionSaveTimeoutRef = React.useRef<number | null>(null);
+    const positionTracker = React.useMemo(() =>
+        EditorView.updateListener.of((update) => {
+            if ((update.selectionSet || update.viewportChanged) && onPositionChange) {
+                // Debounce position saves
+                if (positionSaveTimeoutRef.current) {
+                    clearTimeout(positionSaveTimeoutRef.current);
+                }
+                positionSaveTimeoutRef.current = window.setTimeout(() => {
+                    const cursorPos = update.state.selection.main.head;
+                    const scrollPos = update.view.scrollDOM.scrollTop;
+                    onPositionChange(cursorPos, scrollPos);
+                }, 500);
+            }
+        }),
+        [onPositionChange]
     );
 
     const handleFormatting = useCallback((view: EditorView, type: string) => {
@@ -161,14 +184,40 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         }
     }, [vimMode, navigate]);
 
+    // Track previous note ID for position saving
+    const prevNoteIdRef = React.useRef<string | null>(null);
+
     React.useEffect(() => {
         if (editorRef.current?.view) {
             const view = editorRef.current.view;
+
+            // Save position of previous note before switching
+            if (prevNoteIdRef.current && prevNoteIdRef.current !== note.id && onPositionChange) {
+                // Position was saved via beforeunload or the position tracker
+            }
+
+            // Restore position for the new note
+            const cursorPos = note.lastCursorPosition ?? 0;
+            const scrollPos = note.lastScrollPosition ?? 0;
+
             view.focus();
+
+            // Ensure cursor position is within document bounds
+            const maxPos = view.state.doc.length;
+            const safeCursorPos = Math.min(cursorPos, maxPos);
+
             view.dispatch({
-                selection: { anchor: 0, head: 0 },
-                scrollIntoView: true
+                selection: { anchor: safeCursorPos, head: safeCursorPos },
             });
+
+            // Restore scroll position after a small delay to let the view settle
+            setTimeout(() => {
+                if (editorRef.current?.view) {
+                    editorRef.current.view.scrollDOM.scrollTop = scrollPos;
+                }
+            }, 50);
+
+            prevNoteIdRef.current = note.id;
         }
     }, [note.id]);
 
@@ -357,15 +406,19 @@ stateDiagram-v2
                         bracketPulse,
                         typewriterMode ? typewriterModeExtension : [],
                         cursorLineTracker,
+                        positionTracker,
                         keymap.of(markdownKeymap),
                         createSearchHighlightExtension(),
-                        multiCursorExtension
+                        multiCursorExtension,
+                        codeBlockEnhancements,
+                        markdownFolding,
+                        lineMoveExtension
                     ]}
                     onChange={onChange}
                     className="editor-cm-wrapper"
                     basicSetup={{
                         lineNumbers: showLineNumbers,
-                        foldGutter: false,
+                        foldGutter: false, // We use our custom fold gutter
                     }}
                 />
             </div>
