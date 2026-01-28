@@ -65,6 +65,14 @@
    --syntax-link: #3794ff;
    --syntax-heading: #d4d4d4;
    --syntax-invalid: #f44747;
+
+   /* Heading Hierarchy Colors (Dark) */
+   --heading-1: #569cd6;
+   --heading-2: #4fc1ff;
+   --heading-3: #6a9955;
+   --heading-4: #c586c0;
+   --heading-5: #dcdcaa;
+   --heading-6: #808080;
  }
 
  /* Sepia */
@@ -96,6 +104,14 @@
    --syntax-link: #d28e5d;
    --syntax-heading: #5b4636;
    --syntax-invalid: #cb2431;
+
+   /* Heading Hierarchy Colors (Sepia Light) */
+   --heading-1: #7a4a2a;
+   --heading-2: #9e6b4a;
+   --heading-3: #2a6c40;
+   --heading-4: #8b5e3c;
+   --heading-5: #6e5a4a;
+   --heading-6: #8b7666;
  }
 
  [data-theme='sepia-dark'] {
@@ -125,6 +141,14 @@
    --syntax-link: #d28e5d;
    --syntax-heading: #f4ecd8;
    --syntax-invalid: #ec5f67;
+
+   /* Heading Hierarchy Colors (Sepia Dark) */
+   --heading-1: #e8b87a;
+   --heading-2: #d28e5d;
+   --heading-3: #98be65;
+   --heading-4: #c9a66b;
+   --heading-5: #b8a080;
+   --heading-6: #a89178;
  }
 
  /* Dracula */
@@ -155,6 +179,14 @@
    --syntax-link: #8be9fd;
    --syntax-heading: #bd93f9;
    --syntax-invalid: #ff5555;
+
+   /* Heading Hierarchy Colors (Dracula Dark) */
+   --heading-1: #bd93f9;
+   --heading-2: #8be9fd;
+   --heading-3: #50fa7b;
+   --heading-4: #ff79c6;
+   --heading-5: #ffb86c;
+   --heading-6: #6272a4;
  }
 
  [data-theme='dracula-light'] {
@@ -185,6 +217,14 @@
    --syntax-link: #268bd2;
    --syntax-heading: #6c71c4;
    --syntax-invalid: #dc322f;
+
+   /* Heading Hierarchy Colors (Dracula Light) */
+   --heading-1: #6c71c4;
+   --heading-2: #268bd2;
+   --heading-3: #2aa198;
+   --heading-4: #d03e94;
+   --heading-5: #b58900;
+   --heading-6: #93a1a1;
  }
 
  /* Nord */
@@ -215,6 +255,14 @@
    --syntax-link: #88c0d0;
    --syntax-heading: #88c0d0;
    --syntax-invalid: #bf616a;
+
+   /* Heading Hierarchy Colors (Nord Dark) */
+   --heading-1: #88c0d0;
+   --heading-2: #81a1c1;
+   --heading-3: #a3be8c;
+   --heading-4: #b48ead;
+   --heading-5: #ebcb8b;
+   --heading-6: #616e88;
  }
 
  [data-theme='nord-light'] {
@@ -247,6 +295,14 @@
    --syntax-link: #5e81ac;
    --syntax-heading: #5e81ac;
    --syntax-invalid: #bf616a;
+
+   /* Heading Hierarchy Colors (Nord Light) */
+   --heading-1: #5e81ac;
+   --heading-2: #81a1c1;
+   --heading-3: #8fbcbb;
+   --heading-4: #b48ead;
+   --heading-5: #d08770;
+   --heading-6: #9aa8ba;
  }
 
  /* Solarized */
@@ -277,6 +333,14 @@
    --syntax-link: #268bd2;
    --syntax-heading: #cb4b16;
    --syntax-invalid: #dc322f;
+
+   /* Heading Hierarchy Colors (Solarized Light) */
+   --heading-1: #268bd2;
+   --heading-2: #2aa198;
+   --heading-3: #859900;
+   --heading-4: #cb4b16;
+   --heading-5: #6c71c4;
+   --heading-6: #93a1a1;
  }
 
  [data-theme='solarized-dark'] {
@@ -306,6 +370,14 @@
    --syntax-link: #268bd2;
    --syntax-heading: #cb4b16;
    --syntax-invalid: #dc322f;
+
+   /* Heading Hierarchy Colors (Solarized Dark) */
+   --heading-1: #268bd2;
+   --heading-2: #2aa198;
+   --heading-3: #859900;
+   --heading-4: #cb4b16;
+   --heading-5: #6c71c4;
+   --heading-6: #586e75;
  }
 
  /* Gruvbox */
@@ -337,6 +409,14 @@
    --syntax-link: #83a598;
    --syntax-heading: #fb4934;
    --syntax-invalid: #fb4934;
+
+   /* Heading Hierarchy Colors (Gruvbox Dark) */
+   --heading-1: #fb4934;
+   --heading-2: #fabd2f;
+   --heading-3: #b8bb26;
+   --heading-4: #83a598;
+   --heading-5: #d3869b;
+   --heading-6: #928374;
  }
 
  [data-theme='gruvbox-light'] {
@@ -366,6 +446,14 @@
    --syntax-link: #076678;
    --syntax-heading: #9d0006;
    --syntax-invalid: #9d0006;
+
+   /* Heading Hierarchy Colors (Gruvbox Light) */
+   --heading-1: #9d0006;
+   --heading-2: #b57614;
+   --heading-3: #79740e;
+   --heading-4: #076678;
+   --heading-5: #8f3f71;
+   --heading-6: #928374;
  }
 
  /* Everforest */
@@ -397,6 +485,14 @@
    --syntax-link: #7fbbb3;
    --syntax-heading: #e67e80;
    --syntax-invalid: #e67e80;
+
+   /* Heading Hierarchy Colors (Everforest Dark) */
+   --heading-1: #e67e80;
+   --heading-2: #a7c080;
+   --heading-3: #7fbbb3;
+   --heading-4: #dbbc7f;
+   --heading-5: #e69875;
+   --heading-6: #859289;
  }
 
  [data-theme='everforest-light'] {
@@ -426,6 +522,14 @@
    --syntax-link: #3a94c5;
    --syntax-heading: #f85552;
    --syntax-invalid: #f85552;
+
+   /* Heading Hierarchy Colors (Everforest Light) */
+   --heading-1: #f85552;
+   --heading-2: #8da101;
+   --heading-3: #3a94c5;
+   --heading-4: #dfa000;
+   --heading-5: #df69ba;
+   --heading-6: #939f91;
  }
 
  /* Catppuccin */
@@ -458,6 +562,14 @@
    --syntax-link: #89b4fa;
    --syntax-heading: #cba6f7;
    --syntax-invalid: #f38ba8;
+
+   /* Heading Hierarchy Colors (Catppuccin Dark) */
+   --heading-1: #cba6f7;
+   --heading-2: #89b4fa;
+   --heading-3: #a6e3a1;
+   --heading-4: #f9e2af;
+   --heading-5: #f38ba8;
+   --heading-6: #6c7086;
  }
 
  [data-theme='catppuccin-light'] {
