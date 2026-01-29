@@ -175,58 +175,56 @@ export const NoteList: React.FC<NoteListProps> = ({
     );
 
     const render2DFileDrawer = () => {
-        // Clean stacked file layout - cards arranged horizontally with offset
-        // Hovering raises the card up, scroll shifts through the stack
-
-        // Calculate the center offset to keep cards centered
-        const totalWidth = (count - 1) * fileSpacing;
-        const startOffset = -totalWidth / 2 - scrollOffset;
+        // Stacked file layout - scroll cycles through which card is raised
+        // Cards stack on top of each other, active card rises up
 
         return (
             <div className="file-drawer-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
                     <div className="file-stack">
                         {filteredNotes.map((note, index) => {
+                            const isActive = index === activeIndex;
                             const isHovered = hoveredId === note.id;
 
-                            // Position each card with horizontal offset
-                            const baseX = startOffset + index * fileSpacing;
-                            const baseY = index * 3; // Slight vertical stagger for depth
+                            // Stack cards with slight offset for depth effect
+                            const stackOffset = index * 4;
+                            const baseX = stackOffset;
+                            const baseY = stackOffset;
 
-                            // Hover effect: card rises up
-                            const hoverLift = isHovered ? -100 : 0;
-                            const hoverScale = isHovered ? 1.05 : 1;
+                            // Active card rises up prominently
+                            const lift = isActive ? -120 : 0;
+                            const scale = isActive ? 1.08 : 1;
 
-                            // Cards spread apart when one is hovered
-                            let spreadOffset = 0;
-                            if (hoveredIndex !== null && !isHovered) {
-                                const diff = index - hoveredIndex;
+                            // Cards spread apart from active card
+                            let spreadX = 0;
+                            let spreadY = 0;
+                            if (!isActive) {
+                                const diff = index - activeIndex;
                                 if (diff < 0) {
-                                    spreadOffset = -40; // Push left cards further left
+                                    // Cards before active go left and down
+                                    spreadX = diff * 15;
+                                    spreadY = Math.abs(diff) * 5;
                                 } else {
-                                    spreadOffset = 40; // Push right cards further right
+                                    // Cards after active go right and down
+                                    spreadX = diff * 15;
+                                    spreadY = diff * 5;
                                 }
                             }
 
-                            // Z-index: hovered on top, otherwise back-to-front
-                            const zIndex = isHovered ? 1000 : index;
+                            // Z-index: active on top, then by position
+                            const zIndex = isActive ? 1000 : (isHovered ? 999 : count - Math.abs(index - activeIndex));
 
                             return (
                                 <div
                                     key={note.id}
-                                    className={`file-card ${isHovered ? 'file-card-hovered' : ''}`}
+                                    className={`file-card ${isActive ? 'file-card-active' : ''} ${isHovered ? 'file-card-hovered' : ''}`}
                                     style={{
-                                        transform: `translateX(${baseX + spreadOffset}px) translateY(${baseY + hoverLift}px) scale(${hoverScale})`,
+                                        transform: `translateX(${baseX + spreadX}px) translateY(${baseY + lift + spreadY}px) scale(${scale})`,
                                         zIndex,
                                     }}
-                                    onMouseEnter={() => {
-                                        setHoveredId(note.id);
-                                        setHoveredIndex(index);
-                                    }}
-                                    onMouseLeave={() => {
-                                        setHoveredId(null);
-                                        setHoveredIndex(null);
-                                    }}
+                                    onMouseEnter={() => setHoveredId(note.id)}
+                                    onMouseLeave={() => setHoveredId(null)}
+                                    onClick={() => setActiveIndex(index)}
                                 >
                                     <NoteCard
                                         note={note}
