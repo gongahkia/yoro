@@ -125,7 +125,6 @@ function App() {
                 homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
-                typewriterMode: loaded.preferences.typewriterMode || false,
                 focusModeBlur: loaded.preferences.focusModeBlur !== false,
                 cursorAnimations: loaded.preferences.cursorAnimations || 'subtle',
                 sortOrder: loaded.preferences.sortOrder || 'updated',
@@ -222,7 +221,6 @@ function App() {
                             homeViewMode: newPrefs.homeViewMode,
                             sortOrder: newPrefs.sortOrder,
                             showDocumentStats: newPrefs.showDocumentStats,
-                            typewriterMode: newPrefs.typewriterMode,
                             cursorAnimations: newPrefs.cursorAnimations
                         };
                         const newContent = stringify(configObj);
@@ -405,7 +403,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'typewriterMode', 'cursorAnimations'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'cursorAnimations'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -498,7 +496,6 @@ function App() {
                             fontSize: prev.preferences.fontSize,
                             homeViewMode: prev.preferences.homeViewMode,
                             showDocumentStats: prev.preferences.showDocumentStats,
-                            typewriterMode: prev.preferences.typewriterMode,
                             cursorAnimations: prev.preferences.cursorAnimations
                         };
                         const newNote: Note = {
