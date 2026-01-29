@@ -422,7 +422,7 @@ function App() {
     const commands: Command[] = useMemo(() => [
         {
             id: 'new-note',
-            label: 'Insert New Note',
+            label: 'Create New Note',
             action: () => handleCreateNote(),
             category: 'General'
         },
