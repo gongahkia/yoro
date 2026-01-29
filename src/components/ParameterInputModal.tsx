@@ -115,7 +115,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                                     min={param.min}
                                     max={param.max}
                                     placeholder={param.placeholder}
-                                    value={typeof values[param.name] === 'boolean' ? '' : (values[param.name] ?? '')}
+                                    value={typeof values[param.name] === 'boolean' ? '' : (values[param.name] as string | number ?? '')}
                                     onChange={e => handleValueChange(
                                         param.name,
                                         param.type === 'number' ? parseFloat(e.target.value) : e.target.value,
