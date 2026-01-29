@@ -1019,7 +1019,13 @@ function App() {
             id: 'go-home',
             label: 'Go to Home',
             action: () => {
+                // Close all overlays
                 setIsKnowledgeGraphOpen(false);
+                setIsHelpOpen(false);
+                setIsBacklinksPanelOpen(false);
+                setIsOutlineOpen(false);
+                setIsFindReplaceOpen(false);
+                setIsQuickCaptureOpen(false);
                 navigate('/');
             },
             category: 'Navigation'
