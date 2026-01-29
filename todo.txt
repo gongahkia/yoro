@@ -1,5 +1,5 @@
-Change the 2d view to instead of being rotating 2d circle, make it like a folder of files that literally is sorted by file drawer, have an actual render
-Have the web appm detect whether a user is accessing the web app via mobile or computer and if mobiel, dissuade them from using it since its meant to be a desktop browser text editorq
+Change the 2d view to instead of being the current rotating 2d circle view, make the 2d view like a folder of files that literally is sorted by file drawer, when a file is hovered over make it emerge and raise up. also have it so that when the user scrolls there is an intersting interaction with the 2d animation as possible.
+Have the web app detect whether a user is accessing the web app via mobile or computer and if mobile, dissuade them from using it since its meant to be a desktop browser text editorq
 Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
 Clarify/tweak what focus mode or zen mode currently does
 Fix visual mode highlighting in vim mode where the highlighted selection isn't shown
