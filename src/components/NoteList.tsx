@@ -72,6 +72,10 @@ export const NoteList: React.FC<NoteListProps> = ({
         });
     }, [notes, searchQuery, selectedTag, sortOrder]);
 
+    // Constants for layout
+    const cardWidth = 300; // slightly more than 280
+    const count = filteredNotes.length;
+
     // Handle Wheel Rotation/Scroll
     useEffect(() => {
         const container = deckRef.current;
@@ -105,12 +109,9 @@ export const NoteList: React.FC<NoteListProps> = ({
         return () => container.removeEventListener('wheel', handleWheel);
     }, [viewMode, count]);
 
-    // Constants for layout
-    // Radius depends on count to avoid overlap?
+    // 3D Carousel layout constants
+    // Radius depends on count to avoid overlap
     // Circumference ~ Count * CardWidth. 2*PI*R = N * W. R = (N*W) / 2PI.
-    // Let's make it dynamic or fixed large enough.
-    const cardWidth = 300; // slightly more than 280
-    const count = filteredNotes.length;
     const dynamicRadius = Math.max(450, (count * cardWidth) / (2 * Math.PI));
 
     // Tilt the deck slightly for better 3D view
@@ -174,70 +175,105 @@ export const NoteList: React.FC<NoteListProps> = ({
         </div>
     );
 
-    const render2DSemicircle = () => {
-        // Cards are distributed evenly around the full 360° circle
-        // (same as 3D carousel), but only the bottom semicircle is visible
-        // This ensures cards never overlap regardless of count
+    const render2DFileDrawer = () => {
+        // Files arranged like a file drawer/folder - stacked with tabs visible
+        // Scrolling moves through the drawer, hovering raises files up
+
+        // Calculate which files are visible based on scroll
+        const scrollIndex = Math.floor(scrollOffset / 60);
+        const visibleStartIndex = Math.max(0, scrollIndex - 2);
 
         return (
-            <div className="semicircle-deck-container" ref={deckRef}>
+            <div className="file-drawer-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
-                    <div
-                        className="semicircle-deck"
-                        style={{
-                            transform: `rotate(${rotation2D}deg)`
-                        }}
-                    >
-                        {filteredNotes.map((note, index) => {
-                            const isHovered = hoveredId === note.id;
+                    <div className="file-drawer">
+                        {/* Drawer frame */}
+                        <div className="drawer-frame">
+                            <div className="drawer-label">Files ({filteredNotes.length})</div>
+                        </div>
 
-                            // Distribute evenly around full 360° circle (like 3D carousel)
-                            // Start at 270° (bottom center) so first card appears at bottom
-                            const angleStep = 360 / Math.max(count, 1);
-                            const angle = 270 + index * angleStep;
+                        {/* File tabs */}
+                        <div className="file-stack">
+                            {filteredNotes.map((note, index) => {
+                                const isHovered = hoveredId === note.id;
+                                const relativeIndex = index - visibleStartIndex;
 
-                            // Convert angle to radians
-                            const rad = (angle * Math.PI) / 180;
+                                // Position each file with stacking effect
+                                const baseX = relativeIndex * fileSpacing;
+                                const baseY = relativeIndex * 2; // Slight vertical offset for depth
+                                const rotation = (relativeIndex - (hoveredIndex ?? relativeIndex)) * fileAngle * 0.3;
 
-                            // Calculate position on circle
-                            const x = Math.cos(rad) * semicircleRadius;
-                            const y = Math.sin(rad) * semicircleRadius;
+                                // Hover effect: file emerges and raises
+                                const hoverLift = isHovered ? -80 : 0;
+                                const hoverScale = isHovered ? 1.08 : 1;
+                                const hoverRotation = isHovered ? 0 : rotation;
 
-                            // Card rotation to face outward from circle center
-                            const cardRotation = angle - 270;
+                                // Files before hovered one lean back, files after lean forward
+                                let neighborEffect = 0;
+                                if (hoveredIndex !== null && !isHovered) {
+                                    if (index < hoveredIndex) {
+                                        neighborEffect = -8 * (1 - Math.abs(index - hoveredIndex) * 0.15);
+                                    } else {
+                                        neighborEffect = 8 * (1 - Math.abs(index - hoveredIndex) * 0.15);
+                                    }
+                                }
 
-                            const hoverOffset = isHovered ? -30 : 0;
+                                // Fade out files that are far from view
+                                const distanceFromCenter = Math.abs(relativeIndex - maxVisibleFiles / 2);
+                                const opacity = Math.max(0.3, 1 - distanceFromCenter * 0.08);
 
-                            // Z-index: cards closer to bottom (270°) should be on top
-                            // Normalize angle to 0-360, then calculate distance from 270
-                            const normalizedAngle = ((angle % 360) + 360) % 360;
-                            const distanceFrom270 = Math.abs(normalizedAngle - 270);
-                            const baseZIndex = Math.round(100 - distanceFrom270 / 3.6);
+                                // Z-index: hovered on top, otherwise based on position
+                                const zIndex = isHovered ? 1000 : count - index;
 
-                            // Apply base scale with hover boost
-                            const finalScale = isHovered ? cardScale2D * 1.15 : cardScale2D;
+                                return (
+                                    <div
+                                        key={note.id}
+                                        className={`file-tab ${isHovered ? 'file-tab-hovered' : ''}`}
+                                        style={{
+                                            transform: `
+                                                translateX(${baseX}px)
+                                                translateY(${baseY + hoverLift}px)
+                                                rotate(${hoverRotation + neighborEffect}deg)
+                                                scale(${hoverScale})
+                                            `,
+                                            zIndex,
+                                            opacity: isHovered ? 1 : opacity,
+                                        }}
+                                        onMouseEnter={() => {
+                                            setHoveredId(note.id);
+                                            setHoveredIndex(index);
+                                        }}
+                                        onMouseLeave={() => {
+                                            setHoveredId(null);
+                                            setHoveredIndex(null);
+                                        }}
+                                    >
+                                        {/* File tab label */}
+                                        <div className="file-tab-label">
+                                            {note.title.substring(0, 20)}{note.title.length > 20 ? '...' : ''}
+                                        </div>
 
-                            return (
-                                <div
-                                    key={note.id}
-                                    className="semicircle-card-wrapper"
-                                    style={{
-                                        transform: `translate(${x}px, ${y + hoverOffset}px) rotate(${cardRotation}deg) scale(${finalScale})`,
-                                        zIndex: isHovered ? 1000 : baseZIndex
-                                    }}
-                                    onMouseEnter={() => setHoveredId(note.id)}
-                                    onMouseLeave={() => setHoveredId(null)}
-                                >
-                                    <NoteCard
-                                        note={note}
-                                        onClick={onSelectNote}
-                                        onDelete={(e) => onDeleteNote(note.id, e)}
-                                        onDuplicate={(e) => onDuplicateNote(note.id, e)}
-                                        onRestore={(e) => onRestoreNote?.(note.id, e)}
-                                    />
-                                </div>
-                            );
-                        })}
+                                        {/* Full card (visible on hover) */}
+                                        <div className="file-card-content">
+                                            <NoteCard
+                                                note={note}
+                                                onClick={onSelectNote}
+                                                onDelete={(e) => onDeleteNote(note.id, e)}
+                                                onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                                                onRestore={(e) => onRestoreNote?.(note.id, e)}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Scroll indicator */}
+                        {count > maxVisibleFiles && (
+                            <div className="scroll-indicator">
+                                <span>Scroll to browse • Shift+Scroll to spread</span>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="empty-state">No notes found</div>
@@ -252,7 +288,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
-            {viewMode === '3d-carousel' ? render3DCarousel() : render2DSemicircle()}
+            {viewMode === '3d-carousel' ? render3DCarousel() : render2DFileDrawer()}
         </div>
     );
 };
