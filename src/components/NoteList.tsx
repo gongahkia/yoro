@@ -75,6 +75,13 @@ export const NoteList: React.FC<NoteListProps> = ({
     const cardWidth = 300; // slightly more than 280
     const count = filteredNotes.length;
 
+    // Reset activeIndex if it goes out of bounds (e.g., notes filtered/deleted)
+    useEffect(() => {
+        if (count > 0 && activeIndex >= count) {
+            setActiveIndex(count - 1);
+        }
+    }, [count, activeIndex]);
+
     // Handle Wheel Rotation/Scroll
     useEffect(() => {
         const container = deckRef.current;
