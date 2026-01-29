@@ -1326,25 +1326,22 @@ function App() {
                     />
                 } />
                 <Route path="/note/:id" element={
-                    <div className="main-editor-layout" style={{ display: 'flex', height: '100%', width: '100%' }}>
-                        <NoteEditorWrapper
-                            notes={data.notes}
-                            onUpdateNote={handleUpdateNote}
-                            onNavigate={handleSelectNote}
-                            vimMode={data.preferences.vimMode}
-                            emacsMode={data.preferences.emacsMode}
-                            focusMode={data.preferences.focusMode}
-                            focusModeBlur={data.preferences.focusModeBlur ?? true}
-                            lineWrapping={data.preferences.lineWrapping}
-                            showLineNumbers={data.preferences.showLineNumbers}
-                            editorAlignment={data.preferences.editorAlignment}
-                            showDocumentStats={data.preferences.showDocumentStats}
-                            cursorAnimations={data.preferences.cursorAnimations ?? 'subtle'}
-                            findReplaceOpen={isFindReplaceOpen}
-                            onCloseFindReplace={() => setIsFindReplaceOpen(false)}
-                        />
-                        <Sidebar isVisible={data.preferences.sidebarVisible} onCommand={handleSidebarCommand} />
-                    </div>
+                    <NoteEditorWrapper
+                        notes={data.notes}
+                        onUpdateNote={handleUpdateNote}
+                        onNavigate={handleSelectNote}
+                        vimMode={data.preferences.vimMode}
+                        emacsMode={data.preferences.emacsMode}
+                        focusMode={data.preferences.focusMode}
+                        focusModeBlur={data.preferences.focusModeBlur ?? true}
+                        lineWrapping={data.preferences.lineWrapping}
+                        showLineNumbers={data.preferences.showLineNumbers}
+                        editorAlignment={data.preferences.editorAlignment}
+                        showDocumentStats={data.preferences.showDocumentStats}
+                        cursorAnimations={data.preferences.cursorAnimations ?? 'subtle'}
+                        findReplaceOpen={isFindReplaceOpen}
+                        onCloseFindReplace={() => setIsFindReplaceOpen(false)}
+                    />
                 } />
                 <Route path="/note/:id/presentation" element={
                     <PresentationMode notes={data.notes} theme={data.preferences.theme} />
