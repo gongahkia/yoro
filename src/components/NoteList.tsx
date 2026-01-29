@@ -114,11 +114,12 @@ export const NoteList: React.FC<NoteListProps> = ({
                 setRotation(prev => prev + delta);
             } else {
                 // Timeline: scroll to navigate between cards
-                // Larger scrolls move multiple cards
+                // Larger scrolls move multiple cards, but capped
                 e.preventDefault();
-                const scrollThreshold = 50; // Base threshold for one card
+                const scrollThreshold = 400; // Pixels per card movement
+                const maxCardsPerScroll = 3; // Cap to prevent jumping too far
                 const scrollAmount = Math.abs(e.deltaY);
-                const cardsToMove = Math.max(1, Math.floor(scrollAmount / scrollThreshold));
+                const cardsToMove = Math.min(maxCardsPerScroll, Math.max(1, Math.floor(scrollAmount / scrollThreshold)));
                 const direction = e.deltaY > 0 ? 1 : -1;
                 setActiveIndex(prev => {
                     const next = prev + (direction * cardsToMove);
