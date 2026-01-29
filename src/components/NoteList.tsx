@@ -176,104 +176,69 @@ export const NoteList: React.FC<NoteListProps> = ({
     );
 
     const render2DFileDrawer = () => {
-        // Files arranged like a file drawer/folder - stacked with tabs visible
-        // Scrolling moves through the drawer, hovering raises files up
+        // Clean stacked file layout - cards arranged horizontally with offset
+        // Hovering raises the card up, scroll shifts through the stack
 
-        // Calculate which files are visible based on scroll
-        const scrollIndex = Math.floor(scrollOffset / 60);
-        const visibleStartIndex = Math.max(0, scrollIndex - 2);
+        // Calculate the center offset to keep cards centered
+        const totalWidth = (count - 1) * fileSpacing;
+        const startOffset = -totalWidth / 2 - scrollOffset;
 
         return (
             <div className="file-drawer-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
-                    <div className="file-drawer">
-                        {/* Drawer frame */}
-                        <div className="drawer-frame">
-                            <div className="drawer-label">Files ({filteredNotes.length})</div>
-                        </div>
+                    <div className="file-stack">
+                        {filteredNotes.map((note, index) => {
+                            const isHovered = hoveredId === note.id;
 
-                        {/* File tabs */}
-                        <div className="file-stack">
-                            {filteredNotes.map((note, index) => {
-                                const isHovered = hoveredId === note.id;
-                                const relativeIndex = index - visibleStartIndex;
+                            // Position each card with horizontal offset
+                            const baseX = startOffset + index * fileSpacing;
+                            const baseY = index * 3; // Slight vertical stagger for depth
 
-                                // Position each file with stacking effect
-                                const baseX = relativeIndex * fileSpacing;
-                                const baseY = relativeIndex * 2; // Slight vertical offset for depth
-                                const rotation = (relativeIndex - (hoveredIndex ?? relativeIndex)) * fileAngle * 0.3;
+                            // Hover effect: card rises up
+                            const hoverLift = isHovered ? -100 : 0;
+                            const hoverScale = isHovered ? 1.05 : 1;
 
-                                // Hover effect: file emerges and raises
-                                const hoverLift = isHovered ? -80 : 0;
-                                const hoverScale = isHovered ? 1.08 : 1;
-                                const hoverRotation = isHovered ? 0 : rotation;
-
-                                // Files before hovered one lean back, files after lean forward
-                                let neighborEffect = 0;
-                                if (hoveredIndex !== null && !isHovered) {
-                                    if (index < hoveredIndex) {
-                                        neighborEffect = -8 * (1 - Math.abs(index - hoveredIndex) * 0.15);
-                                    } else {
-                                        neighborEffect = 8 * (1 - Math.abs(index - hoveredIndex) * 0.15);
-                                    }
+                            // Cards spread apart when one is hovered
+                            let spreadOffset = 0;
+                            if (hoveredIndex !== null && !isHovered) {
+                                const diff = index - hoveredIndex;
+                                if (diff < 0) {
+                                    spreadOffset = -40; // Push left cards further left
+                                } else {
+                                    spreadOffset = 40; // Push right cards further right
                                 }
+                            }
 
-                                // Fade out files that are far from view
-                                const distanceFromCenter = Math.abs(relativeIndex - maxVisibleFiles / 2);
-                                const opacity = Math.max(0.3, 1 - distanceFromCenter * 0.08);
+                            // Z-index: hovered on top, otherwise back-to-front
+                            const zIndex = isHovered ? 1000 : index;
 
-                                // Z-index: hovered on top, otherwise based on position
-                                const zIndex = isHovered ? 1000 : count - index;
-
-                                return (
-                                    <div
-                                        key={note.id}
-                                        className={`file-tab ${isHovered ? 'file-tab-hovered' : ''}`}
-                                        style={{
-                                            transform: `
-                                                translateX(${baseX}px)
-                                                translateY(${baseY + hoverLift}px)
-                                                rotate(${hoverRotation + neighborEffect}deg)
-                                                scale(${hoverScale})
-                                            `,
-                                            zIndex,
-                                            opacity: isHovered ? 1 : opacity,
-                                        }}
-                                        onMouseEnter={() => {
-                                            setHoveredId(note.id);
-                                            setHoveredIndex(index);
-                                        }}
-                                        onMouseLeave={() => {
-                                            setHoveredId(null);
-                                            setHoveredIndex(null);
-                                        }}
-                                    >
-                                        {/* File tab label */}
-                                        <div className="file-tab-label">
-                                            {note.title.substring(0, 20)}{note.title.length > 20 ? '...' : ''}
-                                        </div>
-
-                                        {/* Full card (visible on hover) */}
-                                        <div className="file-card-content">
-                                            <NoteCard
-                                                note={note}
-                                                onClick={onSelectNote}
-                                                onDelete={(e) => onDeleteNote(note.id, e)}
-                                                onDuplicate={(e) => onDuplicateNote(note.id, e)}
-                                                onRestore={(e) => onRestoreNote?.(note.id, e)}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Scroll indicator */}
-                        {count > maxVisibleFiles && (
-                            <div className="scroll-indicator">
-                                <span>Scroll to browse • Shift+Scroll to spread</span>
-                            </div>
-                        )}
+                            return (
+                                <div
+                                    key={note.id}
+                                    className={`file-card ${isHovered ? 'file-card-hovered' : ''}`}
+                                    style={{
+                                        transform: `translateX(${baseX + spreadOffset}px) translateY(${baseY + hoverLift}px) scale(${hoverScale})`,
+                                        zIndex,
+                                    }}
+                                    onMouseEnter={() => {
+                                        setHoveredId(note.id);
+                                        setHoveredIndex(index);
+                                    }}
+                                    onMouseLeave={() => {
+                                        setHoveredId(null);
+                                        setHoveredIndex(null);
+                                    }}
+                                >
+                                    <NoteCard
+                                        note={note}
+                                        onClick={onSelectNote}
+                                        onDelete={(e) => onDeleteNote(note.id, e)}
+                                        onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                                        onRestore={(e) => onRestoreNote?.(note.id, e)}
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="empty-state">No notes found</div>
