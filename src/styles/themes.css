@@ -550,7 +550,7 @@
    --editor-gutter-bg: #313244;
    --editor-gutter-text: #6c7086;
    --caret-color: #cdd6f4;
-   --selection-bg: rgba(69, 71, 90, 0.8);
+   --selection-bg: rgba(203, 166, 247, 0.35);
 
    --syntax-keyword: #cba6f7;
    --syntax-variable: #cdd6f4;
@@ -631,7 +631,7 @@
    --editor-gutter-text: #908caa;
    /* Subtle */
    --caret-color: #ebbcba;
-   --selection-bg: rgba(64, 61, 82, 0.8);
+   --selection-bg: rgba(235, 188, 186, 0.35);
 
    --syntax-keyword: #ebbcba;
    --syntax-variable: #e0def4;
