@@ -101,24 +101,37 @@
 }
 
 /* Text Selection Styling */
-/* CodeMirror selection background (programmatic selection) */
+/* CodeMirror selection background (programmatic selection) - high specificity */
+.editor-container .editor-cm-wrapper .cm-editor .cm-selectionBackground,
+.editor-cm-wrapper .cm-editor .cm-selectionBackground,
 .editor-cm-wrapper .cm-selectionBackground,
+.cm-editor .cm-selectionBackground,
 .cm-selectionBackground {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
+.editor-container .editor-cm-wrapper .cm-editor.cm-focused .cm-selectionBackground,
 .editor-cm-wrapper .cm-editor.cm-focused .cm-selectionBackground,
 .cm-editor.cm-focused .cm-selectionBackground {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
 /* Vim visual line mode - ensure full line selection */
-.editor-cm-wrapper .cm-selectionLayer .cm-selectionBackground,
+.editor-container .editor-cm-wrapper .cm-editor .cm-selectionLayer .cm-selectionBackground,
+.editor-cm-wrapper .cm-editor .cm-selectionLayer .cm-selectionBackground,
+.cm-editor .cm-selectionLayer .cm-selectionBackground,
 .cm-selectionLayer .cm-selectionBackground {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
+/* Vim visual mode specific styling */
+.editor-cm-wrapper .cm-editor .cm-scroller .cm-selectionLayer,
+.cm-editor .cm-scroller .cm-selectionLayer {
+    z-index: 1;
+}
+
 /* Native browser selection (mouse highlighting) */
+.editor-container .editor-cm-wrapper .cm-content::selection,
 .editor-cm-wrapper .cm-content::selection,
 .editor-cm-wrapper .cm-content *::selection,
 .cm-content::selection,
@@ -127,6 +140,7 @@
 }
 
 /* Firefox selection */
+.editor-container .editor-cm-wrapper .cm-content::-moz-selection,
 .editor-cm-wrapper .cm-content::-moz-selection,
 .editor-cm-wrapper .cm-content *::-moz-selection,
 .cm-content::-moz-selection,
@@ -135,6 +149,7 @@
 }
 
 /* Selection on the line elements */
+.editor-container .editor-cm-wrapper .cm-line::selection,
 .editor-cm-wrapper .cm-line::selection,
 .editor-cm-wrapper .cm-line *::selection,
 .cm-line::selection,
@@ -142,11 +157,17 @@
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
+.editor-container .editor-cm-wrapper .cm-line::-moz-selection,
 .editor-cm-wrapper .cm-line::-moz-selection,
 .editor-cm-wrapper .cm-line *::-moz-selection,
 .cm-line::-moz-selection,
 .cm-line *::-moz-selection {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Ensure selection layer is rendered on top */
+.cm-editor .cm-selectionLayer {
+    pointer-events: none;
 }
 
 /* Vim fat cursor for normal mode */
