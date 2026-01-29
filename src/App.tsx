@@ -135,7 +135,6 @@ function App() {
         };
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-    const [paletteInitialQuery, setPaletteInitialQuery] = useState('');
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
@@ -566,62 +565,6 @@ function App() {
             action: () => handleUpdatePreferences({ fontSize: 16 }),
             category: 'Font',
             groupId: 'font-settings'
-        },
-        // Parameterized font size command
-        {
-            id: 'set-font-size',
-            label: 'Set Font Size...',
-            action: (params?: Record<string, string | number>) => {
-                if (params?.fontSize) {
-                    handleUpdatePreferences({ fontSize: params.fontSize as number });
-                }
-            },
-            category: 'Font',
-            groupId: 'font-settings',
-            parameters: [{
-                name: 'fontSize',
-                type: 'number' as const,
-                label: 'Size (px)',
-                min: 10,
-                max: 32,
-                defaultValue: data.preferences.fontSize
-            }]
-        },
-        // Theme selection - opens palette filtered to themes
-        {
-            id: 'select-theme',
-            label: 'Select Theme...',
-            action: () => {
-                setPaletteInitialQuery('Theme:');
-                setIsPaletteOpen(true);
-            },
-            category: 'Theme'
-        },
-        // Parameterized font family selection
-        {
-            id: 'select-font-family',
-            label: 'Select Font Family...',
-            action: (params?: Record<string, string | number>) => {
-                if (params?.fontFamily) {
-                    handleUpdatePreferences({ fontFamily: params.fontFamily as string });
-                }
-            },
-            category: 'Font',
-            groupId: 'font-settings',
-            parameters: [{
-                name: 'fontFamily',
-                type: 'select' as const,
-                label: 'Font Family',
-                defaultValue: data.preferences.fontFamily,
-                options: [
-                    { value: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace", label: 'Monospace (Default)' },
-                    { value: 'Inter, system-ui, -apple-system, sans-serif', label: 'Sans Serif' },
-                    { value: 'Merriweather, Georgia, Cambria, "Times New Roman", serif', label: 'Serif' },
-                    { value: '"JetBrains Mono", "Fira Code", monospace', label: 'JetBrains Mono' },
-                    { value: '"Source Code Pro", monospace', label: 'Source Code Pro' },
-                    { value: '"IBM Plex Mono", monospace', label: 'IBM Plex Mono' },
-                ]
-            }]
         },
         {
             id: 'toggle-alignment',
