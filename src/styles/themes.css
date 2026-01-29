@@ -434,7 +434,7 @@
    --editor-gutter-bg: #ebdbb2;
    --editor-gutter-text: #928374;
    --caret-color: #3c3836;
-   --selection-bg: rgba(213, 196, 161, 0.7);
+   --selection-bg: rgba(69, 133, 136, 0.3);
 
    --syntax-keyword: #9d0006;
    --syntax-variable: #3c3836;

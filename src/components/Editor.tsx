@@ -384,6 +384,7 @@ stateDiagram-v2
                     ref={editorRef}
                     value={note.content}
                     height="100%"
+                    theme="none"
                     extensions={[
                         vimMode ? vim() : [],
                         emacsMode && !vimMode ? emacsModeExtension : [],
