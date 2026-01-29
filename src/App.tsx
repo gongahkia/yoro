@@ -587,47 +587,15 @@ function App() {
                 defaultValue: data.preferences.fontSize
             }]
         },
-        // Parameterized theme selection
+        // Theme selection - opens palette filtered to themes
         {
             id: 'select-theme',
             label: 'Select Theme...',
-            action: (params?: Record<string, string | number>) => {
-                if (params?.theme) {
-                    handleUpdatePreferences({ theme: params.theme as typeof data.preferences.theme });
-                }
+            action: () => {
+                setPaletteInitialQuery('Theme:');
+                setIsPaletteOpen(true);
             },
-            category: 'Theme',
-            groupId: 'theme-settings',
-            parameters: [{
-                name: 'theme',
-                type: 'select' as const,
-                label: 'Theme',
-                defaultValue: data.preferences.theme,
-                options: [
-                    { value: 'light', label: 'Yoro Light' },
-                    { value: 'dark', label: 'Yoro Dark' },
-                    { value: 'sepia-light', label: 'Sepia Light' },
-                    { value: 'sepia-dark', label: 'Sepia Dark' },
-                    { value: 'dracula-light', label: 'Dracula Light' },
-                    { value: 'dracula-dark', label: 'Dracula Dark' },
-                    { value: 'nord-light', label: 'Nord Light' },
-                    { value: 'nord-dark', label: 'Nord Dark' },
-                    { value: 'gruvbox-light', label: 'Gruvbox Light' },
-                    { value: 'gruvbox-dark', label: 'Gruvbox Dark' },
-                    { value: 'everforest-light', label: 'Everforest Light' },
-                    { value: 'everforest-dark', label: 'Everforest Dark' },
-                    { value: 'catppuccin-light', label: 'Catppuccin Light' },
-                    { value: 'catppuccin-dark', label: 'Catppuccin Dark' },
-                    { value: 'solarized-light', label: 'Solarized Light' },
-                    { value: 'solarized-dark', label: 'Solarized Dark' },
-                    { value: 'rose-pine-light', label: 'Rose Pine Light' },
-                    { value: 'rose-pine-dark', label: 'Rose Pine Dark' },
-                    { value: 'tokyo-night-light', label: 'Tokyo Night Light' },
-                    { value: 'tokyo-night-dark', label: 'Tokyo Night Dark' },
-                    { value: 'kanagawa-light', label: 'Kanagawa Light' },
-                    { value: 'kanagawa-dark', label: 'Kanagawa Dark' },
-                ]
-            }]
+            category: 'Theme'
         },
         // Parameterized font family selection
         {
