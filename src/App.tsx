@@ -484,7 +484,6 @@ function App() {
                             theme: prev.preferences.theme,
                             vimMode: prev.preferences.vimMode,
                             emacsMode: prev.preferences.emacsMode,
-                            sidebarVisible: prev.preferences.sidebarVisible,
                             showLineNumbers: prev.preferences.showLineNumbers,
                             focusMode: prev.preferences.focusMode,
                             focusModeBlur: prev.preferences.focusModeBlur,
