@@ -150,18 +150,7 @@ const foldGutterTheme = EditorView.baseTheme({
         color: 'var(--primary, #007bff)',
     },
     '.cm-foldPlaceholder': {
-        background: 'var(--primary-light, rgba(0, 123, 255, 0.1))',
-        border: '1px solid var(--border-color, #ddd)',
-        borderRadius: '4px',
-        padding: '0 4px',
-        margin: '0 4px',
-        color: 'var(--text-primary, #333)',
-        opacity: '0.8',
-        cursor: 'pointer',
-    },
-    '.cm-foldPlaceholder:hover': {
-        background: 'var(--primary-light-active, rgba(0, 123, 255, 0.2))',
-        opacity: '1',
+        display: 'none',
     },
 });
 
