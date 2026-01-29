@@ -315,12 +315,7 @@ function App() {
     const [paramModalCommand, setParamModalCommand] = useState<Command | null>(null);
 
     // Command groups for hierarchical palette
-    const commandGroups: CommandGroup[] = useMemo(() => [
-        { id: 'theme-settings', label: 'Theme' },
-        { id: 'font-settings', label: 'Font' },
-        { id: 'view-settings', label: 'View' },
-        { id: 'editor-settings', label: 'Editor' },
-    ], []);
+    const commandGroups: CommandGroup[] = useMemo(() => [], []);
 
     const getCurrentNoteId = useCallback(() => {
         const match = location.pathname.match(/\/note\/(.+)/);
@@ -836,6 +831,35 @@ function App() {
             category: 'View',
             context: 'home' as const,
             groupId: 'view-settings'
+        },
+        // Sort Commands
+        {
+            id: 'sort-updated',
+            label: 'Sort by Date Updated',
+            action: () => handleUpdatePreferences({ sortOrder: 'updated' }),
+            category: 'Sort',
+            context: 'home' as const
+        },
+        {
+            id: 'sort-created',
+            label: 'Sort by Date Created',
+            action: () => handleUpdatePreferences({ sortOrder: 'created' }),
+            category: 'Sort',
+            context: 'home' as const
+        },
+        {
+            id: 'sort-alpha',
+            label: 'Sort by Title A-Z',
+            action: () => handleUpdatePreferences({ sortOrder: 'alpha' }),
+            category: 'Sort',
+            context: 'home' as const
+        },
+        {
+            id: 'sort-alpha-reverse',
+            label: 'Sort by Title Z-A',
+            action: () => handleUpdatePreferences({ sortOrder: 'alpha-reverse' }),
+            category: 'Sort',
+            context: 'home' as const
         },
         {
             id: 'theme-light',
@@ -1494,7 +1518,6 @@ function App() {
                         onTagChange={setSelectedTag}
                         viewMode={data.preferences.homeViewMode}
                         sortOrder={data.preferences.sortOrder}
-                        onSortChange={(order) => handleUpdatePreferences({ sortOrder: order })}
                     />
                 } />
                 <Route path="/note/:id" element={
