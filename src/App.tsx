@@ -654,24 +654,6 @@ function App() {
                 ]
             }]
         },
-        // Parameterized note search
-        {
-            id: 'search-notes',
-            label: 'Search Notes...',
-            action: (params?: Record<string, string | number>) => {
-                if (params?.query) {
-                    navigate('/');
-                    setSearchQuery(params.query as string);
-                }
-            },
-            category: 'Navigation',
-            parameters: [{
-                name: 'query',
-                type: 'text' as const,
-                label: 'Search Query',
-                placeholder: 'Enter search term...'
-            }]
-        },
         {
             id: 'toggle-alignment',
             label: 'Cycle Editor Alignment',

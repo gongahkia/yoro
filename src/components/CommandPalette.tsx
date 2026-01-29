@@ -42,6 +42,8 @@ interface CommandPaletteProps {
     currentContext?: 'home' | 'editor' | 'global';
     commandGroups?: CommandGroup[];
     onOpenParameterModal?: (command: Command) => void;
+    initialQuery?: string;
+    onInitialQueryConsumed?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -56,9 +58,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     allTags = [],
     currentContext = 'global',
     commandGroups = [],
-    onOpenParameterModal
+    onOpenParameterModal,
+    initialQuery = '',
+    onInitialQueryConsumed
 }) => {
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState(initialQuery);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const inputRef = useRef<HTMLInputElement>(null);
