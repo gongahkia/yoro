@@ -209,7 +209,6 @@ function App() {
                             theme: newPrefs.theme,
                             vimMode: newPrefs.vimMode,
                             emacsMode: newPrefs.emacsMode,
-                            sidebarVisible: newPrefs.sidebarVisible,
                             showLineNumbers: newPrefs.showLineNumbers,
                             focusMode: newPrefs.focusMode,
                             focusModeBlur: newPrefs.focusModeBlur,
@@ -402,7 +401,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'sidebarVisible', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'cursorAnimations'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'cursorAnimations'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
