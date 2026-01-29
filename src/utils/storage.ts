@@ -20,7 +20,6 @@ const initialState: AppState = {
         recentCommandIds: [],
         homeViewMode: '3d-carousel',
         showDocumentStats: true,
-        typewriterMode: false,
         cursorAnimations: 'subtle',
     },
 };

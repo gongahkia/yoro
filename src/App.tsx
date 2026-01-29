@@ -43,7 +43,6 @@ interface NoteEditorWrapperProps {
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
-    typewriterMode: boolean;
     cursorAnimations: 'none' | 'subtle' | 'particles';
     findReplaceOpen: boolean;
     onCloseFindReplace: () => void;

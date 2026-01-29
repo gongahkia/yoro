@@ -29,7 +29,6 @@ import { smartLists } from '../extensions/smart-lists';
 import { syntaxErrors } from '../extensions/syntax-errors';
 import { bracketPulse } from '../extensions/bracket-pulse';
 import { DocumentStats } from './DocumentStats';
-import { typewriterMode as typewriterModeExtension } from '../extensions/typewriter-mode';
 import { HeadingBreadcrumb } from './HeadingBreadcrumb';
 import { createWikilinkPreview } from '../extensions/wikilink-preview';
 import { headingColors } from '../extensions/heading-colors';
@@ -59,13 +58,12 @@ interface EditorProps {
     showLineNumbers: boolean;
     editorAlignment: 'left' | 'center' | 'right';
     showDocumentStats: boolean;
-    typewriterMode: boolean;
     cursorAnimations?: 'none' | 'subtle' | 'particles';
     findReplaceOpen?: boolean;
     onCloseFindReplace?: () => void;
 }
 
-export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, onPositionChange, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
+export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, onPositionChange, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
@@ -418,7 +416,6 @@ stateDiagram-v2
                         smartLists,
                         syntaxErrors,
                         bracketPulse,
-                        typewriterMode ? typewriterModeExtension : [],
                         cursorLineTracker,
                         positionTracker,
                         keymap.of(markdownKeymap),
