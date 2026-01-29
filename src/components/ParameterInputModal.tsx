@@ -58,7 +58,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
     };
 
     const handleValueChange = (name: string, value: string | number | boolean, param: CommandParameter) => {
-        if (param.type === 'number') {
+        if (param.type === 'number' && typeof value !== 'boolean') {
             let numValue = typeof value === 'string' ? parseFloat(value) : value;
             if (isNaN(numValue)) numValue = param.min ?? 0;
             if (param.min !== undefined) numValue = Math.max(param.min, numValue);
@@ -85,7 +85,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                                 <select
                                     ref={index === 0 ? firstInputRef as React.RefObject<HTMLSelectElement> : undefined}
                                     id={`param-${param.name}`}
-                                    value={values[param.name] ?? ''}
+                                    value={String(values[param.name] ?? '')}
                                     onChange={e => handleValueChange(param.name, e.target.value, param)}
                                 >
                                     {param.options?.map(opt => (
@@ -115,7 +115,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                                     min={param.min}
                                     max={param.max}
                                     placeholder={param.placeholder}
-                                    value={values[param.name] ?? ''}
+                                    value={typeof values[param.name] === 'boolean' ? '' : (values[param.name] ?? '')}
                                     onChange={e => handleValueChange(
                                         param.name,
                                         param.type === 'number' ? parseFloat(e.target.value) : e.target.value,

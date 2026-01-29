@@ -21,7 +21,7 @@ export interface Command {
     id: string;
     label: string;
     shortcut?: string;
-    action: (params?: Record<string, string | number>) => void;
+    action: (params?: Record<string, string | number | boolean>) => void;
     category?: string;
     context?: 'home' | 'editor' | 'global';
     groupId?: string;
