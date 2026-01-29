@@ -1025,55 +1025,6 @@ function App() {
                 context: 'editor' as const
             },
             {
-                id: 'export-markdown-custom',
-                label: 'Export as Markdown...',
-                action: (params?: Record<string, string | number | boolean>) => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        const filename = (params?.filename as string)?.trim() || note.title || 'untitled';
-                        let content = note.content;
-                        
-                        if (params?.includeFrontmatter) {
-                            const frontmatter = [
-                                '---',
-                                `title: ${note.title}`,
-                                `tags: [${note.tags.join(', ')}]`,
-                                `created: ${new Date(note.createdAt).toISOString()}`,
-                                `updated: ${new Date(note.updatedAt).toISOString()}`,
-                                '---',
-                                ''
-                            ].join('\n');
-                            content = frontmatter + content;
-                        }
-
-                        const blob = new Blob([content], { type: 'text/markdown' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${filename}.md`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }
-                },
-                category: 'Export',
-                context: 'editor' as const,
-                parameters: [
-                    {
-                        name: 'filename',
-                        type: 'text' as const,
-                        label: 'Filename (without extension)',
-                        placeholder: 'my-note'
-                    },
-                    {
-                        name: 'includeFrontmatter',
-                        type: 'boolean' as const,
-                        label: 'Include Frontmatter (YAML)',
-                        defaultValue: false
-                    }
-                ]
-            },
-            {
                 id: 'export-pdf',
                 label: 'Export as PDF',
                 action: async () => {
@@ -1112,32 +1063,6 @@ function App() {
                 },
                 category: 'Export',
                 context: 'editor' as const
-            },
-            {
-                id: 'export-pdf-custom',
-                label: 'Export as PDF (Custom Filename)...',
-                action: async (params?: Record<string, string | number>) => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note && params?.filename) {
-                        try {
-                            showToast('Generating PDF...', 'success');
-                            await exportToPDF(note.content, (params.filename as string).trim() || note.title || 'Untitled');
-                            showToast('PDF exported successfully', 'success');
-                        } catch (err) {
-                            console.error('PDF export error:', err);
-                            showToast('Failed to export PDF', 'error');
-                        }
-                    }
-                },
-                category: 'Export',
-                context: 'editor' as const,
-                parameters: [{
-                    name: 'filename',
-                    type: 'text' as const,
-                    label: 'Filename (without extension)',
-                    placeholder: 'my-document'
-                }]
             },
             {
                 id: 'share-note',
