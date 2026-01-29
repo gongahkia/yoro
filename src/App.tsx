@@ -428,7 +428,7 @@ function App() {
     const commands: Command[] = useMemo(() => [
         {
             id: 'new-note',
-            label: 'Create New Note',
+            label: 'Insert New Note',
             action: () => handleCreateNote(),
             category: 'General'
         },
@@ -1048,20 +1048,20 @@ function App() {
             action: () => handleSelectNote(note.id),
             category: 'Navigation'
         })),
-        // Note Operations
-        ...data.notes.map(note => ({
+        // Note Operations (exclude config.toml)
+        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
             id: `duplicate-note-${note.id}`,
             label: `Duplicate Note: ${note.title || 'Untitled'}`,
             action: () => handleDuplicateNote(note.id),
             category: 'Note Operations'
         })),
-        ...data.notes.filter(n => n.deletedAt).map(note => ({
+        ...data.notes.filter(n => n.deletedAt && n.title !== 'config.toml').map(note => ({
             id: `restore-note-${note.id}`,
             label: `Restore Note: ${note.title || 'Untitled'}`,
             action: () => handleRestoreNote(note.id),
             category: 'Note Operations'
         })),
-        ...data.notes.map(note => ({
+        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
             id: `delete-note-${note.id}`,
             label: note.deletedAt
                 ? `Permanently Delete Note: ${note.title || 'Untitled'}`
@@ -1354,7 +1354,7 @@ function App() {
                         {
                             id: 'insert-mermaid-flowchart',
                 
-                label: 'Create Flowchart',
+                label: 'Insert Flowchart',
                 action: () => {
                     const id = getCurrentNoteId();
                     if (id) {
@@ -1367,7 +1367,7 @@ function App() {
             },
             {
                 id: 'insert-mermaid-state-diagram',
-                label: 'Create State Diagram',
+                label: 'Insert State Diagram',
                 action: () => {
                     const id = getCurrentNoteId();
                     if (id) handleUpdateNote(id, { viewMode: 'state' });
