@@ -6,7 +6,7 @@ interface ParameterInputModalProps {
     isOpen: boolean;
     onClose: () => void;
     command: Command | null;
-    onSubmit: (command: Command, params: Record<string, string | number>) => void;
+    onSubmit: (command: Command, params: Record<string, string | number | boolean>) => void;
 }
 
 export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
@@ -15,13 +15,13 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
     command,
     onSubmit
 }) => {
-    const [values, setValues] = useState<Record<string, string | number>>({});
+    const [values, setValues] = useState<Record<string, string | number | boolean>>({});
     const firstInputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
 
     useEffect(() => {
         if (isOpen && command?.parameters) {
             // Initialize with default values
-            const initial: Record<string, string | number> = {};
+            const initial: Record<string, string | number | boolean> = {};
             command.parameters.forEach(param => {
                 if (param.defaultValue !== undefined) {
                     initial[param.name] = param.defaultValue;
@@ -57,7 +57,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
         }
     };
 
-    const handleValueChange = (name: string, value: string | number, param: CommandParameter) => {
+    const handleValueChange = (name: string, value: string | number | boolean, param: CommandParameter) => {
         if (param.type === 'number') {
             let numValue = typeof value === 'string' ? parseFloat(value) : value;
             if (isNaN(numValue)) numValue = param.min ?? 0;

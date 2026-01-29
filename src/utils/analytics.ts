@@ -6,7 +6,8 @@ type EventName =
     | 'export_note'
     | 'move_to_bin'
     | 'restore_note'
-    | 'delete_note_permanent';
+    | 'delete_note_permanent'
+    | 'quick_capture';
 
 export const analytics = {
     track: (event: EventName, properties?: Record<string, unknown>) => {
