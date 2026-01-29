@@ -1018,7 +1018,10 @@ function App() {
         {
             id: 'go-home',
             label: 'Go to Home',
-            action: () => navigate('/'),
+            action: () => {
+                setIsKnowledgeGraphOpen(false);
+                navigate('/');
+            },
             category: 'Navigation'
         },
         // Open Bin Command
