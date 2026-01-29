@@ -30,10 +30,9 @@ export const NoteList: React.FC<NoteListProps> = ({
 }) => {
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
-    // 2D File Drawer State
-    const [activeIndex, setActiveIndex] = useState(0); // Which card is raised
+    // 2D Grid State
+    const [activeIndex, setActiveIndex] = useState(0); // Which card is selected
     const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const scrollAccumulator = useRef(0); // Accumulate scroll delta for smoother cycling
     const deckRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -82,40 +81,21 @@ export const NoteList: React.FC<NoteListProps> = ({
         }
     }, [count, activeIndex]);
 
-    // Handle Wheel Rotation/Scroll
+    // Handle Wheel Rotation for 3D carousel only
     useEffect(() => {
         const container = deckRef.current;
-        if (!container) return;
+        if (!container || viewMode !== '3d-carousel') return;
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            if (viewMode === '3d-carousel') {
-                // Rotate based on scroll
-                const delta = e.deltaY * 0.1; // Sensitivity
-                setRotation(prev => prev + delta);
-            } else {
-                // File drawer: scroll cycles through which card is active (raised)
-                scrollAccumulator.current += e.deltaY;
-                const threshold = 50; // Pixels of scroll needed to switch cards
-
-                if (Math.abs(scrollAccumulator.current) >= threshold) {
-                    const direction = scrollAccumulator.current > 0 ? 1 : -1;
-                    scrollAccumulator.current = 0; // Reset accumulator
-
-                    setActiveIndex(prev => {
-                        // Wrap around endlessly
-                        const next = prev + direction;
-                        if (next < 0) return count - 1;
-                        if (next >= count) return 0;
-                        return next;
-                    });
-                }
-            }
+            // Rotate based on scroll
+            const delta = e.deltaY * 0.1; // Sensitivity
+            setRotation(prev => prev + delta);
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, [viewMode, count]);
+    }, [viewMode]);
 
     // 3D Carousel layout constants
     // Radius depends on count to avoid overlap
