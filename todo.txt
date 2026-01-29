@@ -18,7 +18,6 @@ Test the newly added export to PDF/DOCx feature
 Test the smart list continuation
 Test the breadcrumb navigation
 Test the live document stats in footer
-Test the typewriter/scroll focus mode
 Test the smart heading auto level
 Test the wikilink hover preview
 Test the pulsing brackets that match

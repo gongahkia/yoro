@@ -682,13 +682,6 @@ function App() {
             groupId: 'view-settings'
         },
         {
-            id: 'toggle-typewriter-mode',
-            label: 'Toggle Typewriter Mode',
-            action: () => handleUpdatePreferences({ typewriterMode: !data.preferences.typewriterMode }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
             id: 'hard-wrap',
             label: 'Hard Wrap Text (80 cols)',
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
@@ -1346,7 +1339,6 @@ function App() {
                             showLineNumbers={data.preferences.showLineNumbers}
                             editorAlignment={data.preferences.editorAlignment}
                             showDocumentStats={data.preferences.showDocumentStats}
-                            typewriterMode={data.preferences.typewriterMode}
                             cursorAnimations={data.preferences.cursorAnimations ?? 'subtle'}
                             findReplaceOpen={isFindReplaceOpen}
                             onCloseFindReplace={() => setIsFindReplaceOpen(false)}

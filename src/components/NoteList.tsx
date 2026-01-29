@@ -178,54 +178,21 @@ export const NoteList: React.FC<NoteListProps> = ({
         </div>
     );
 
-    const render2DFileDrawer = () => {
-        // Stacked file layout - scroll cycles through which card is raised
-        // Cards stack on top of each other, active card rises up
+    const render2DGrid = () => {
+        // Grid layout - cards spread out in a responsive grid pattern
 
         return (
-            <div className="file-drawer-container" ref={deckRef}>
+            <div className="grid-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
-                    <div className="file-stack">
+                    <div className="grid-view">
                         {filteredNotes.map((note, index) => {
                             const isActive = index === activeIndex;
                             const isHovered = hoveredId === note.id;
 
-                            // Stack cards with slight offset for depth effect
-                            const stackOffset = index * 4;
-                            const baseX = stackOffset;
-                            const baseY = stackOffset;
-
-                            // Active card rises up prominently
-                            const lift = isActive ? -120 : 0;
-                            const scale = isActive ? 1.08 : 1;
-
-                            // Cards spread apart from active card
-                            let spreadX = 0;
-                            let spreadY = 0;
-                            if (!isActive) {
-                                const diff = index - activeIndex;
-                                if (diff < 0) {
-                                    // Cards before active go left and down
-                                    spreadX = diff * 15;
-                                    spreadY = Math.abs(diff) * 5;
-                                } else {
-                                    // Cards after active go right and down
-                                    spreadX = diff * 15;
-                                    spreadY = diff * 5;
-                                }
-                            }
-
-                            // Z-index: active on top, then by position
-                            const zIndex = isActive ? 1000 : (isHovered ? 999 : count - Math.abs(index - activeIndex));
-
                             return (
                                 <div
                                     key={note.id}
-                                    className={`file-card ${isActive ? 'file-card-active' : ''} ${isHovered ? 'file-card-hovered' : ''}`}
-                                    style={{
-                                        transform: `translateX(${baseX + spreadX}px) translateY(${baseY + lift + spreadY}px) scale(${scale})`,
-                                        zIndex,
-                                    }}
+                                    className={`grid-card ${isActive ? 'grid-card-active' : ''} ${isHovered ? 'grid-card-hovered' : ''}`}
                                     onMouseEnter={() => setHoveredId(note.id)}
                                     onMouseLeave={() => setHoveredId(null)}
                                     onClick={() => setActiveIndex(index)}
