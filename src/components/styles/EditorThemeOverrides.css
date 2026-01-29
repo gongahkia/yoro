@@ -100,17 +100,52 @@
     background-color: var(--editor-bg, var(--bg-primary)) !important;
 }
 
-/* Vim Visual Mode Selection */
-.editor-cm-wrapper .cm-selectionBackground {
+/* Text Selection Styling */
+/* CodeMirror selection background (programmatic selection) */
+.editor-cm-wrapper .cm-selectionBackground,
+.cm-selectionBackground {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
-.editor-cm-wrapper .cm-editor.cm-focused .cm-selectionBackground {
+.editor-cm-wrapper .cm-editor.cm-focused .cm-selectionBackground,
+.cm-editor.cm-focused .cm-selectionBackground {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 
 /* Vim visual line mode - ensure full line selection */
-.editor-cm-wrapper .cm-selectionLayer .cm-selectionBackground {
+.editor-cm-wrapper .cm-selectionLayer .cm-selectionBackground,
+.cm-selectionLayer .cm-selectionBackground {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Native browser selection (mouse highlighting) */
+.editor-cm-wrapper .cm-content::selection,
+.editor-cm-wrapper .cm-content *::selection,
+.cm-content::selection,
+.cm-content *::selection {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Firefox selection */
+.editor-cm-wrapper .cm-content::-moz-selection,
+.editor-cm-wrapper .cm-content *::-moz-selection,
+.cm-content::-moz-selection,
+.cm-content *::-moz-selection {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+/* Selection on the line elements */
+.editor-cm-wrapper .cm-line::selection,
+.editor-cm-wrapper .cm-line *::selection,
+.cm-line::selection,
+.cm-line *::selection {
+    background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
+}
+
+.editor-cm-wrapper .cm-line::-moz-selection,
+.editor-cm-wrapper .cm-line *::-moz-selection,
+.cm-line::-moz-selection,
+.cm-line *::-moz-selection {
     background-color: var(--selection-bg, rgba(0, 123, 255, 0.3)) !important;
 }
 

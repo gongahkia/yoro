@@ -1,5 +1,6 @@
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
+import { EditorView } from '@codemirror/view';
 
 const themeHighlightStyle = HighlightStyle.define([
     { tag: t.keyword, color: 'var(--syntax-keyword)' },
@@ -20,4 +21,34 @@ const themeHighlightStyle = HighlightStyle.define([
     { tag: t.invalid, color: 'var(--syntax-invalid)' },
 ]);
 
-export const themeSyntaxHighlighting = syntaxHighlighting(themeHighlightStyle, { fallback: true });
+// Theme extension for selection highlighting and other editor styles
+const selectionTheme = EditorView.theme({
+    // Selection background for unfocused editor
+    '.cm-selectionBackground': {
+        backgroundColor: 'var(--selection-bg, rgba(0, 123, 255, 0.3)) !important',
+    },
+    // Selection background for focused editor
+    '&.cm-focused .cm-selectionBackground': {
+        backgroundColor: 'var(--selection-bg, rgba(0, 123, 255, 0.3)) !important',
+    },
+    // Selection layer (used in vim visual line mode)
+    '.cm-selectionLayer .cm-selectionBackground': {
+        backgroundColor: 'var(--selection-bg, rgba(0, 123, 255, 0.3)) !important',
+    },
+    // Native selection styling (for mouse selection)
+    '.cm-content ::selection': {
+        backgroundColor: 'var(--selection-bg, rgba(0, 123, 255, 0.3)) !important',
+    },
+    '.cm-content': {
+        caretColor: 'var(--caret-color, var(--text-primary))',
+    },
+    // Cursor styling
+    '.cm-cursor, .cm-dropCursor': {
+        borderLeftColor: 'var(--caret-color, var(--text-primary))',
+    },
+});
+
+export const themeSyntaxHighlighting = [
+    syntaxHighlighting(themeHighlightStyle, { fallback: true }),
+    selectionTheme,
+];
