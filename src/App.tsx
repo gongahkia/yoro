@@ -48,7 +48,7 @@ interface NoteEditorWrapperProps {
     onCloseFindReplace: () => void;
 }
 
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, typewriterMode, cursorAnimations, findReplaceOpen, onCloseFindReplace }) => {
+const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, cursorAnimations, findReplaceOpen, onCloseFindReplace }) => {
     const { id } = useParams<{ id: string }>();
     const note = notes.find(n => n.id === id);
 
@@ -105,7 +105,6 @@ const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNo
             showLineNumbers={showLineNumbers}
             editorAlignment={editorAlignment}
             showDocumentStats={showDocumentStats}
-            typewriterMode={typewriterMode}
             cursorAnimations={cursorAnimations}
             findReplaceOpen={findReplaceOpen}
             onCloseFindReplace={onCloseFindReplace}
