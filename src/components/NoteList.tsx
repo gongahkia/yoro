@@ -114,10 +114,14 @@ export const NoteList: React.FC<NoteListProps> = ({
                 setRotation(prev => prev + delta);
             } else {
                 // Timeline: scroll to navigate between cards
+                // Larger scrolls move multiple cards
                 e.preventDefault();
+                const scrollThreshold = 50; // Base threshold for one card
+                const scrollAmount = Math.abs(e.deltaY);
+                const cardsToMove = Math.max(1, Math.floor(scrollAmount / scrollThreshold));
                 const direction = e.deltaY > 0 ? 1 : -1;
                 setActiveIndex(prev => {
-                    const next = prev + direction;
+                    const next = prev + (direction * cardsToMove);
                     return Math.max(0, Math.min(count - 1, next));
                 });
             }
@@ -285,25 +289,6 @@ export const NoteList: React.FC<NoteListProps> = ({
                                     </div>
                                 );
                             })}
-                        </div>
-
-                        {/* Navigation hints */}
-                        <div className="timeline-nav">
-                            <button
-                                className="timeline-nav-btn timeline-nav-prev"
-                                onClick={() => setActiveIndex(prev => Math.max(0, prev - 1))}
-                                disabled={activeIndex === 0}
-                            >
-                                ←
-                            </button>
-                            <span className="timeline-position">{activeIndex + 1} / {count}</span>
-                            <button
-                                className="timeline-nav-btn timeline-nav-next"
-                                onClick={() => setActiveIndex(prev => Math.min(count - 1, prev + 1))}
-                                disabled={activeIndex === count - 1}
-                            >
-                                →
-                            </button>
                         </div>
                     </>
                 ) : (
