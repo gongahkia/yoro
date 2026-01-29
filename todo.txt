@@ -2,7 +2,7 @@ Change the 2d view to instead of being the current rotating 2d circle view, make
 Have the web app detect whether a user is accessing the web app via mobile or computer and if mobile, dissuade them from using it since its meant to be a desktop browser text editorq
 Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
 Clarify/tweak what focus mode or zen mode currently does
-Fix visual mode highlighting in vim mode where the highlighted selection isn't shown
+Fix normal cursor drag and pull highlighting AND visual mode highlighting in vim mode where the highlighted selection isn't shown at all
 
 Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
