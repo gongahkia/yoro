@@ -13,9 +13,11 @@ type HelpSection = 'shortcuts' | 'markdown' | 'features';
 const keyboardShortcuts = {
     general: [
         { keys: 'Cmd/Ctrl + Shift + P', description: 'Open command palette' },
+        { keys: 'Cmd/Ctrl + Shift + I', description: 'Quick capture note' },
         { keys: 'Cmd/Ctrl + Click', description: 'Follow link (wikilink or URL)' },
     ],
     editor: [
+        { keys: 'Cmd/Ctrl + H', description: 'Find and replace' },
         { keys: 'Cmd/Ctrl + B', description: 'Bold text' },
         { keys: 'Cmd/Ctrl + I', description: 'Italic text' },
         { keys: 'Tab', description: 'Indent / Add child node (in visual editors)' },
