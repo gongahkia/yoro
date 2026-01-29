@@ -18,6 +18,7 @@ const initialState: AppState = {
         fontSize: 16,
         recentCommandIds: [],
         homeViewMode: '3d-carousel',
+        sortOrder: 'updated',
         showDocumentStats: true,
         cursorAnimations: 'subtle',
     },
