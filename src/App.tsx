@@ -18,7 +18,6 @@ import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
-import { Sidebar } from './components/Sidebar';
 import { MindMap } from './components/MindMap';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { FlowchartBuilder } from './components/FlowchartBuilder';
@@ -622,13 +621,6 @@ function App() {
             },
             category: 'Editor',
             groupId: 'editor-settings'
-        },
-        {
-            id: 'toggle-sidebar',
-            label: 'Toggle Sidebar',
-            action: () => handleUpdatePreferences({ sidebarVisible: !data.preferences.sidebarVisible }),
-            category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-line-numbers',
