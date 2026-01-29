@@ -1275,14 +1275,6 @@ function App() {
         setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false });
     };
 
-    const handleSidebarCommand = (command: string) => {
-        if (command === 'insert-table') {
-            setTableModalOpen(true);
-        } else {
-            window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command } }));
-        }
-    };
-
     const handleTableInsert = (rows: number, cols: number) => {
         window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-table', rows, cols } }));
     };
