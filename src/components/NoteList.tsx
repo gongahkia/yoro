@@ -30,9 +30,11 @@ export const NoteList: React.FC<NoteListProps> = ({
 }) => {
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
-    // 2D Semicircle State
-    const [rotation2D, setRotation2D] = useState(0);
+    // 2D File Drawer State
+    const [scrollOffset, setScrollOffset] = useState(0);
+    const [fanSpread, setFanSpread] = useState(0.5); // 0 = collapsed, 1 = fully spread
     const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const deckRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -70,25 +72,38 @@ export const NoteList: React.FC<NoteListProps> = ({
         });
     }, [notes, searchQuery, selectedTag, sortOrder]);
 
-    // Handle Wheel Rotation
+    // Handle Wheel Rotation/Scroll
     useEffect(() => {
         const container = deckRef.current;
         if (!container) return;
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            // Rotate based on scroll
-            const delta = e.deltaY * 0.1; // Sensitivity
             if (viewMode === '3d-carousel') {
+                // Rotate based on scroll
+                const delta = e.deltaY * 0.1; // Sensitivity
                 setRotation(prev => prev + delta);
             } else {
-                setRotation2D(prev => prev + delta);
+                // File drawer: scroll through files and adjust fan spread
+                const delta = e.deltaY;
+
+                // Scroll through the file drawer
+                setScrollOffset(prev => {
+                    const maxScroll = Math.max(0, (count - 1) * 60);
+                    return Math.max(0, Math.min(maxScroll, prev + delta * 0.5));
+                });
+
+                // Adjust fan spread based on horizontal scroll (deltaX) or shift+scroll
+                if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    const spreadDelta = (e.deltaX || e.deltaY) * 0.002;
+                    setFanSpread(prev => Math.max(0.2, Math.min(1, prev + spreadDelta)));
+                }
             }
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, [viewMode]);
+    }, [viewMode, count]);
 
     // Constants for layout
     // Radius depends on count to avoid overlap?
@@ -101,15 +116,10 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Tilt the deck slightly for better 3D view
     const deckTilt = -5; // degrees X-axis
 
-    // 2D Semicircle constants
-    const baseRadius = 400;
-    const circumference = 2 * Math.PI * baseRadius;
-    // Calculate how much space each card gets on the circle
-    const spacePerCard = count > 0 ? circumference / count : circumference;
-    // Scale cards down if they don't fit (with min scale of 0.4 for readability)
-    const cardScale2D = Math.max(0.4, Math.min(1, spacePerCard / cardWidth));
-    // Adjust radius slightly when scaling down to keep cards visible
-    const semicircleRadius = baseRadius;
+    // 2D File Drawer constants
+    const fileSpacing = 40 * fanSpread + 15; // Spacing between files (adjustable via scroll)
+    const fileAngle = 3 * fanSpread; // Slight angle for each file tab
+    const maxVisibleFiles = 12; // Maximum files visible at once
 
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
