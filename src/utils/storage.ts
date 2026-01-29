@@ -7,7 +7,6 @@ const initialState: AppState = {
     notes: [],
     preferences: {
         theme: 'light',
-        sidebarVisible: false,
         vimMode: false,
         emacsMode: false,
         showLineNumbers: true,

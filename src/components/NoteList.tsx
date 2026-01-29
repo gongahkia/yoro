@@ -30,10 +30,30 @@ export const NoteList: React.FC<NoteListProps> = ({
 }) => {
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
-    // 2D Grid State
+    // 2D Timeline State
     const [activeIndex, setActiveIndex] = useState(0); // Which card is selected
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const deckRef = useRef<HTMLDivElement>(null);
+
+    // View transition state
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [displayMode, setDisplayMode] = useState(viewMode);
+    const prevViewMode = useRef(viewMode);
+
+    // Handle view mode transitions with animation
+    useEffect(() => {
+        if (prevViewMode.current !== viewMode) {
+            setIsTransitioning(true);
+            // Wait for exit animation, then switch mode
+            const timer = setTimeout(() => {
+                setDisplayMode(viewMode);
+                // Small delay then end transition
+                setTimeout(() => setIsTransitioning(false), 50);
+            }, 300);
+            prevViewMode.current = viewMode;
+            return () => clearTimeout(timer);
+        }
+    }, [viewMode]);
 
     useEffect(() => {
         const handleOpenBin = () => onTagChange('bin');
@@ -293,7 +313,9 @@ export const NoteList: React.FC<NoteListProps> = ({
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
-            {viewMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}
+            <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
+                {displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}
+            </div>
         </div>
     );
 };
