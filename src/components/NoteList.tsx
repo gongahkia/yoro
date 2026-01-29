@@ -132,6 +132,12 @@ export const NoteList: React.FC<NoteListProps> = ({
         if (viewMode === '3d-carousel') return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Don't handle if user is in an input, textarea, or modal
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.closest('.command-palette-modal')) {
+                return;
+            }
+
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 setActiveIndex(prev => Math.max(0, prev - 1));
