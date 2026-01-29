@@ -116,190 +116,68 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    perspective: 1200px;
-}
-
-.file-drawer {
-    position: relative;
-    width: 90%;
-    max-width: 1200px;
-    height: 70%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 40px;
-}
-
-.drawer-frame {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 800px;
-    padding: 12px 24px;
-    background: linear-gradient(180deg, var(--bg-secondary, #2a2a2a) 0%, transparent 100%);
-    border-radius: 12px 12px 0 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: none;
-    z-index: 10;
-}
-
-.drawer-label {
-    font-size: 0.85rem;
-    color: var(--text-secondary, #888);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 500;
 }
 
 .file-stack {
     position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 80px;
-    transform-style: preserve-3d;
+    align-items: center;
+    height: 100%;
 }
 
-.file-tab {
+.file-card {
     position: absolute;
-    width: 300px;
-    height: 220px;
+    width: 280px;
+    height: 200px;
     cursor: pointer;
-    transform-origin: bottom center;
     transition:
-        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-        opacity 0.25s ease,
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
         box-shadow 0.3s ease;
-    will-change: transform, opacity;
+    will-change: transform;
 }
 
-.file-tab::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 28px;
-    background: linear-gradient(90deg,
-        var(--primary, #4a9eff) 0%,
-        var(--primary-light, #6bb3ff) 100%
-    );
-    border-radius: 8px 8px 0 0;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1;
-}
-
-.file-tab-label {
-    position: absolute;
-    top: 4px;
-    left: 12px;
-    right: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    z-index: 2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.file-card-content {
-    position: absolute;
-    top: 24px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-primary, #fff);
-    border-radius: 0 0 8px 8px;
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.15),
-        0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: box-shadow 0.3s ease;
-}
-
-.file-tab .note-card {
+.file-card .note-card {
     width: 100%;
     height: 100%;
-    border-radius: 0 0 8px 8px;
-    box-shadow: none;
-}
-
-/* Hover state - file emerges from drawer */
-.file-tab-hovered {
-    filter: none;
-}
-
-.file-tab-hovered::before {
-    background: linear-gradient(90deg,
-        var(--primary, #4a9eff) 0%,
-        #7ec8ff 100%
-    );
-    box-shadow: 0 -4px 16px rgba(74, 158, 255, 0.3);
-}
-
-.file-tab-hovered .file-card-content {
+    border-radius: 12px;
     box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.25),
-        0 8px 16px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--bg-primary);
+    overflow: hidden;
 }
 
-.file-tab-hovered .file-tab-label {
-    color: #fff;
+/* Hover state - card rises up */
+.file-card-hovered .note-card {
+    box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.25),
+        0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Scroll indicator */
-.scroll-indicator {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.75rem;
-    color: var(--text-secondary, #666);
-    opacity: 0.6;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.scroll-indicator::before,
-.scroll-indicator::after {
-    content: '';
-    width: 30px;
-    height: 1px;
-    background: currentColor;
-    opacity: 0.5;
-}
-
-/* Animation for files entering */
-@keyframes fileSlideIn {
+/* Staggered entrance animation */
+@keyframes cardSlideUp {
     from {
         opacity: 0;
-        transform: translateY(40px) scale(0.9);
+        transform: translateY(60px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
-.file-tab {
-    animation: fileSlideIn 0.4s ease-out backwards;
+.file-card {
+    animation: cardSlideUp 0.5s ease-out backwards;
 }
 
-.file-tab:nth-child(1) { animation-delay: 0.02s; }
-.file-tab:nth-child(2) { animation-delay: 0.04s; }
-.file-tab:nth-child(3) { animation-delay: 0.06s; }
-.file-tab:nth-child(4) { animation-delay: 0.08s; }
-.file-tab:nth-child(5) { animation-delay: 0.10s; }
-.file-tab:nth-child(6) { animation-delay: 0.12s; }
-.file-tab:nth-child(7) { animation-delay: 0.14s; }
-.file-tab:nth-child(8) { animation-delay: 0.16s; }
-.file-tab:nth-child(9) { animation-delay: 0.18s; }
-.file-tab:nth-child(10) { animation-delay: 0.20s; }
+.file-card:nth-child(1) { animation-delay: 0.05s; }
+.file-card:nth-child(2) { animation-delay: 0.1s; }
+.file-card:nth-child(3) { animation-delay: 0.15s; }
+.file-card:nth-child(4) { animation-delay: 0.2s; }
+.file-card:nth-child(5) { animation-delay: 0.25s; }
+.file-card:nth-child(6) { animation-delay: 0.3s; }
+.file-card:nth-child(7) { animation-delay: 0.35s; }
+.file-card:nth-child(8) { animation-delay: 0.4s; }
+.file-card:nth-child(9) { animation-delay: 0.45s; }
+.file-card:nth-child(10) { animation-delay: 0.5s; }

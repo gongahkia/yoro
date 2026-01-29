@@ -32,7 +32,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     const [rotation, setRotation] = useState(0);
     // 2D File Drawer State
     const [scrollOffset, setScrollOffset] = useState(0);
-    const [fanSpread, setFanSpread] = useState(0.5); // 0 = collapsed, 1 = fully spread
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const deckRef = useRef<HTMLDivElement>(null);
@@ -88,20 +87,9 @@ export const NoteList: React.FC<NoteListProps> = ({
                 const delta = e.deltaY * 0.1; // Sensitivity
                 setRotation(prev => prev + delta);
             } else {
-                // File drawer: scroll through files and adjust fan spread
+                // File drawer: scroll through files
                 const delta = e.deltaY;
-
-                // Scroll through the file drawer
-                setScrollOffset(prev => {
-                    const maxScroll = Math.max(0, (count - 1) * 60);
-                    return Math.max(0, Math.min(maxScroll, prev + delta * 0.5));
-                });
-
-                // Adjust fan spread based on horizontal scroll (deltaX) or shift+scroll
-                if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-                    const spreadDelta = (e.deltaX || e.deltaY) * 0.002;
-                    setFanSpread(prev => Math.max(0.2, Math.min(1, prev + spreadDelta)));
-                }
+                setScrollOffset(prev => prev + delta * 0.3);
             }
         };
 
@@ -118,9 +106,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     const deckTilt = -5; // degrees X-axis
 
     // 2D File Drawer constants
-    const fileSpacing = 40 * fanSpread + 15; // Spacing between files (adjustable via scroll)
-    const fileAngle = 3 * fanSpread; // Slight angle for each file tab
-    const maxVisibleFiles = 12; // Maximum files visible at once
+    const fileSpacing = 60; // Horizontal spacing between stacked cards
 
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
