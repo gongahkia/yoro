@@ -30,7 +30,6 @@ export type Theme =
 
 export interface UserPreferences {
     theme: Theme;
-    sidebarVisible: boolean;
     vimMode: boolean;
     emacsMode: boolean;
     showLineNumbers: boolean;
