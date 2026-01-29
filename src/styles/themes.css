@@ -243,7 +243,7 @@
    --editor-gutter-bg: #3b4252;
    --editor-gutter-text: #616e88;
    --caret-color: #d8dee9;
-   --selection-bg: rgba(76, 86, 106, 0.7);
+   --selection-bg: rgba(136, 192, 208, 0.35);
 
    --syntax-keyword: #81a1c1;
    --syntax-variable: #d8dee9;
@@ -473,7 +473,7 @@
    --editor-gutter-bg: #374247;
    --editor-gutter-text: #859289;
    --caret-color: #d3c6aa;
-   --selection-bg: rgba(64, 76, 81, 0.8);
+   --selection-bg: rgba(167, 192, 128, 0.35);
 
    --syntax-keyword: #e67e80;
    --syntax-variable: #d3c6aa;
