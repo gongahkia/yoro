@@ -1147,29 +1147,18 @@ function App() {
                             context: 'editor' as const,
                             groupId: 'editor-settings'
                         },
-                        {
-                            id: 'insert-template',
-                            label: 'Insert Template...',
-                            action: (params?: Record<string, string | number>) => {
-                                if (params?.templateId) {
-                                    const template = templates.find(t => t.id === params.templateId);
-                                    if (template) {
-                                        window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { 
-                                            detail: { command: 'insert-template', content: template.content } 
-                                        }));
-                                    }
-                                }
+                        ...templates.map(t => ({
+                            id: `insert-template-${t.id}`,
+                            label: `Insert Template: ${t.name}`,
+                            action: () => {
+                                window.dispatchEvent(new CustomEvent('yoro-editor-cmd', {
+                                    detail: { command: 'insert-template', content: t.content }
+                                }));
                             },
                             category: 'Editor',
                             context: 'editor' as const,
-                            groupId: 'editor-settings',
-                            parameters: [{
-                                name: 'templateId',
-                                type: 'select' as const,
-                                label: 'Template',
-                                options: templates.map(t => ({ value: t.id, label: t.name }))
-                            }]
-                        },
+                            groupId: 'editor-settings'
+                        })),
                         {
                             id: 'insert-mermaid-flowchart',
                 
