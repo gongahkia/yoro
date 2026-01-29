@@ -31,9 +31,9 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
     // 2D File Drawer State
-    const [scrollOffset, setScrollOffset] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(0); // Which card is raised
     const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const scrollAccumulator = useRef(0); // Accumulate scroll delta for smoother cycling
     const deckRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -87,9 +87,22 @@ export const NoteList: React.FC<NoteListProps> = ({
                 const delta = e.deltaY * 0.1; // Sensitivity
                 setRotation(prev => prev + delta);
             } else {
-                // File drawer: scroll through files
-                const delta = e.deltaY;
-                setScrollOffset(prev => prev + delta * 0.3);
+                // File drawer: scroll cycles through which card is active (raised)
+                scrollAccumulator.current += e.deltaY;
+                const threshold = 50; // Pixels of scroll needed to switch cards
+
+                if (Math.abs(scrollAccumulator.current) >= threshold) {
+                    const direction = scrollAccumulator.current > 0 ? 1 : -1;
+                    scrollAccumulator.current = 0; // Reset accumulator
+
+                    setActiveIndex(prev => {
+                        // Wrap around endlessly
+                        const next = prev + direction;
+                        if (next < 0) return count - 1;
+                        if (next >= count) return 0;
+                        return next;
+                    });
+                }
             }
         };
 
