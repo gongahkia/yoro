@@ -135,6 +135,7 @@ function App() {
         };
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+    const [paletteInitialQuery, setPaletteInitialQuery] = useState('');
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);

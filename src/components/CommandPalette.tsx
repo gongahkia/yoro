@@ -183,13 +183,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         if (isOpen) {
             // Use setTimeout to ensure focus happens after render and avoid synchronous setState warnings
             const timer = setTimeout(() => {
-                setQuery('');
+                setQuery(initialQuery);
                 setSelectedIndex(0);
                 inputRef.current?.focus();
+                // Notify parent that initial query was consumed
+                if (initialQuery && onInitialQueryConsumed) {
+                    onInitialQueryConsumed();
+                }
             }, 0);
             return () => clearTimeout(timer);
         }
-    }, [isOpen]);
+    }, [isOpen, initialQuery, onInitialQueryConsumed]);
 
     // Update global search query when in search mode
     useEffect(() => {
