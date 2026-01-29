@@ -125,9 +125,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Tilt the deck slightly for better 3D view
     const deckTilt = -5; // degrees X-axis
 
-    // 2D File Drawer constants
-    const fileSpacing = 60; // Horizontal spacing between stacked cards
-
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
             {filteredNotes.length > 0 ? (
