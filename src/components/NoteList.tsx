@@ -221,7 +221,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
-            {viewMode === '3d-carousel' ? render3DCarousel() : render2DFileDrawer()}
+            {viewMode === '3d-carousel' ? render3DCarousel() : render2DGrid()}
         </div>
     );
 };
