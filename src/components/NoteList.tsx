@@ -81,21 +81,51 @@ export const NoteList: React.FC<NoteListProps> = ({
         }
     }, [count, activeIndex]);
 
-    // Handle Wheel Rotation for 3D carousel only
+    // Handle Wheel Rotation for 3D carousel, scroll for timeline
     useEffect(() => {
         const container = deckRef.current;
-        if (!container || viewMode !== '3d-carousel') return;
+        if (!container) return;
 
         const handleWheel = (e: WheelEvent) => {
-            e.preventDefault();
-            // Rotate based on scroll
-            const delta = e.deltaY * 0.1; // Sensitivity
-            setRotation(prev => prev + delta);
+            if (viewMode === '3d-carousel') {
+                e.preventDefault();
+                // Rotate based on scroll
+                const delta = e.deltaY * 0.1; // Sensitivity
+                setRotation(prev => prev + delta);
+            } else {
+                // Timeline: scroll to navigate between cards
+                e.preventDefault();
+                const direction = e.deltaY > 0 ? 1 : -1;
+                setActiveIndex(prev => {
+                    const next = prev + direction;
+                    return Math.max(0, Math.min(count - 1, next));
+                });
+            }
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, [viewMode]);
+    }, [viewMode, count]);
+
+    // Keyboard navigation for timeline
+    useEffect(() => {
+        if (viewMode === '3d-carousel') return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex(prev => Math.max(0, prev - 1));
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex(prev => Math.min(count - 1, prev + 1));
+            } else if (e.key === 'Enter' && filteredNotes[activeIndex]) {
+                onSelectNote(filteredNotes[activeIndex].id);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [viewMode, count, activeIndex, filteredNotes, onSelectNote]);
 
     // 3D Carousel layout constants
     // Radius depends on count to avoid overlap
@@ -158,36 +188,98 @@ export const NoteList: React.FC<NoteListProps> = ({
         </div>
     );
 
-    const render2DGrid = () => {
-        // Grid layout - cards spread out in a responsive grid pattern
+    const render2DTimeline = () => {
+        // Horizontal timeline - cards in a row, center card is focused
+        // Scroll horizontally to navigate through time
+
+        const cardSpacing = 320; // Space between card centers
 
         return (
-            <div className="grid-container" ref={deckRef}>
+            <div className="timeline-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
-                    <div className="grid-view">
-                        {filteredNotes.map((note, index) => {
-                            const isActive = index === activeIndex;
-                            const isHovered = hoveredId === note.id;
+                    <>
+                        {/* Timeline track */}
+                        <div className="timeline-track" />
 
-                            return (
-                                <div
-                                    key={note.id}
-                                    className={`grid-card ${isActive ? 'grid-card-active' : ''} ${isHovered ? 'grid-card-hovered' : ''}`}
-                                    onMouseEnter={() => setHoveredId(note.id)}
-                                    onMouseLeave={() => setHoveredId(null)}
-                                    onClick={() => setActiveIndex(index)}
-                                >
-                                    <NoteCard
-                                        note={note}
-                                        onClick={onSelectNote}
-                                        onDelete={(e) => onDeleteNote(note.id, e)}
-                                        onDuplicate={(e) => onDuplicateNote(note.id, e)}
-                                        onRestore={(e) => onRestoreNote?.(note.id, e)}
-                                    />
-                                </div>
-                            );
-                        })}
-                    </div>
+                        <div className="timeline-cards">
+                            {filteredNotes.map((note, index) => {
+                                const isActive = index === activeIndex;
+                                const isHovered = hoveredId === note.id;
+
+                                // Calculate distance from active card
+                                const distance = index - activeIndex;
+                                const absDistance = Math.abs(distance);
+
+                                // Position based on distance from center
+                                const translateX = distance * cardSpacing;
+
+                                // Scale: active is 1, others shrink based on distance
+                                const scale = isActive ? 1 : Math.max(0.7, 1 - absDistance * 0.12);
+
+                                // Opacity: fade out distant cards
+                                const opacity = isActive ? 1 : Math.max(0.4, 1 - absDistance * 0.2);
+
+                                // Z-index: active on top
+                                const zIndex = isActive ? 100 : 50 - absDistance;
+
+                                // Format date for timeline
+                                const date = new Date(note.updatedAt);
+                                const dateStr = date.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                                });
+
+                                return (
+                                    <div
+                                        key={note.id}
+                                        className={`timeline-card ${isActive ? 'timeline-card-active' : ''} ${isHovered ? 'timeline-card-hovered' : ''}`}
+                                        style={{
+                                            transform: `translateX(${translateX}px) scale(${scale})`,
+                                            opacity,
+                                            zIndex,
+                                        }}
+                                        onMouseEnter={() => setHoveredId(note.id)}
+                                        onMouseLeave={() => setHoveredId(null)}
+                                        onClick={() => setActiveIndex(index)}
+                                    >
+                                        <NoteCard
+                                            note={note}
+                                            onClick={onSelectNote}
+                                            onDelete={(e) => onDeleteNote(note.id, e)}
+                                            onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                                            onRestore={(e) => onRestoreNote?.(note.id, e)}
+                                        />
+
+                                        {/* Date marker below card */}
+                                        <div className="timeline-date">
+                                            <div className="timeline-dot" />
+                                            <span>{dateStr}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Navigation hints */}
+                        <div className="timeline-nav">
+                            <button
+                                className="timeline-nav-btn timeline-nav-prev"
+                                onClick={() => setActiveIndex(prev => Math.max(0, prev - 1))}
+                                disabled={activeIndex === 0}
+                            >
+                                ←
+                            </button>
+                            <span className="timeline-position">{activeIndex + 1} / {count}</span>
+                            <button
+                                className="timeline-nav-btn timeline-nav-next"
+                                onClick={() => setActiveIndex(prev => Math.min(count - 1, prev + 1))}
+                                disabled={activeIndex === count - 1}
+                            >
+                                →
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <div className="empty-state">No notes found</div>
                 )}
@@ -201,7 +293,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
                 {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
             </div>
-            {viewMode === '3d-carousel' ? render3DCarousel() : render2DGrid()}
+            {viewMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}
         </div>
     );
 };
