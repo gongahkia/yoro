@@ -57,7 +57,6 @@
     width: 100%;
     max-height: 80vh;
     overflow-y: auto;
-    animation: slideIn 0.3s ease-out;
 }
 
 .slide-next .slide-content {
