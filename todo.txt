@@ -3,7 +3,6 @@ Debug the broken flowchart to prevent malformed mermaid from being inserted to b
 Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
 Test the newly added help manual
-
 Test the knowledge graph
 Test the newly added export to PDF/DOCx feature
 Test the smart list continuation
