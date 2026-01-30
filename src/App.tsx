@@ -407,7 +407,7 @@ function App() {
                 const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
                 const updates: Partial<AppState['preferences']> = {};
                 let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'showDocumentStats', 'cursorAnimations'];
+                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
 
                 for (const key of keys) {
                     if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
@@ -486,25 +486,75 @@ function App() {
                     const newId = crypto.randomUUID();
                     setData(prev => {
                         const now = Date.now();
-                        const configObj = {
-                            theme: prev.preferences.theme,
-                            vimMode: prev.preferences.vimMode,
-                            emacsMode: prev.preferences.emacsMode,
-                            showLineNumbers: prev.preferences.showLineNumbers,
-                            focusMode: prev.preferences.focusMode,
-                            focusModeBlur: prev.preferences.focusModeBlur,
-                            lineWrapping: prev.preferences.lineWrapping,
-                            editorAlignment: prev.preferences.editorAlignment,
-                            fontFamily: prev.preferences.fontFamily,
-                            fontSize: prev.preferences.fontSize,
-                            homeViewMode: prev.preferences.homeViewMode,
-                            showDocumentStats: prev.preferences.showDocumentStats,
-                            cursorAnimations: prev.preferences.cursorAnimations
-                        };
+                        const configContent = `# Yoro Configuration
+# Edit these values to customize your experience.
+# Changes are applied automatically when you save.
+
+# ═══════════════════════════════════════════════════════════════
+# APPEARANCE
+# ═══════════════════════════════════════════════════════════════
+
+# Theme options:
+# light, dark, sepia-light, sepia-dark, dracula-light, dracula-dark,
+# nord-light, nord-dark, solarized-light, solarized-dark,
+# gruvbox-light, gruvbox-dark, everforest-light, everforest-dark,
+# catppuccin-light, catppuccin-dark, rose-pine-light, rose-pine-dark,
+# tokyo-night-light, tokyo-night-dark, kanagawa-light, kanagawa-dark
+theme = "${prev.preferences.theme}"
+
+# Home view mode: "3d-carousel" or "2d-semicircle"
+homeViewMode = "${prev.preferences.homeViewMode}"
+
+# Sort order: "updated", "created", "alpha", "alpha-reverse"
+sortOrder = "${prev.preferences.sortOrder}"
+
+# ═══════════════════════════════════════════════════════════════
+# EDITOR
+# ═══════════════════════════════════════════════════════════════
+
+# Keybinding modes (only one can be active)
+vimMode = ${prev.preferences.vimMode}
+emacsMode = ${prev.preferences.emacsMode}
+
+# Focus mode dims non-active lines
+focusMode = ${prev.preferences.focusMode}
+focusModeBlur = ${prev.preferences.focusModeBlur}
+
+# Line display options
+showLineNumbers = ${prev.preferences.showLineNumbers}
+lineWrapping = ${prev.preferences.lineWrapping}
+
+# Editor alignment: "left", "center", or "right"
+editorAlignment = "${prev.preferences.editorAlignment}"
+
+# Cursor animation: "none", "subtle", or "particles"
+cursorAnimations = "${prev.preferences.cursorAnimations}"
+
+# ═══════════════════════════════════════════════════════════════
+# TYPOGRAPHY
+# ═══════════════════════════════════════════════════════════════
+
+# Font family options:
+# Sans:  "Inter, system-ui, -apple-system, sans-serif"
+# Serif: "Merriweather, Georgia, Cambria, 'Times New Roman', serif"
+# Mono:  "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace"
+# Comic: "'Comic Sans MS', 'Comic Sans', cursive"
+fontFamily = "${prev.preferences.fontFamily}"
+
+# Font size in pixels (10-32)
+fontSize = ${prev.preferences.fontSize}
+
+# ═══════════════════════════════════════════════════════════════
+# DISPLAY
+# ═══════════════════════════════════════════════════════════════
+
+# Show word count, character count, and reading time
+showDocumentStats = ${prev.preferences.showDocumentStats}
+`;
                         const newNote: Note = {
                             id: newId,
                             title: 'config.toml',
-                            content: stringify(configObj),
+                            content: configContent.trim(),
                             format: 'markdown', // acts as text
                             tags: ['config'],
                             createdAt: now,
@@ -525,21 +575,40 @@ function App() {
         {
             id: 'font-sans',
             label: 'Font: Sans Serif',
-            action: () => handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }),
+            action: () => {
+                handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' });
+                showToast('Font: Sans Serif', 'info');
+            },
             category: 'Font',
             groupId: 'font-settings'
         },
         {
             id: 'font-serif',
             label: 'Font: Serif',
-            action: () => handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' }),
+            action: () => {
+                handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' });
+                showToast('Font: Serif', 'info');
+            },
             category: 'Font',
             groupId: 'font-settings'
         },
         {
             id: 'font-mono',
             label: 'Font: Monospace',
-            action: () => handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" }),
+            action: () => {
+                handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" });
+                showToast('Font: Monospace', 'info');
+            },
+            category: 'Font',
+            groupId: 'font-settings'
+        },
+        {
+            id: 'font-comic',
+            label: 'Font: Comic Sans',
+            action: () => {
+                handleUpdatePreferences({ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" });
+                showToast('Font: Comic Sans', 'info');
+            },
             category: 'Font',
             groupId: 'font-settings'
         },

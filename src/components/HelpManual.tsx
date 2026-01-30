@@ -82,38 +82,59 @@ const markdownSyntax = [
     { syntax: '[^1]: text', description: 'Footnote definition' },
 ];
 
-const features = [
-    { name: 'Live Preview', description: 'See formatted markdown as you type with inline previews for headings, bold, italic, checkboxes, and more.' },
-    { name: 'Wikilinks', description: 'Link notes together using [[Note Title]] syntax. Ctrl/Cmd+click to navigate between notes.' },
-    { name: 'Backlinks', description: 'View all notes that link to the current note via the Backlinks panel.' },
-    { name: 'Similar Notes', description: 'Find notes with similar content to discover related ideas and connections.' },
-    { name: 'Knowledge Graph', description: 'Visualize connections between your notes based on wikilinks in an interactive graph view.' },
-    { name: 'Quick Capture', description: 'Quickly capture ideas with Cmd/Ctrl+Shift+I. Notes are saved to your inbox for later review.' },
-    { name: 'Math Support', description: 'Write LaTeX equations inline ($x^2$) or in blocks ($$\\sum_{i=1}^n$$) with KaTeX rendering.' },
-    { name: 'Mermaid Diagrams', description: 'Create flowcharts, mindmaps, and state diagrams with mermaid code blocks. Live preview while editing.' },
-    { name: 'Visual Builders', description: 'Build mindmaps, flowcharts, and state diagrams visually with drag-and-drop, then export as Mermaid code.' },
-    { name: 'Presentation Mode', description: 'Present your notes as slides. Each heading becomes a slide for seamless presentations.' },
-    { name: 'Outline Panel', description: 'Navigate long documents easily with the outline panel showing all headings.' },
-    { name: 'Find and Replace', description: 'Search and replace text within your note using Cmd/Ctrl+H.' },
-    { name: 'Vim Mode', description: 'Toggle vim keybindings for modal editing. Use :q to quit, :wq to save and quit.' },
-    { name: 'Emacs Mode', description: 'Toggle Emacs keybindings for familiar navigation and editing commands (C-f, C-b, C-k, C-y, etc.).' },
-    { name: 'Focus Mode', description: 'Dim non-active lines to concentrate on your current paragraph. Toggle blur effect separately.' },
-    { name: 'Themes', description: '20+ built-in themes including Nord, Dracula, Gruvbox, Catppuccin, Solarized, Tokyo Night, Kanagawa, and more.' },
-    { name: 'Tags', description: 'Organize notes with #tags. Filter by tag using command palette (type / to search by tag).' },
-    { name: 'Bin', description: 'Deleted notes go to the bin for 30 days before permanent deletion. Restore anytime.' },
-    { name: 'Code Highlighting', description: 'Syntax highlighting for 100+ programming languages in fenced code blocks.' },
-    { name: 'Tables', description: 'Create markdown tables with the visual table insert dialog from the command palette.' },
-    { name: 'Callouts', description: 'Use > [!note], > [!warning], > [!tip] for styled callout blocks with icons.' },
-    { name: 'Sharing', description: 'Share notes via compressed URL links. Recipients can import shared notes directly.' },
-    { name: 'Export', description: 'Export notes as Markdown, PDF, or Word documents. Export all notes as a ZIP archive.' },
-    { name: 'Configuration', description: 'Customize yoro via config.toml accessible from the command palette. Settings sync automatically.' },
-    { name: 'Home View', description: 'Switch between 2D and 3D carousel views for your note list.' },
-    { name: 'Sorting', description: 'Sort notes by date updated, date created, or title (A-Z or Z-A).' },
-    { name: 'Document Stats', description: 'View word count, character count, and reading time while editing.' },
-    { name: 'Font Settings', description: 'Choose between Sans Serif, Serif, or Monospace fonts. Adjust font size to your preference.' },
-    { name: 'Editor Alignment', description: 'Align your editor left, center, or right for your preferred writing style.' },
-    { name: 'Cursor Animations', description: 'Choose between no animation, subtle glow, or particle effects for your cursor.' },
-];
+const featuresMarkdown = `
+## Editor
+- **Live Preview** — Formatted markdown rendered inline as you type
+- **Syntax Highlighting** — Theme-specific colors for 100+ programming languages
+- **Vim Mode** — Modal editing with :q, :wq, search, and full vim keybindings
+- **Emacs Mode** — C-f, C-b, C-k, C-y and familiar emacs navigation
+- **Focus Mode** — Dim non-active lines with optional blur effect
+- **Find & Replace** — Search and replace with Cmd/Ctrl+H
+- **Multi-cursor** — Edit multiple lines simultaneously
+- **Smart Lists** — Auto-continue bullets, numbers, and checkboxes
+- **Line Wrapping** — Soft wrap or hard wrap at 80 columns
+
+## Linking & Navigation
+- **Wikilinks** — Link notes with [[Note Title]] syntax
+- **Backlinks** — See all notes that reference the current note
+- **Knowledge Graph** — Interactive visualization of note connections
+- **Similar Notes** — Discover related content automatically
+- **Outline Panel** — Navigate headings in long documents
+
+## Rich Content
+- **Math (KaTeX)** — Inline $x^2$ and block $$\\sum_{i=1}^n$$ equations
+- **Mermaid Diagrams** — Flowcharts, mindmaps, sequence diagrams
+- **Visual Builders** — Drag-and-drop flowchart and state diagram editors
+- **Tables** — Visual table insertion with alignment support
+- **Callouts** — Styled blocks with > [!note], > [!warning], > [!tip]
+- **Code Blocks** — Fenced blocks with language-specific highlighting
+- **Images** — Inline preview with lightbox on click
+- **Footnotes** — Reference-style footnotes with hover preview
+
+## Organization
+- **Tags** — Organize with #tags, filter via command palette
+- **Favorites** — Star important notes for quick access
+- **Bin** — 30-day recovery period for deleted notes
+- **Sorting** — By date updated, created, or title (A-Z/Z-A)
+
+## Capture & Export
+- **Quick Capture** — Cmd/Ctrl+Shift+I for instant note capture
+- **Presentation Mode** — Present notes as slides (headings = slides)
+- **Export** — Markdown, PDF (with diagrams), Word (.docx)
+- **Share** — Compressed URL links for sharing notes
+- **ZIP Export** — Backup all notes at once
+
+## Customization
+- **20+ Themes** — Nord, Dracula, Gruvbox, Catppuccin, Solarized, Tokyo Night, Kanagawa, Rose Pine, Everforest, and more
+- **Font Family** — Sans, Serif, Mono, or Comic Sans
+- **Font Size** — Adjustable from 10px to 32px
+- **Editor Alignment** — Left, center, or right
+- **Cursor Animations** — None, subtle, or particles
+- **Line Numbers** — Toggle visibility
+- **Document Stats** — Word/character count and reading time
+- **Home View** — 2D or 3D carousel for note list
+- **config.toml** — All settings in one editable file
+`;
 
 export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode, emacsMode }) => {
     const [activeSection, setActiveSection] = useState<HelpSection>('shortcuts');
@@ -240,16 +261,15 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
                     )}
 
                     {activeSection === 'features' && (
-                        <div className="help-section">
-                            <h3>Features Overview</h3>
-                            <div className="features-grid">
-                                {features.map(f => (
-                                    <div key={f.name} className="feature-card">
-                                        <h4>{f.name}</h4>
-                                        <p>{f.description}</p>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="help-section help-features-section">
+                            <div
+                                className="features-markdown"
+                                dangerouslySetInnerHTML={{ __html: featuresMarkdown
+                                    .replace(/## (.+)/g, '<h3>$1</h3>')
+                                    .replace(/- \*\*(.+?)\*\* — (.+)/g, '<li><strong>$1</strong> <span class="feature-desc">$2</span></li>')
+                                    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+                                }}
+                            />
                         </div>
                     )}
                 </div>

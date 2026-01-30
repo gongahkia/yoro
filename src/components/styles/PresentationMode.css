@@ -14,70 +14,449 @@
     overflow: hidden;
 }
 
-.slide-content {
-    max-width: 900px;
-    width: 80%;
-    height: 80%;
+.presentation-error {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    font-size: 2em;
-    line-height: 1.6;
+    height: 100vh;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
 }
 
-.slide-content h1, .slide-content h2 {
-    color: var(--accent-color);
+/* Slide number */
+.slide-number {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.slide-number.visible {
+    opacity: 1;
+}
+
+/* Slide wrapper */
+.slide-wrapper {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+/* Slide content */
+.slide-content {
+    max-width: 1000px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease-out;
+}
+
+.slide-next .slide-content {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+.slide-prev .slide-content {
+    animation: slideInFromLeft 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Typography */
+.slide-content h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 1em 0;
+    color: var(--primary);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.slide-content h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin: 0 0 0.8em 0;
+    color: var(--primary);
+    line-height: 1.3;
+}
+
+.slide-content h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 0.6em 0;
+    color: var(--text-primary);
+}
+
+.slide-content p {
+    font-size: 1.5rem;
+    line-height: 1.7;
+    margin: 0 0 1em 0;
+}
+
+.slide-content ul,
+.slide-content ol {
+    font-size: 1.4rem;
+    line-height: 1.8;
+    margin: 0 0 1em 0;
+    padding-left: 1.5em;
+}
+
+.slide-content li {
     margin-bottom: 0.5em;
 }
 
-.slide-content ul, .slide-content ol {
-    text-align: left;
+.slide-content li::marker {
+    color: var(--primary);
+}
+
+.slide-content strong {
+    color: var(--primary);
+}
+
+.slide-content em {
+    font-style: italic;
+}
+
+.slide-content code {
+    background: var(--bg-secondary);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 0.9em;
+}
+
+.slide-content pre {
+    background: var(--bg-secondary);
+    padding: 1.5em;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 1.5em 0;
+}
+
+.slide-content pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+.slide-content blockquote {
+    border-left: 4px solid var(--primary);
+    margin: 1.5em 0;
+    padding: 0.5em 0 0.5em 1.5em;
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    font-style: italic;
 }
 
 .slide-content img {
     max-width: 100%;
     max-height: 60vh;
     object-fit: contain;
-    margin: 0 auto;
+    margin: 1em auto;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
+.slide-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 1.2rem;
+}
+
+.slide-content th,
+.slide-content td {
+    padding: 0.75em 1em;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.slide-content th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+}
+
+/* Math blocks */
+.slide-content .katex-block {
+    margin: 1.5em 0;
+    font-size: 1.3em;
+}
+
+/* Mermaid diagrams */
+.slide-content .mermaid-placeholder,
+.slide-content .mermaid-rendered {
+    display: flex;
+    justify-content: center;
+    margin: 2em 0;
+    padding: 1em;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.slide-content .mermaid-loading {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.slide-content .mermaid-rendered svg {
+    max-width: 100%;
+    max-height: 50vh;
+}
+
+/* Navigation hints */
+.nav-hint {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease, background 0.2s ease;
+    z-index: 10;
+}
+
+.nav-hint.visible.active {
+    opacity: 0.3;
+}
+
+.nav-hint:hover {
+    opacity: 1 !important;
+    background: rgba(var(--primary-rgb, 0, 123, 255), 0.1);
+}
+
+.nav-hint-left {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.nav-hint-right {
+    right: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+.nav-hint svg {
+    width: 32px;
+    height: 32px;
+    color: var(--primary);
+}
+
+/* Controls bar */
 .presentation-controls {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 8px;
-    backdrop-filter: blur(4px);
+    background: var(--bg-secondary);
+    padding: 10px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 20;
+}
+
+.presentation-controls.visible {
+    opacity: 1;
 }
 
 .presentation-controls button {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
+    border: none;
+    color: var(--text-primary);
+    padding: 8px;
+    border-radius: 8px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.presentation-controls button:hover:not(:disabled) {
+    background: var(--primary-light);
+    color: var(--primary);
 }
 
 .presentation-controls button:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
-.presentation-controls span {
-    color: white;
-    font-variant-numeric: tabular-nums;
+.presentation-controls button svg {
+    width: 20px;
+    height: 20px;
 }
 
+.presentation-controls .exit-btn:hover {
+    background: rgba(255, 77, 79, 0.1);
+    color: #ff4d4f;
+}
+
+.controls-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    margin: 0 4px;
+}
+
+/* Slide dots */
+.slide-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.slide-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-color);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.slide-dot:hover {
+    background: var(--text-secondary);
+    transform: scale(1.2);
+}
+
+.slide-dot.active {
+    background: var(--primary);
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Progress bar */
 .progress-bar {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 4px;
-    background: var(--accent-color);
+    right: 0;
+    height: 3px;
+    background: var(--border-color);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
     transition: width 0.3s ease;
+}
+
+/* Keyboard hints */
+.keyboard-hints {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.keyboard-hints.visible {
+    opacity: 0.6;
+}
+
+.keyboard-hints span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.keyboard-hints kbd {
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.85em;
+    border: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .slide-wrapper {
+        padding: 40px 24px;
+    }
+
+    .slide-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .slide-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .slide-content p,
+    .slide-content ul,
+    .slide-content ol {
+        font-size: 1.1rem;
+    }
+
+    .nav-hint {
+        display: none;
+    }
+
+    .keyboard-hints {
+        display: none;
+    }
+
+    .presentation-controls {
+        bottom: 16px;
+        padding: 8px 12px;
+    }
 }

@@ -148,6 +148,59 @@
     white-space: pre-wrap;
 }
 
+/* Features Markdown List */
+.help-features-section {
+    padding-bottom: 40px;
+}
+
+.features-markdown h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--primary);
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.features-markdown h3:not(:first-child) {
+    margin-top: 28px;
+}
+
+.features-markdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+}
+
+.features-markdown li {
+    padding: 6px 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.features-markdown li::before {
+    content: '•';
+    color: var(--primary);
+    font-weight: bold;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.features-markdown li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.features-markdown .feature-desc {
+    color: var(--text-secondary);
+}
+
+/* Legacy card styles - kept for backward compatibility */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
