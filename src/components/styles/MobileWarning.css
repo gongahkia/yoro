@@ -1,0 +1,137 @@
+.mobile-warning-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: mobileWarningFadeIn 0.4s ease-out;
+}
+
+@keyframes mobileWarningFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.mobile-warning-content {
+    max-width: 400px;
+    text-align: center;
+    animation: mobileWarningSlideUp 0.5s ease-out;
+}
+
+@keyframes mobileWarningSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-warning-icon {
+    color: var(--primary);
+    margin-bottom: 24px;
+    animation: mobileWarningPulse 2s ease-in-out infinite;
+}
+
+@keyframes mobileWarningPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.mobile-warning-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+    letter-spacing: -0.02em;
+}
+
+.mobile-warning-message {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.mobile-warning-message strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.mobile-warning-submessage {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+.mobile-warning-features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.mobile-warning-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.feature-icon {
+    font-size: 1.25rem;
+    width: 28px;
+    text-align: center;
+}
+
+.mobile-warning-dismiss {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 16px;
+}
+
+.mobile-warning-dismiss:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.mobile-warning-dismiss:active {
+    transform: scale(0.98);
+}
+
+.mobile-warning-note {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    opacity: 0.8;
+}

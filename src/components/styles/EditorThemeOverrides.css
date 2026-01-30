@@ -3,18 +3,63 @@
     color: var(--primary);
     text-decoration: none;
     cursor: pointer;
+    background: linear-gradient(to bottom, transparent 60%, var(--primary-light) 60%);
+    background-size: 100% 200%;
+    background-position: 0 0;
+    padding: 0 2px;
+    border-radius: 3px;
+    transition: background-position 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cm-wikilink:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    background-position: 0 100%;
+    box-shadow: 0 1px 0 0 var(--primary);
+}
+
+.cm-wikilink::before {
+    content: '[[';
+    opacity: 0.4;
+    font-size: 0.85em;
+    margin-right: 1px;
+}
+
+.cm-wikilink::after {
+    content: ']]';
+    opacity: 0.4;
+    font-size: 0.85em;
+    margin-left: 1px;
 }
 
 /* Standard Markdown Links */
 .cm-md-link {
     cursor: pointer;
-    /* Optional: subtle hint it's interactive */
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    color: var(--primary);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.cm-md-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.cm-md-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.cm-md-link:hover {
+    color: var(--primary);
 }
 
 /* Styling for inline code when backticks are hidden */
@@ -326,34 +371,128 @@
 
 /* Cursor Micro-Animations */
 
-/* Subtle blink animation */
+/* Base cursor styling for smooth transitions */
+.cm-cursor {
+    transition: opacity 0.1s ease;
+}
+
+/* Subtle blink animation - smooth fade */
 [data-cursor-animation="subtle"] .cm-cursor {
-    animation: subtleBlink 1.2s ease-in-out infinite;
+    animation: subtleBlink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes subtleBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%, 100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    40% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scaleY(0.95);
+    }
+    60% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
 }
 
-/* No animation - standard cursor */
+/* No animation - smooth steady cursor with subtle presence */
 [data-cursor-animation="none"] .cm-cursor {
     animation: none;
+    opacity: 1;
 }
 
-/* Particles mode - enhanced cursor glow */
+/* Particles mode - enhanced cursor glow with typing ripple effect */
 [data-cursor-animation="particles"] .cm-cursor {
-    animation: particleGlow 0.8s ease-in-out infinite;
-    box-shadow: 0 0 4px 1px var(--primary);
+    animation: particleGlow 1.5s ease-in-out infinite;
+    box-shadow:
+        0 0 4px 1px var(--primary),
+        0 0 8px 2px rgba(var(--primary-rgb, 0, 123, 255), 0.3);
+    border-radius: 1px;
+}
+
+[data-cursor-animation="particles"] .cm-cursor::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 20px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+    opacity: 0;
+    animation: cursorAura 1.5s ease-in-out infinite;
+    pointer-events: none;
 }
 
 @keyframes particleGlow {
     0%, 100% {
         opacity: 1;
-        box-shadow: 0 0 4px 1px var(--primary);
+        box-shadow:
+            0 0 4px 1px var(--primary),
+            0 0 8px 2px rgba(var(--primary-rgb, 0, 123, 255), 0.2);
+        transform: scaleY(1);
+    }
+    25% {
+        box-shadow:
+            0 0 6px 2px var(--primary),
+            0 0 12px 4px rgba(var(--primary-rgb, 0, 123, 255), 0.3);
     }
     50% {
-        opacity: 0.7;
-        box-shadow: 0 0 8px 2px var(--primary), 0 0 12px 4px var(--primary-light);
+        opacity: 0.85;
+        box-shadow:
+            0 0 8px 3px var(--primary),
+            0 0 16px 6px rgba(var(--primary-rgb, 0, 123, 255), 0.2),
+            0 0 24px 8px rgba(var(--primary-rgb, 0, 123, 255), 0.1);
+        transform: scaleY(1.02);
+    }
+    75% {
+        box-shadow:
+            0 0 6px 2px var(--primary),
+            0 0 12px 4px rgba(var(--primary-rgb, 0, 123, 255), 0.3);
+    }
+}
+
+@keyframes cursorAura {
+    0%, 100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+    }
+    50% {
+        opacity: 0.15;
+        transform: translateX(-50%) scale(1.2);
+    }
+}
+
+/* Typing animation enhancement - cursor trail effect on keystroke */
+[data-cursor-animation="particles"] .cm-cursor.cm-cursor-primary {
+    position: relative;
+}
+
+/* Focus indicator for cursor when editor is focused */
+.cm-editor.cm-focused [data-cursor-animation="subtle"] .cm-cursor,
+.cm-editor.cm-focused [data-cursor-animation="particles"] .cm-cursor {
+    border-left-width: 2px !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .cm-cursor {
+        animation: none !important;
+    }
+
+    [data-cursor-animation="subtle"] .cm-cursor,
+    [data-cursor-animation="particles"] .cm-cursor {
+        animation: simpleBlink 1.2s step-end infinite !important;
+        box-shadow: none !important;
+    }
+
+    @keyframes simpleBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
     }
 }

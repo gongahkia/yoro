@@ -1,19 +1,9 @@
-Change the 2d view to instead of being the current rotating 2d circle view, make the 2d view like a folder of files that literally is sorted by file drawer, when a file is hovered over make it emerge and raise up. also have it so that when the user scrolls there is an intersting interaction with the 2d animation as possible.
-Have the web app detect whether a user is accessing the web app via mobile or computer and if mobile, dissuade them from using it since its meant to be a desktop browser text editorq
-Tweak/modify/remove how current parametrized commands are done, I don't like its current implementation being this way
-Clarify/tweak what focus mode or zen mode currently does
-Fix normal cursor drag and pull highlighting AND visual mode highlighting in vim mode where the highlighted selection isn't shown at all
-
 Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
 Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
 Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
-Test the Config.toml Rework to see if it is functioning
-Test the newly added Parameterized Commands to see if it is functioning (theme, font family, notes, export as md, export as pdf)
-Test the refactored sidebar in the editor block
 Test the newly added help manual
 Test the knowledge graph
-Test the emacs keybindings and whether they conflict with the vim keybindings
 Test the newly added export to PDF/DOCx feature
 Test the smart list continuation
 Test the breadcrumb navigation

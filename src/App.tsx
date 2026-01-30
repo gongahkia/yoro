@@ -27,6 +27,7 @@ import { ToastContainer, showToast } from './components/Toast';
 import { HelpManual } from './components/HelpManual';
 import { KnowledgeGraph } from './components/KnowledgeGraph';
 import { BacklinksPanel } from './components/BacklinksPanel';
+import { MobileWarning } from './components/MobileWarning';
 import { exportToPDF, exportToDOCX } from './utils/exportUtils';
 import './App.css';
 
@@ -271,6 +272,7 @@ function App() {
             };
         });
         analytics.track('create_note');
+        showToast('New note created', 'success');
         navigate(`/note/${newId}`);
     }, [navigate]);
 
@@ -295,6 +297,7 @@ function App() {
                 notes: [newNote, ...prev.notes]
             }));
             analytics.track('duplicate_note');
+            showToast(`Duplicated "${noteToDuplicate.title || 'Untitled'}"`, 'success');
         }
     }, [data.notes]);
 
@@ -337,6 +340,7 @@ function App() {
                 notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: Date.now() } : n)
             }));
             analytics.track('move_to_bin');
+            showToast(`"${note.title || 'Untitled'}" moved to bin`, 'info');
 
             // If moved current note to bin, go home
             if (getCurrentNoteId() === id) {
@@ -347,12 +351,14 @@ function App() {
 
     const handleRestoreNote = useCallback((id: string, e?: React.MouseEvent) => {
         e?.stopPropagation();
+        const note = data.notes.find(n => n.id === id);
         setData(prev => ({
             ...prev,
             notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: undefined } : n)
         }));
         analytics.track('restore_note');
-    }, []);
+        showToast(`"${note?.title || 'Untitled'}" restored`, 'success');
+    }, [data.notes]);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -603,6 +609,7 @@ function App() {
                     vimMode: newVimMode,
                     emacsMode: newVimMode ? false : data.preferences.emacsMode
                 });
+                showToast(`Vim mode ${newVimMode ? 'enabled' : 'disabled'}`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -616,6 +623,7 @@ function App() {
                     emacsMode: newEmacsMode,
                     vimMode: newEmacsMode ? false : data.preferences.vimMode
                 });
+                showToast(`Emacs mode ${newEmacsMode ? 'enabled' : 'disabled'}`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -646,7 +654,11 @@ function App() {
         {
             id: 'toggle-focus-mode',
             label: 'Toggle Focus Mode',
-            action: () => handleUpdatePreferences({ focusMode: !data.preferences.focusMode }),
+            action: () => {
+                const newFocusMode = !data.preferences.focusMode;
+                handleUpdatePreferences({ focusMode: newFocusMode });
+                showToast(`Focus mode ${newFocusMode ? 'enabled' : 'disabled'}`, 'info');
+            },
             category: 'View',
             groupId: 'view-settings'
         },
@@ -688,6 +700,7 @@ function App() {
                     current === 'none' ? 'subtle' :
                     current === 'subtle' ? 'particles' : 'none';
                 handleUpdatePreferences({ cursorAnimations: next });
+                showToast(`Cursor animation: ${next}`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -946,6 +959,7 @@ function App() {
             id: 'export-all',
             label: 'Export All Notes (ZIP)',
             action: async () => {
+                showToast('Preparing export...', 'info');
                 const zip = new JSZip();
                 data.notes.forEach(note => {
                     const filename = `${note.title || 'Untitled'}-${note.id.slice(0, 6)}.md`;
@@ -958,6 +972,7 @@ function App() {
                 a.download = `yoro-export-${new Date().toISOString().slice(0, 10)}.zip`;
                 a.click();
                 URL.revokeObjectURL(url);
+                showToast(`Exported ${data.notes.length} notes`, 'success');
             },
             category: 'Export'
         },
@@ -997,6 +1012,7 @@ function App() {
                         a.download = `${note.title || 'untitled'}.md`;
                         a.click();
                         URL.revokeObjectURL(url);
+                        showToast('Markdown exported', 'success');
                     }
                 },
                 category: 'Export',
@@ -1258,12 +1274,14 @@ function App() {
     const handleConfirmDelete = () => {
         if (deleteConfirmation.noteId) {
             const id = deleteConfirmation.noteId;
+            const note = data.notes.find(n => n.id === id);
             // Permanent delete
             setData(prev => ({
                 ...prev,
                 notes: prev.notes.filter(n => n.id !== id)
             }));
             analytics.track('delete_note_permanent');
+            showToast(`"${note?.title || 'Untitled'}" permanently deleted`, 'info');
 
             // If we deleted the current note, navigate home
             if (getCurrentNoteId() === id) {
@@ -1292,6 +1310,7 @@ function App() {
 
     return (
         <div className="app-container">
+            <MobileWarning />
             <Routes>
                 <Route path="/" element={
                     <NoteList

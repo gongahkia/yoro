@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import './styles/Toast.css';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface Toast {
     id: string;
@@ -68,6 +68,7 @@ export const ToastContainer: React.FC = () => {
                         {toast.type === 'success' && '✓'}
                         {toast.type === 'error' && '✕'}
                         {toast.type === 'info' && 'i'}
+                        {toast.type === 'warning' && '!'}
                     </span>
                     <span className="toast-message">{toast.message}</span>
                 </div>
