@@ -1,8 +1,9 @@
-Remove the right-click context menu entirely
+Remove the right-click to open context menu entirely, i don't need it anymore
 Remove the table column resize feature entirely
-On the knowledge graph when 2 documents are linked also have a litereal line connection going between them
+On the knowledge graph when 2 or more documents are linked also have a litereal line connection going between them instead of just placing them near each other
 For the outline (displayed when users click toggle outline in command palette), just remove the cross button entirely and have users toggle it on and off via the command palette
 Fix the broken PDF export which always exports a blank page and doesn't seem to export the actual content rendered on the page (i wnat this to essentially export what i would see if i directly ctrl + p print page on the current note)
-Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown
+Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown, i want it to render the diagrams in their rich display not as mermaid code and same goes for italics, bolded and stylised markdown text
 Add syntax highlighting to code blocks (aligns with the current color theme) when users are in presentation modeq
-Update the help manual
+Add a command palette command called "About Yoro" that will say "Made with <heart_icon> by Gabriel Ong" and "Source code here" where Gabriel Ong directs to gabrielongzm.com and here directs to https://github.com/gongahkia/yoro"q
+Update the help manual to have all the updated synatx and availabel commands per the latest build of Yoro
