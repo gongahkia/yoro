@@ -7,7 +7,9 @@
 
 ## Stack
 
-...
+* *Frontend*: ...
+* *Diagram*: ...
+* ...
 
 ## Screenshots
 
@@ -33,7 +35,21 @@
 
 ## Usage
 
-...
+The easiest way to access `Yoro` is through the ***live link at [yoro-psi.vercel.app](https://yoro-psi.vercel.app/)***.
+
+Alternatively, if you are so inclined, `Yoro` can be run locally with the following instructions.
+
+1. 
+
+```console
+
+```
+
+2. 
+
+```console
+
+```
 
 ## Features
 
