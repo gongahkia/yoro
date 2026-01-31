@@ -138,6 +138,7 @@ function App() {
     const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
     const [isOutlineOpen, setIsOutlineOpen] = useState(false);
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
+    const [hasExited, setHasExited] = useState(false);
     const [similarNotesState, setSimilarNotesState] = useState<{ isOpen: boolean; results: SearchResult[] }>({ isOpen: false, results: [] });
     const [lightboxState, setLightboxState] = useState<{ isOpen: boolean; src: string | null; alt?: string }>({ isOpen: false, src: null });
 
@@ -442,7 +443,7 @@ function App() {
                 } catch (e) {
                     // Ignore errors if close fails
                 }
-                showToast('All data saved. It is safe to close this tab now.', 'success');
+                setHasExited(true);
             },
             category: 'General'
         },
@@ -1390,6 +1391,41 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
             };
         });
     };
+
+    if (hasExited) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                backgroundColor: 'var(--bg-color)',
+                color: 'var(--text-color)',
+                fontFamily: 'var(--editor-font-family)',
+                zIndex: 9999
+            }}>
+                <h1 style={{ marginBottom: '1rem' }}>Safe to Close</h1>
+                <p style={{ marginBottom: '0.5rem', opacity: 0.8 }}>All data has been saved successfully.</p>
+                <p style={{ marginBottom: '2rem', opacity: 0.8 }}>You can now safely close this window.</p>
+                <button
+                    onClick={() => setHasExited(false)}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        backgroundColor: 'var(--item-hover-bg)',
+                        color: 'var(--text-color)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        fontFamily: 'inherit'
+                    }}
+                >
+                    Return to App
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="app-container">
