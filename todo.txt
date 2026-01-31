@@ -3,10 +3,6 @@ Debug the broken flowchart to prevent malformed mermaid from being inserted to b
 Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
 Test the knowledge graph
-Test the smart list continuation
-Test the breadcrumb navigation
-Test the live document stats in footer
-Test the smart heading auto level
 Test the wikilink hover preview
 Test the pulsing brackets that match
 Test the enhanced focus mode with blur
