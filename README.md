@@ -11,6 +11,10 @@
 * *Diagram*: ...
 * ...
 
+## Features
+
+...
+
 ## Screenshots
 
 <div align="center">
@@ -39,21 +43,18 @@ The easiest way to access `Yoro` is through the ***live link at [yoro-psi.vercel
 
 Alternatively, if you are so inclined, `Yoro` can be run locally with the following instructions.
 
-1. 
+1. First execute the below instructions to clone `Yoro` on your client machine and install dependancies.
 
 ```console
-
+$ git clone https://github.com/gongahkia/yoro && cd yoro
+$ npm install
 ```
 
-2. 
+2. Then run the below to build `Yoro` in development mode.
 
 ```console
-
+$ npm run dev
 ```
-
-## Features
-
-...
 
 ## Architecture
 
