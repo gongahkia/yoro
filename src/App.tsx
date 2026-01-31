@@ -436,7 +436,23 @@ function App() {
             id: 'exit-app',
             label: 'Exit',
             action: () => {
-                window.close();
+                // Attempt 1: Standard close
+                try {
+                    window.close();
+                } catch (e) { console.error(e); }
+
+                // Attempt 2: Hack for some browsers
+                try {
+                    window.open('', '_self');
+                    window.close();
+                } catch (e) { console.error(e); }
+
+                // Attempt 3: If we are still here, the browser blocked close.
+                // We simulate an exit by navigating to a blank page or closing the document body.
+                // This stops the app "seamlessly" from the user's perspective.
+                document.body.innerHTML = '';
+                document.title = 'Exited';
+                window.location.href = "about:blank";
             },
             category: 'General'
         },
