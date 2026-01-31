@@ -58,7 +58,9 @@ $ npm run dev
 
 ## Architecture
 
-![](./asset/reference/architecture/architecture.png)
+```mermaid
+
+```
 
 ## Reference
 
