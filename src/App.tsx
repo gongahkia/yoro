@@ -433,35 +433,6 @@ function App() {
             category: 'General'
         },
         {
-            id: 'exit-app',
-            label: 'Exit',
-            action: () => {
-                // Attempt 1: Standard close
-                try {
-                    window.close();
-                } catch (e) { console.error(e); }
-
-                // Attempt 2: Hack for some browsers
-                try {
-                    window.open('', '_self');
-                    window.close();
-                } catch (e) { console.error(e); }
-
-                // Attempt 3: Overwrite document with self-closing script
-                // This clears the app state instantly and tries one last time to close
-                try {
-                    document.body.innerHTML = '';
-                    document.title = 'Exited';
-                    document.write('<script>window.open("","_self");window.close();</script>');
-                    document.close();
-                } catch (e) {
-                    // If even that fails, force blank
-                    window.location.href = "about:blank";
-                }
-            },
-            category: 'General'
-        },
-        {
             id: 'open-help',
             label: 'Open Help Manual',
             action: () => setIsHelpOpen(true),
