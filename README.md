@@ -3,17 +3,16 @@
 
 # `Yoro`
 
-...
+[No-nonsense](https://dictionary.cambridge.org/dictionary/english/no-nonsense), [privacy-first](https://www.thoughtworks.com/en-sg/insights/decoder/p/privacy-first) Text Editor Web App with a usable [out-of-the-box](https://en.wikipedia.org/wiki/Out_of_the_Box) [config](#screenshots).
 
 ## Stack
 
-* *Frontend*: ...
-* *Diagram*: ...
-* ...
-
-## Features
-
-...
+* *Frontend*: [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/)
+* *Editor*: [CodeMirror](https://codemirror.net/) 
+* *Visualization*: [React Flow](https://reactflow.dev/), [Mermaid](https://mermaid.js.org/), [Dagre](https://github.com/dagrejs/dagre) 
+* *Math & Data*:[KaTeX](https://katex.org/), [smol-toml](https://github.com/squirrelchat/smol-toml), [gemoji](https://github.com/github/gemoji)
+* *Storage*: [localStorage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) 
+* *Export*: [html2pdf.js](https://ekoopmans.github.io/html2pdf.js/), [docx.js](https://docx.js.org/#/), [jszip](https://stuk.github.io/jszip/)
 
 ## Screenshots
 
@@ -63,7 +62,58 @@ $ npm run dev
 ## Architecture
 
 ```mermaid
-
+graph TD
+    User((User))
+    
+    subgraph Client [Client Side Application]
+        Router[React Router]
+        Store[Storage Utils]
+        
+        subgraph Views [Views]
+            Home[Note List / Home]
+            Edit[Editor View]
+            Mind[Mind Map View]
+            Pres[Presentation Mode]
+        end
+        
+        subgraph EditorEngine [Editor Engine]
+            CM[CodeMirror 6]
+            Ext[Extensions]
+            Vim[Vim/Emacs Adapter]
+        end
+        
+        subgraph Visualizers [Visualizers]
+            KG[Knowledge Graph]
+            MM[React Flow MindMap]
+            Merm[Mermaid Renderer]
+        end
+        
+        subgraph Tools [Tools]
+            CP[Command Palette]
+            QC[Quick Capture]
+            Stats[Doc Stats]
+        end
+    end
+    
+    User -->|Interacts| Router
+    User -->|Cmd+K| CP
+    User -->|Cmd+Shift+I| QC
+    
+    Router --> Home
+    Router --> Edit
+    Router --> Mind
+    Router --> Pres
+    
+    Edit --> CM
+    CM --> Ext
+    CM --> Vim
+    
+    Edit --> KG
+    Mind --> MM
+    Edit --> Merm
+    
+    Views -->|Persist| Store
+    Store -->|LocalStorage| BrowserDB[(Browser Storage)]
 ```
 
 ## Reference
