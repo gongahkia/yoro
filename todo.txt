@@ -1,7 +1,8 @@
-Remove the right-click context menu
-Remove the table column resize feature
+Remove the right-click context menu entirely
+Remove the table column resize feature entirely
+On the knowledge graph when 2 documents are linked also have a litereal line connection going between them
 For the outline (displayed when users click toggle outline in command palette), just remove the cross button entirely and have users toggle it on and off via the command palette
 Fix the broken PDF export which always exports a blank page and doesn't seem to export the actual content rendered on the page (i wnat this to essentially export what i would see if i directly ctrl + p print page on the current note)
 Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown
-Update the help manual
 Add syntax highlighting to code blocks (aligns with the current color theme) when users are in presentation modeq
+Update the help manual
