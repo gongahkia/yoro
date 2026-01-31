@@ -1,33 +1,7 @@
-Test all mermaid diagram rendering syntax actually works for all types without errors (flowchart, mindmap, state diagram)
-Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
-Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
-
-Test the knowledge graph
-Test the wikilink hover preview
-Test the pulsing brackets that match
-Test the enhanced focus mode with blur
-Test the smooth theme transitions
-Test the cursor micro-animations
-Test the find and replace panel
-Test the reading position memory
-Test the multi-cursor editing
-Test the code block enhancements
-Test the Drag-and-Drop List Reordering
-Test the Folding for Headings/Code Blocks
-Test the Backlinks Panel
-Test the Smart Paste Options
-Test the Markdown Template Insertion
-Test the Note Linking Suggestions
-Test the Quick Capture / Inbox
-Test the Smooth Scroll on Navigation
-Test the Context Menu (Right-Click)
-Test the Image Zoom on Click
-Test the Table Column Resize
-Test the Callout Type Autocomplete
-Test the Outline/Table of Contents Panel
-Test the Note Sorting Options
-
-Fix the broken PDF export which always exports a blank page
+Remove the right-click context menu
+Remove the table column resize feature
+For the outline (displayed when users click toggle outline in command palette), just remove the cross button entirely and have users toggle it on and off via the command palette
+Fix the broken PDF export which always exports a blank page and doesn't seem to export the actual content rendered on the page (i wnat this to essentially export what i would see if i directly ctrl + p print page on the current note)
 Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown
 Update the help manual
 Add syntax highlighting to code blocks (aligns with the current color theme) when users are in presentation modeq
