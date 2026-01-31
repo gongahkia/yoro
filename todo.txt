@@ -30,8 +30,6 @@ Test the Table Column Resize
 Test the Callout Type Autocomplete
 Test the Outline/Table of Contents Panel
 Test the Note Sorting Options
-Test the Export with Frontmatter Options
-Test the Print Stylesheet
 
 Fix the broken PDF export which always exports a blank page
 Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown

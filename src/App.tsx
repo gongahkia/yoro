@@ -437,7 +437,12 @@ function App() {
             label: 'Exit',
             action: () => {
                 storage.set(data);
-                window.close();
+                try {
+                    window.close();
+                } catch (e) {
+                    // Ignore errors if close fails
+                }
+                showToast('All data saved. It is safe to close this tab now.', 'success');
             },
             category: 'General'
         },
