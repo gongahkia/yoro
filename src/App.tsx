@@ -10,11 +10,9 @@ import type { AppState, Note } from './types';
 import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
-import { SimilarNotesModal } from './components/SimilarNotesModal';
 import { OutlinePanel } from './components/OutlinePanel';
 import { ImageLightbox } from './components/ImageLightbox';
 import { PresentationMode } from './components/PresentationMode';
-import { findSimilarNotes, type SearchResult } from './utils/similarity';
 
 import { NoteList } from './components/NoteList';
 import { Editor } from './components/Editor';
@@ -139,7 +137,6 @@ function App() {
     const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
     const [isOutlineOpen, setIsOutlineOpen] = useState(false);
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
-    const [similarNotesState, setSimilarNotesState] = useState<{ isOpen: boolean; results: SearchResult[] }>({ isOpen: false, results: [] });
     const [lightboxState, setLightboxState] = useState<{ isOpen: boolean; src: string | null; alt?: string }>({ isOpen: false, src: null });
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -1169,20 +1166,6 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                             groupId: 'editor-settings',
                             shortcut: 'Cmd+h'
                         },
-                        {
-                            id: 'find-similar',
-                            label: 'Show Similar Notes',
-                            action: () => {
-                                const id = getCurrentNoteId();
-                                const note = data.notes.find(n => n.id === id);
-                                if (note) {
-                                    const results = findSimilarNotes(note, data.notes);
-                                    setSimilarNotesState({ isOpen: true, results });
-                                }
-                            },
-                            category: 'Note',
-                            context: 'editor' as const
-                        },
                         // Editor Insert Commands
                         {
                             id: 'insert-table',
@@ -1510,18 +1493,6 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                 isOpen={isQuickCaptureOpen}
                 onClose={() => setIsQuickCaptureOpen(false)}
                 onCapture={handleQuickCapture}
-            />
-
-            <SimilarNotesModal
-                isOpen={similarNotesState.isOpen}
-                onClose={() => setSimilarNotesState(prev => ({ ...prev, isOpen: false }))}
-                results={similarNotesState.results}
-                onLink={(note) => {
-                    window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { 
-                        detail: { command: 'insert-text', text: `[[${note.title || 'Untitled'}]]` } 
-                    }));
-                    setSimilarNotesState(prev => ({ ...prev, isOpen: false }));
-                }}
             />
 
             {isKnowledgeGraphOpen && (

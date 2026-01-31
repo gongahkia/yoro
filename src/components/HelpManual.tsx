@@ -107,7 +107,6 @@ const featuresMarkdown = `
 - **Wikilinks** — Link notes with [[Note Title]] syntax
 - **Backlinks** — See all notes that reference the current note
 - **Knowledge Graph** — Interactive visualization with line connections between linked notes
-- **Similar Notes** — Discover related content automatically
 - **Outline Panel** — Navigate headings via command palette (Toggle Outline)
 
 ## Rich Content
