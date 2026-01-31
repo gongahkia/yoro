@@ -10,6 +10,7 @@ import {
     useEdgesState,
     useReactFlow,
     Position,
+    MarkerType,
     type Node,
     type Edge
 } from '@xyflow/react';
@@ -392,9 +393,10 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
                             id: edgeId,
                             source: note.id,
                             target: targetNote.id,
-                            type: 'smoothstep',
+                            type: 'default',
                             animated: false,
-                            style: { stroke: 'var(--primary)', strokeWidth: 2 },
+                            style: { stroke: 'var(--primary)', strokeWidth: 3, strokeLinecap: 'round' },
+                            markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--primary)', width: 20, height: 20 },
                         });
                         linkCounts.set(note.id, (linkCounts.get(note.id) || 0) + 1);
                         linkCounts.set(targetNote.id, (linkCounts.get(targetNote.id) || 0) + 1);

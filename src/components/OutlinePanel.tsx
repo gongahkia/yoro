@@ -3,7 +3,6 @@ import './styles/OutlinePanel.css';
 
 interface OutlinePanelProps {
     isOpen: boolean;
-    onClose: () => void;
     content: string;
     noteId: string;
 }
@@ -32,7 +31,7 @@ function parseHeadings(content: string): Heading[] {
     return headings;
 }
 
-export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, onClose, content, noteId }) => {
+export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, content, noteId }) => {
     const headings = useMemo(() => parseHeadings(content), [content]);
 
     const handleClick = (lineNumber: number) => {
@@ -47,7 +46,6 @@ export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, onClose, con
         <div className="outline-panel">
             <div className="outline-header">
                 <h3>Outline</h3>
-                <button className="close-button" onClick={onClose}>&times;</button>
             </div>
             <div className="outline-body">
                 {headings.length === 0 ? (

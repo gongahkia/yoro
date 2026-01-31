@@ -97,3 +97,95 @@
     margin: 2cm;
   }
 }
+
+/* About Yoro Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.about-modal {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    max-width: 400px;
+    width: 90%;
+    overflow: hidden;
+}
+
+.about-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.about-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.about-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.about-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.about-content {
+    padding: 24px 20px;
+    text-align: center;
+}
+
+.about-tagline {
+    font-size: 1.1rem;
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+}
+
+.about-tagline .heart-icon {
+    color: #e25555;
+    display: inline-block;
+    animation: heartbeat 1.5s ease infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.about-source {
+    font-size: 0.95rem;
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.about-content a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.about-content a:hover {
+    text-decoration: underline;
+}

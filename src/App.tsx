@@ -133,6 +133,7 @@ function App() {
     });
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
+    const [isAboutOpen, setIsAboutOpen] = useState(false);
     const [isKnowledgeGraphOpen, setIsKnowledgeGraphOpen] = useState(false);
     const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
     const [isBacklinksPanelOpen, setIsBacklinksPanelOpen] = useState(false);
@@ -436,6 +437,12 @@ function App() {
             id: 'open-help',
             label: 'Open Help Manual',
             action: () => setIsHelpOpen(true),
+            category: 'General'
+        },
+        {
+            id: 'about-yoro',
+            label: 'About Yoro',
+            action: () => setIsAboutOpen(true),
             category: 'General'
         },
         {
@@ -1473,6 +1480,32 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                 emacsMode={data.preferences.emacsMode}
             />
 
+            {/* About Yoro Modal */}
+            {isAboutOpen && (
+                <div className="modal-overlay" onClick={() => setIsAboutOpen(false)}>
+                    <div className="about-modal" onClick={e => e.stopPropagation()}>
+                        <div className="about-header">
+                            <h2>About Yoro</h2>
+                            <button className="about-close-btn" onClick={() => setIsAboutOpen(false)}>&times;</button>
+                        </div>
+                        <div className="about-content">
+                            <p className="about-tagline">
+                                Made with <span className="heart-icon">❤️</span> by{' '}
+                                <a href="https://gabrielongzm.com" target="_blank" rel="noopener noreferrer">
+                                    Gabriel Ong
+                                </a>
+                            </p>
+                            <p className="about-source">
+                                Source code{' '}
+                                <a href="https://github.com/gongahkia/yoro" target="_blank" rel="noopener noreferrer">
+                                    here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <QuickCaptureModal
                 isOpen={isQuickCaptureOpen}
                 onClose={() => setIsQuickCaptureOpen(false)}
@@ -1515,7 +1548,6 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
 
             <OutlinePanel
                 isOpen={isOutlineOpen}
-                onClose={() => setIsOutlineOpen(false)}
                 content={data.notes.find(n => n.id === getCurrentNoteId())?.content || ''}
                 noteId={getCurrentNoteId() || ''}
             />

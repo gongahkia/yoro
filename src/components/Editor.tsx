@@ -38,7 +38,6 @@ import { markdownFolding } from '../extensions/markdown-folding';
 import { lineMoveExtension } from '../extensions/line-move';
 import { smartPaste } from '../extensions/smart-paste';
 import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
-import { ContextMenu } from './ContextMenu';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -370,7 +369,6 @@ stateDiagram-v2
                 onClose={onCloseFindReplace || (() => {})}
                 editorView={editorRef.current?.view || null}
             />
-            <ContextMenu view={editorRef.current?.view || null} />
             <div className="editor-content">
                 <input
                     type="text"

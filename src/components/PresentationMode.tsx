@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
 import katex from 'katex';
 import mermaid from 'mermaid';
+import hljs from 'highlight.js';
 import type { Note } from '../types';
 import './styles/PresentationMode.css';
 
@@ -13,6 +14,38 @@ interface PresentationModeProps {
 
 // Initialize mermaid
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+// Configure marked to use highlight.js for code blocks via extension
+marked.use({
+    renderer: {
+        code(token: { text: string; lang?: string }) {
+            const { text, lang } = token;
+
+            // Skip mermaid blocks - they're handled separately
+            if (lang === 'mermaid') {
+                return `<pre><code class="language-mermaid">${text}</code></pre>`;
+            }
+
+            let highlightedCode = text;
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    highlightedCode = hljs.highlight(text, { language: lang }).value;
+                } catch {
+                    // Fall through to auto-detect or plain text
+                }
+            } else if (text.trim()) {
+                try {
+                    highlightedCode = hljs.highlightAuto(text).value;
+                } catch {
+                    // Use plain text
+                }
+            }
+
+            const langClass = lang ? ` class="language-${lang}"` : '';
+            return `<pre><code${langClass}>${highlightedCode}</code></pre>`;
+        }
+    }
+});
 
 export const PresentationMode: React.FC<PresentationModeProps> = ({ notes, theme }) => {
     const { id } = useParams<{ id: string }>();

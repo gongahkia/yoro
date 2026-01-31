@@ -173,8 +173,6 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: var(--text-secondary);
-    resize: horizontal;
-    overflow: hidden;
     min-width: 80px;
     position: relative;
 }

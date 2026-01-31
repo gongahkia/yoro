@@ -7,6 +7,55 @@ import mermaid from 'mermaid';
 // Initialize mermaid for server-side rendering
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
+// Helper to convert KaTeX math to PNG for DOCX embedding
+async function mathToPngBlob(mathExpression: string, displayMode: boolean = false): Promise<Uint8Array | null> {
+    return new Promise((resolve) => {
+        try {
+            const html = katex.renderToString(mathExpression.trim(), { displayMode, throwOnError: false });
+
+            // Create a container with the rendered math
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.cssText = `
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+                font-size: ${displayMode ? '24px' : '16px'};
+                padding: 10px;
+                background: white;
+            `;
+            document.body.appendChild(container);
+
+            // Use html2canvas to capture the math
+            import('html2canvas').then(({ default: html2canvas }) => {
+                html2canvas(container, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                }).then(canvas => {
+                    document.body.removeChild(container);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            blob.arrayBuffer().then(buffer => {
+                                resolve(new Uint8Array(buffer));
+                            });
+                        } else {
+                            resolve(null);
+                        }
+                    }, 'image/png', 0.95);
+                }).catch(() => {
+                    document.body.removeChild(container);
+                    resolve(null);
+                });
+            }).catch(() => {
+                document.body.removeChild(container);
+                resolve(null);
+            });
+        } catch {
+            resolve(null);
+        }
+    });
+}
+
 // Helper to convert SVG to PNG for DOCX embedding
 async function svgToPngBlob(svgString: string, width = 600, height = 400): Promise<Uint8Array | null> {
     return new Promise((resolve) => {
@@ -239,24 +288,43 @@ export async function exportToPDF(content: string, title: string): Promise<void>
 
     const html = await renderMarkdownToHTML(content, title);
 
-    // Create container with proper visibility
-    const container = document.createElement('div');
-    container.innerHTML = html;
-    container.style.cssText = `
+    // Create an iframe for isolated rendering
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 800px;
-        max-width: 800px;
-        background: white;
+        height: 100vh;
+        border: none;
         z-index: -9999;
-        visibility: hidden;
-        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
     `;
-    document.body.appendChild(container);
+    document.body.appendChild(iframe);
+
+    // Write HTML to iframe
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) {
+        document.body.removeChild(iframe);
+        throw new Error('Could not access iframe document');
+    }
+
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    // Wait for iframe content to load
+    await new Promise<void>(resolve => {
+        if (iframeDoc.readyState === 'complete') {
+            resolve();
+        } else {
+            iframe.onload = () => resolve();
+        }
+    });
 
     // Wait for images and diagrams to load
-    const images = container.querySelectorAll('img');
+    const images = iframeDoc.querySelectorAll('img');
 
     await Promise.all([
         ...Array.from(images).map(img => new Promise<void>(resolve => {
@@ -266,18 +334,22 @@ export async function exportToPDF(content: string, title: string): Promise<void>
                 img.onerror = () => resolve();
             }
         })),
-        // Give SVGs time to fully render
-        new Promise(resolve => setTimeout(resolve, 500))
+        // Give SVGs and mermaid diagrams time to render
+        new Promise(resolve => setTimeout(resolve, 800))
     ]);
 
-    // Make container visible for rendering
-    container.style.visibility = 'visible';
+    // Get the body element from iframe for pdf conversion
+    const contentElement = iframeDoc.body;
 
-    // Wait a frame for layout
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    // Make iframe visible for rendering
+    iframe.style.opacity = '1';
+    iframe.style.zIndex = '9999';
+
+    // Wait for layout
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const options = {
-        margin: [15, 15, 15, 15] as [number, number, number, number],
+        margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: `${title || 'untitled'}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: {
@@ -285,9 +357,11 @@ export async function exportToPDF(content: string, title: string): Promise<void>
             useCORS: true,
             logging: false,
             backgroundColor: '#ffffff',
+            width: 800,
             windowWidth: 800,
             scrollX: 0,
             scrollY: 0,
+            foreignObjectRendering: true,
         },
         jsPDF: {
             unit: 'mm' as const,
@@ -298,9 +372,9 @@ export async function exportToPDF(content: string, title: string): Promise<void>
     };
 
     try {
-        await html2pdf().set(options).from(container).save();
+        await html2pdf().set(options).from(contentElement).save();
     } finally {
-        document.body.removeChild(container);
+        document.body.removeChild(iframe);
     }
 }
 
@@ -326,8 +400,21 @@ function parseMarkdownTable(text: string): { headers: string[]; rows: string[][]
 }
 
 export async function exportToDOCX(content: string, title: string): Promise<void> {
+    // Pre-process content to handle block math
+    let processedContent = content;
+
+    // Extract and process block math ($$...$$)
+    const blockMathMatches: { original: string; placeholder: string; math: string }[] = [];
+    let mathIndex = 0;
+    processedContent = processedContent.replace(/\$\$([^$]+)\$\$/g, (match, math) => {
+        const placeholder = `__BLOCK_MATH_${mathIndex}__`;
+        blockMathMatches.push({ original: match, placeholder, math: math.trim() });
+        mathIndex++;
+        return placeholder;
+    });
+
     // Parse markdown to simple structure
-    const lines = content.split('\n');
+    const lines = processedContent.split('\n');
     const children: (Paragraph | Table)[] = [];
 
     // Add title
@@ -472,6 +559,36 @@ export async function exportToDOCX(content: string, title: string): Promise<void
             finishTable();
         }
 
+        // Check for block math placeholder
+        const mathMatch = blockMathMatches.find(m => line.includes(m.placeholder));
+        if (mathMatch && line.trim() === mathMatch.placeholder) {
+            // Render math as image
+            const pngData = await mathToPngBlob(mathMatch.math, true);
+            if (pngData) {
+                children.push(new Paragraph({
+                    children: [new ImageRun({
+                        data: pngData,
+                        transformation: { width: 400, height: 100 },
+                        type: 'png',
+                    })],
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 200, after: 200 }
+                }));
+            } else {
+                // Fallback: show as formatted text
+                children.push(new Paragraph({
+                    children: [new TextRun({
+                        text: `[Math: ${mathMatch.math}]`,
+                        italics: true,
+                        color: '6A737D'
+                    })],
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 100, after: 100 }
+                }));
+            }
+            continue;
+        }
+
         // Process regular content
         if (line.startsWith('# ')) {
             children.push(new Paragraph({
@@ -571,8 +688,9 @@ export async function exportToDOCX(content: string, title: string): Promise<void
 function parseInlineFormatting(line: string): TextRun[] {
     const runs: TextRun[] = [];
 
-    // Combined regex for bold, italic, bold-italic, strikethrough, inline code, links
-    const regex = /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|~~(.+?)~~|`(.+?)`|\[([^\]]+)\]\(([^)]+)\))/g;
+    // Combined regex for bold, italic, bold-italic, strikethrough, inline code, links, and inline math
+    // Order matters: check bold-italic before bold before italic, and check $$ before $ (but $$ should be block math)
+    const regex = /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|~~(.+?)~~|`(.+?)`|\[([^\]]+)\]\(([^)]+)\)|\$([^$\n]+)\$|==(.+?)==)/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
@@ -607,6 +725,19 @@ function parseInlineFormatting(line: string): TextRun[] {
                 text: match[7],
                 color: '0366D6',
                 underline: { type: 'single' }
+            }));
+        } else if (match[9]) {
+            // Inline math $expression$
+            runs.push(new TextRun({
+                text: match[9],
+                italics: true,
+                font: 'Cambria Math'
+            }));
+        } else if (match[10]) {
+            // Highlighted text ==text==
+            runs.push(new TextRun({
+                text: match[10],
+                highlight: 'yellow'
             }));
         }
 

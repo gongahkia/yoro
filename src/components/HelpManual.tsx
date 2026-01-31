@@ -15,13 +15,16 @@ const keyboardShortcuts = {
         { keys: 'Cmd/Ctrl + Shift + P', description: 'Open command palette' },
         { keys: 'Cmd/Ctrl + Shift + I', description: 'Quick capture note' },
         { keys: 'Cmd/Ctrl + Click', description: 'Follow link (wikilink or URL)' },
+        { keys: 'Escape', description: 'Close modal / Exit focus' },
     ],
     editor: [
         { keys: 'Cmd/Ctrl + H', description: 'Find and replace' },
         { keys: 'Cmd/Ctrl + B', description: 'Bold text' },
         { keys: 'Cmd/Ctrl + I', description: 'Italic text' },
         { keys: 'Tab', description: 'Indent / Add child node (in visual editors)' },
+        { keys: 'Shift + Tab', description: 'Outdent' },
         { keys: 'Delete/Backspace', description: 'Remove selected node (in visual editors)' },
+        { keys: 'Alt + Up/Down', description: 'Move line up/down' },
     ],
     vim: [
         { keys: ':q', description: 'Return to home' },
@@ -60,11 +63,14 @@ const markdownSyntax = [
     { syntax: '### Heading 3', description: 'Third-level heading' },
     { syntax: '**bold**', description: 'Bold text' },
     { syntax: '*italic*', description: 'Italic text' },
+    { syntax: '***bold italic***', description: 'Bold and italic text' },
     { syntax: '~~strikethrough~~', description: 'Strikethrough text' },
     { syntax: '`code`', description: 'Inline code' },
     { syntax: '```lang\\ncode\\n```', description: 'Code block with syntax highlighting' },
+    { syntax: '```mermaid\\n...\\n```', description: 'Mermaid diagram (flowchart, etc.)' },
     { syntax: '[[Note Title]]', description: 'Wikilink to another note' },
     { syntax: '[text](url)', description: 'Hyperlink' },
+    { syntax: '![alt](url)', description: 'Image' },
     { syntax: '- item', description: 'Bullet list item' },
     { syntax: '1. item', description: 'Numbered list item' },
     { syntax: '- [ ] task', description: 'Task list item (unchecked)' },
@@ -73,6 +79,8 @@ const markdownSyntax = [
     { syntax: '> [!note]', description: 'Note callout' },
     { syntax: '> [!warning]', description: 'Warning callout' },
     { syntax: '> [!tip]', description: 'Tip callout' },
+    { syntax: '| Col1 | Col2 |', description: 'Table (header row)' },
+    { syntax: '|---|---|', description: 'Table (separator row)' },
     { syntax: '---', description: 'Horizontal rule' },
     { syntax: '$math$', description: 'Inline LaTeX math' },
     { syntax: '$$math$$', description: 'Block LaTeX math' },
@@ -93,13 +101,14 @@ const featuresMarkdown = `
 - **Multi-cursor** — Edit multiple lines simultaneously
 - **Smart Lists** — Auto-continue bullets, numbers, and checkboxes
 - **Line Wrapping** — Soft wrap or hard wrap at 80 columns
+- **Line Move** — Move lines up/down with Alt+Arrow keys
 
 ## Linking & Navigation
 - **Wikilinks** — Link notes with [[Note Title]] syntax
 - **Backlinks** — See all notes that reference the current note
-- **Knowledge Graph** — Interactive visualization of note connections
+- **Knowledge Graph** — Interactive visualization with line connections between linked notes
 - **Similar Notes** — Discover related content automatically
-- **Outline Panel** — Navigate headings in long documents
+- **Outline Panel** — Navigate headings via command palette (Toggle Outline)
 
 ## Rich Content
 - **Math (KaTeX)** — Inline $x^2$ and block $$\\sum_{i=1}^n$$ equations
@@ -110,6 +119,7 @@ const featuresMarkdown = `
 - **Code Blocks** — Fenced blocks with language-specific highlighting
 - **Images** — Inline preview with lightbox on click
 - **Footnotes** — Reference-style footnotes with hover preview
+- **Highlighting** — Use ==text== for highlighted text
 
 ## Organization
 - **Tags** — Organize with #tags, filter via command palette
@@ -119,8 +129,8 @@ const featuresMarkdown = `
 
 ## Capture & Export
 - **Quick Capture** — Cmd/Ctrl+Shift+I for instant note capture
-- **Presentation Mode** — Present notes as slides (headings = slides)
-- **Export** — Markdown, PDF (with diagrams), Word (.docx)
+- **Presentation Mode** — Present notes as slides with syntax highlighting (headings = slides)
+- **Export** — Markdown, PDF (with diagrams), Word (.docx) with proper formatting
 - **Share** — Compressed URL links for sharing notes
 - **ZIP Export** — Backup all notes at once
 
@@ -134,6 +144,17 @@ const featuresMarkdown = `
 - **Document Stats** — Word/character count and reading time
 - **Home View** — 2D or 3D carousel for note list
 - **config.toml** — All settings in one editable file
+
+## Command Palette
+Access all commands with Cmd/Ctrl+Shift+P:
+- **General** — Create note, help, about, config
+- **View** — Knowledge graph, backlinks, outline, presentation, focus mode
+- **Editor** — Vim/Emacs mode, line wrapping, document stats
+- **Font** — Family (Sans/Serif/Mono/Comic), size
+- **Theme** — 20+ color themes (light and dark variants)
+- **Sort** — By date, title (A-Z/Z-A)
+- **Export** — PDF, DOCX, Markdown, ZIP
+- **Navigation** — Go to note, go home, open bin
 `;
 
 export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode, emacsMode }) => {

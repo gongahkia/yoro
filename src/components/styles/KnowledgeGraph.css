@@ -382,9 +382,26 @@
     fill: currentColor;
 }
 
-/* Edge animation */
+/* Edge styling - make connections clearly visible */
 .react-flow__edge-path {
     stroke: var(--primary);
+    stroke-width: 3px;
+    stroke-linecap: round;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+    stroke-width: 4px;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+    stroke-dasharray: 5;
+    animation: edgeDash 0.5s linear infinite;
+}
+
+@keyframes edgeDash {
+    to {
+        stroke-dashoffset: -10;
+    }
 }
 
 /* Attribution hiding (if needed) */
