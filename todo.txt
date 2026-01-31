@@ -2,9 +2,7 @@ Test all mermaid diagram rendering syntax actually works for all types without e
 Debug the broken flowchart to prevent malformed mermaid from being inserted to begin with
 Debug the broken state diagram to prevent malformed mermaid from being inserted to begin with
 
-Test the newly added help manual
 Test the knowledge graph
-Test the newly added export to PDF/DOCx feature
 Test the smart list continuation
 Test the breadcrumb navigation
 Test the live document stats in footer
@@ -34,4 +32,8 @@ Test the Outline/Table of Contents Panel
 Test the Note Sorting Options
 Test the Export with Frontmatter Options
 Test the Print Stylesheet
-Test the Presentation Mode
+
+Fix the broken PDF export which always exports a blank page
+Fix the broken DOCX export which doesn't render latex, mermiad or anything as formatted text but intead as raw markdown
+Update the help manual
+Add syntax highlighting to code blocks (aligns with the current color theme) when users are in presentation modeq

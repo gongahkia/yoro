@@ -433,6 +433,15 @@ function App() {
             category: 'General'
         },
         {
+            id: 'exit-app',
+            label: 'Exit',
+            action: () => {
+                storage.set(data);
+                window.close();
+            },
+            category: 'General'
+        },
+        {
             id: 'open-help',
             label: 'Open Help Manual',
             action: () => setIsHelpOpen(true),
