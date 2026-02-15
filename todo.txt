@@ -1,0 +1,191 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# YORO AUDIT TODO — generated 2026-02-15
+# Priority: (A) = core vision/MVP/user-requested, (B) = audit-suggested improvement
+# Tags: +feature +refactor +security +infra +perf +a11y +theme +css +fix +logo +pwa
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─── USER-REQUESTED / CORE VISION (A) ────────────────────────────────────────
+
+(A) Create Yoro logo using Google Nanobanana tool and add generated assets to asset/logo/, public/ (favicon.ico, icon.svg, apple-touch-icon.png, icon-192.png, icon-512.png), and update index.html and vite.config.ts PWA manifest to reference them +logo +infra
+(A) Add Monokai theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Add Ayu theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Add One Light / One Dark theme pair with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Add Zenburn theme (dark only or light+dark) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Add Palenight theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Add Material theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
+(A) Streamline App.tsx by extracting the massive commands array into a dedicated src/commands/index.ts module that exports a factory function accepting the required callbacks and state +refactor
+(A) Streamline App.tsx by extracting theme command entries into a data-driven loop over the Theme type union instead of 22 individual command objects +refactor
+(A) Streamline NoteEditorWrapper into its own file src/components/NoteEditorWrapper.tsx to reduce App.tsx line count +refactor
+(A) Streamline config.toml template string in App.tsx into src/utils/configTemplate.ts as a pure function that accepts UserPreferences and returns TOML string +refactor
+(A) Streamline the About modal JSX in App.tsx into its own src/components/AboutModal.tsx component +refactor
+
+# ─── SECURITY (B) ─────────────────────────────────────────────────────────────
+
+(B) Install DOMPurify (npm i dompurify @types/dompurify) and sanitize all dangerouslySetInnerHTML usage in src/components/PresentationMode.tsx (line 245) +security
+(B) Sanitize dangerouslySetInnerHTML usage in src/components/HelpManual.tsx (line 287) with DOMPurify +security
+(B) Add URL validation and allowlist in src/extensions/wikilinks.ts fetch() call (line ~76) to prevent SSRF — reject non-http(s) schemes, add AbortController timeout of 5s +security
+(B) Add Content-Security-Policy meta tag to index.html restricting script-src, style-src, img-src, connect-src to self and known CDNs +security
+(B) Audit share link import in App.tsx (line 364-397) — validate and sanitize decompressed JSON fields before creating Note objects to prevent prototype pollution +security
+(B) Add input length limits to QuickCaptureModal textarea to prevent localStorage quota abuse from massive single-note captures +security
+
+# ─── PERFORMANCE (B) ──────────────────────────────────────────────────────────
+
+(B) Memoize the Editor extensions array in src/components/Editor.tsx using useMemo with proper deps — currently rebuilds on every render causing CM6 to reconfigure +perf
+(B) Add virtualization to NoteList.tsx for the note card grid — implement windowed rendering or use react-window to handle 100+ notes without DOM bloat +perf
+(B) Move KnowledgeGraph force-directed layout (100 sync iterations in src/components/KnowledgeGraph.tsx) to a Web Worker or requestIdleCallback to prevent main thread blocking +perf
+(B) Debounce findMatches() in FindReplacePanel.tsx — currently runs regex on every keystroke, add 150ms debounce +perf
+(B) Add lazy loading for Mermaid diagrams in src/extensions/mermaid.ts — defer rendering until diagram is within viewport using IntersectionObserver +perf
+(B) Add lazy loading for KaTeX math rendering in src/extensions/math.ts — defer until block is within viewport +perf
+(B) Add native lazy loading attribute (loading="lazy") to all img elements in src/extensions/live-preview.ts and src/extensions/images.ts +perf
+(B) Debounce the config.toml sync useEffect in App.tsx (line 401-424) — runs on every data.notes change, should debounce by 300ms +perf
+(B) Memoize node and edge computations in KnowledgeGraph.tsx (lines 360-432) with useMemo +perf
+(B) Add loading state spinner during KnowledgeGraph layout computation to indicate progress +perf
+(B) Add loading indicator during PDF/DOCX export in exportUtils.ts — long sync SVG-to-PNG conversions block UI +perf
+(B) Add AbortController support to export operations so users can cancel long-running PDF/DOCX exports +perf
+(B) Profile and optimize dagre layout in MindMap.tsx — layout recalculation is not debounced, triggers on every node add +perf
+(B) Add passive: true to wheel event listener in NoteList.tsx (line ~131) to prevent scroll jank +perf
+(B) Memoize sorted/filtered notes computation in NoteList.tsx — currently recomputes on every render +perf
+(B) Replace inline arrow function callbacks in JSX across NoteList, BacklinksPanel, KnowledgeGraph with useCallback to prevent child re-renders +perf
+(B) Wrap FlowchartBuilder and StateDiagramBuilder in React.memo since their props rarely change +perf
+(B) Add compression to localStorage via LZ-string (already in deps but unused in storage.ts) for large note collections approaching 5MB quota +perf
+
+# ─── ACCESSIBILITY (B) ────────────────────────────────────────────────────────
+
+(B) Add role="dialog" and aria-modal="true" to ConfirmationModal.tsx overlay container +a11y
+(B) Add aria-labelledby pointing to modal title in ConfirmationModal.tsx +a11y
+(B) Implement focus trap in ConfirmationModal.tsx — Tab key should cycle within modal, not escape to background +a11y
+(B) Implement focus trap in CommandPalette.tsx modal +a11y
+(B) Implement focus trap in TableInsertModal.tsx modal +a11y
+(B) Implement focus trap in ParameterInputModal.tsx modal +a11y
+(B) Implement focus trap in HelpManual.tsx modal +a11y
+(B) Implement focus trap in About modal (currently inline in App.tsx) +a11y
+(B) Add aria-label to CommandPalette search input (line ~270) — currently only has placeholder +a11y
+(B) Add role="combobox", aria-expanded, and aria-activedescendant to CommandPalette for keyboard nav screen reader support +a11y
+(B) Add aria-selected="true" to currently highlighted command in CommandPalette list +a11y
+(B) Add aria-label to FindReplacePanel search input (line ~271) +a11y
+(B) Add aria-label to FindReplacePanel replace input (line ~298) +a11y
+(B) Add aria-live="polite" to FindReplacePanel match count display for screen readers to announce updates +a11y
+(B) Add role="status" and aria-live="polite" to DocumentStats.tsx container so screen readers announce stat changes +a11y
+(B) Add aria-hidden="true" to all decorative SVG icons in BacklinksPanel.tsx (lines 125-135, 162-165) +a11y
+(B) Add aria-label="Close backlinks panel" to BacklinksPanel close button +a11y
+(B) Add aria-label to QuickCaptureModal textarea +a11y
+(B) Add role="region" and aria-label="Outline" to OutlinePanel.tsx container +a11y
+(B) Add keyboard navigation (arrow keys) to NoteList card grid for non-mouse users +a11y
+(B) Add skip-to-content link in App.tsx for screen reader users to bypass navigation +a11y
+(B) Add aria-label="Image lightbox" and role="dialog" to ImageLightbox.tsx overlay +a11y
+(B) Ensure all interactive elements in PresentationMode have visible focus indicators for keyboard navigation +a11y
+
+# ─── CSS / THEMING FIXES (B) ──────────────────────────────────────────────────
+
+(B) Replace hardcoded color #646cff in src/index.css (lines 20, 24) with var(--accent-color) +css
+(B) Replace hardcoded color #1a1a1a in src/index.css (line 45) button bg with var(--bg-secondary) +css
+(B) Replace hardcoded color #646cff in src/index.css (line 50) button border with var(--accent-color) +css
+(B) Replace hardcoded color #646cffaa in src/App.css (line 18) logo shadow with var(--accent-color) +css
+(B) Replace hardcoded color #888 in src/App.css (line 44) read-the-docs text with var(--text-muted) +css
+(B) Replace hardcoded rgba(0,0,0,0.5) in src/App.css (line 108) modal overlay with var(--overlay-bg) CSS variable +css
+(B) Replace hardcoded #ffcccc, #d00, #ffaaaa in NoteCard.css (lines 50-53) delete hover with themed CSS variables +css
+(B) Replace hardcoded toast colors in Toast.css (lines 71-107) — #52c41a, #389e0d, #ff4d4f, #cf1322, #faad14, #d48806 — with CSS variables --toast-success, --toast-error, --toast-warning +css
+(B) Replace hardcoded #ff6b6b in Editor.css (lines 251, 266) mermaid/syntax error color with var(--error-color) +css
+(B) Replace hardcoded rgba colors in Editor.css (lines 67, 78, 235, 246, 259, 260) inline code/mermaid bg with theme vars +css
+(B) Replace hardcoded #ff6b6b in FindReplacePanel.css (line 159) no-matches text with var(--error-color) +css
+(B) Replace hardcoded #ff4d4f, #ff7875 in ConfirmationModal.css (lines 70, 75) confirm button with var(--danger-color) +css
+(B) Replace hardcoded syntax highlight colors in PresentationMode.css (lines 201-267) with CSS variables from theme +css
+(B) Replace hardcoded syntax highlight colors in EditorThemeOverrides.css print section with theme-aware vars +css
+(B) Add missing CSS variable --bg-app to all theme definitions in themes.css (referenced in NoteList.css line 10) +css
+(B) Add missing CSS variable --primary-rgb to all theme definitions in themes.css (referenced in EditorThemeOverrides.css) +css
+(B) Add missing CSS variables --text-muted, --error-color, --danger-color, --overlay-bg, --toast-success, --toast-error, --toast-warning to all theme definitions +css
+(B) Remove color-mix() usage in KnowledgeGraph.css (line 225) — limited browser support (Safari <16.2), use pre-computed fallback +css
+(B) Extract duplicated modal overlay CSS pattern (repeated in ConfirmationModal, CommandPalette, HelpManual, About, ImageLightbox, ParameterInput, TableInsert, QuickCapture) into shared .modal-overlay class +css +refactor
+(B) Add @media (prefers-reduced-motion: reduce) to src/index.css disabling all transitions and animations globally +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to BacklinksPanel.css slide animations +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to ConfirmationModal.css fadeIn/scaleUp animations +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to ImageLightbox.css fadeIn animation +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to NoteList.css carousel/transition animations +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to PresentationMode.css slide transitions +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to Toast.css toast enter/exit animations +css +a11y
+(B) Add @media (prefers-reduced-motion: reduce) to Editor.css bracket-pulse and cursor particle animations +css +a11y
+(B) Add @media (prefers-color-scheme: dark) auto-detection in index.css or App.tsx to default to dark theme on first visit +css +feature
+(B) Add print-specific theme overrides in App.css that use theme vars instead of hardcoded black/white (lines 86-92) +css
+
+# ─── ERROR HANDLING (B) ───────────────────────────────────────────────────────
+
+(B) Create a React ErrorBoundary component at src/components/ErrorBoundary.tsx with fallback UI and error reporting +fix
+(B) Wrap Editor component with ErrorBoundary in NoteEditorWrapper to catch CM6 extension crashes +fix
+(B) Wrap KnowledgeGraph component with ErrorBoundary in App.tsx to catch layout/render failures +fix
+(B) Wrap PresentationMode component with ErrorBoundary in App.tsx Route to catch rendering errors +fix
+(B) Wrap MindMap component with ErrorBoundary in NoteEditorWrapper to catch dagre/ReactFlow errors +fix
+(B) Wrap FlowchartBuilder component with ErrorBoundary in NoteEditorWrapper +fix
+(B) Wrap StateDiagramBuilder component with ErrorBoundary in NoteEditorWrapper +fix
+(B) Add try/catch around cmd.action() call in CommandPalette.tsx (line ~218) with error toast on failure +fix
+(B) Add try/catch around regex operations in BacklinksPanel.tsx (lines 54, 68) to handle malformed patterns +fix
+(B) Add try/catch around mermaid.render() calls in FlowchartBuilder.tsx and StateDiagramBuilder.tsx +fix
+(B) Add error display UI for invalid regex in FindReplacePanel.tsx instead of silent failure +fix
+(B) Add fallback UI ("Note not found") with navigation back to home in NoteEditorWrapper when note is missing +fix
+(B) Add broken-image placeholder in src/extensions/live-preview.ts for failed image loads +fix
+(B) Add clipboard.writeText fallback using execCommand('copy') in code-block-enhancements.ts for older browsers +fix
+
+# ─── MEMORY LEAKS / CLEANUP (B) ───────────────────────────────────────────────
+
+(B) Add cleanup for positionSaveTimeoutRef in Editor.tsx — clear timeout in useEffect return when component unmounts +fix
+(B) Add cleanup for setTimeout in FindReplacePanel.tsx replaceCurrentMatch (line ~217) — store ref and clear on unmount +fix
+(B) Add cleanup for setTimeout in BacklinksPanel.tsx (line ~116) — store ref and clear on unmount +fix
+(B) Verify all ViewPlugin instances in src/extensions/ have proper destroy() methods — audit mermaid.ts, live-preview.ts, wikilink-preview.ts, bracket-pulse.ts +fix
+(B) Add AbortController to wikilinks.ts fetch() call and abort on extension destroy to prevent leaked promises +fix
+(B) Clear positionSaveTimeoutRef on FindReplacePanel unmount to prevent setState on unmounted component +fix
+
+# ─── HTML / SEO / META (B) ────────────────────────────────────────────────────
+
+(B) Add <meta name="description" content="No-nonsense, privacy-first text editor web app"> to index.html +infra
+(B) Add <meta name="theme-color" content="#ffffff"> to index.html (use appropriate default) +infra
+(B) Add <meta name="author" content="Gabriel Ong"> to index.html +infra
+(B) Add Open Graph meta tags (og:title, og:description, og:image, og:url, og:type) to index.html +infra
+(B) Add Twitter Card meta tags (twitter:card, twitter:title, twitter:description, twitter:image) to index.html +infra
+(B) Add <link rel="manifest" href="/manifest.webmanifest"> to index.html for PWA discoverability +infra
+(B) Replace /vite.svg favicon reference in index.html with proper Yoro favicon path +infra
+(B) Add multi-size favicon links (16x16, 32x32, 180x180 apple-touch-icon) to index.html +infra
+
+# ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
+
+(B) Add undo/redo support to FlowchartBuilder.tsx — maintain a history stack of node/edge states +feature
+(B) Add undo/redo support to StateDiagramBuilder.tsx — maintain a history stack of state/transition arrays +feature
+(B) Add note import from .md files — file input in NoteList that reads markdown files and creates Note objects +feature
+(B) Add batch import from .zip — extract multiple .md files from a ZIP and create Note objects for each +feature
+(B) Add Cmd+K shortcut to open command palette (currently only Cmd+Shift+P) — Cmd+K is more discoverable for VS Code users +feature
+(B) Add empty state illustration to NoteList when no notes exist — currently shows blank area +feature
+(B) Add loading skeleton to NoteList while data initializes from localStorage +feature
+(B) Add note pinning — pinned notes appear first regardless of sort order, add isPinned to Note type +feature
+(B) Add word count goal indicator — optional target word count per note with progress bar in DocumentStats +feature
+(B) Add auto-save indicator in Editor toolbar showing "Saved" / "Saving..." status +feature
+(B) Add keyboard shortcut cheatsheet overlay accessible via Cmd+/ or from command palette +feature
+(B) Add drag-and-drop reordering of notes in NoteList 2D view +feature
+(B) Add note color/icon customization — per-note accent color or emoji icon shown on card +feature
+(B) Add full-text search across all notes from the home view (currently search only filters by title/tag) +feature
+(B) Add recent notes list (last 5 opened) accessible from command palette or sidebar +feature
+(B) Implement the analytics.ts stub — add privacy-respecting local analytics (note count over time, words written per day) stored in localStorage +feature
+
+# ─── INFRA / CI (B) ───────────────────────────────────────────────────────────
+
+(B) Add GitHub Actions CI workflow at .github/workflows/ci.yml — run npm run build and npm run lint on push/PR to main +infra
+(B) Add data versioning to storage.ts — include a schema version number in localStorage data and add migration logic for breaking changes +infra
+(B) Add .nvmrc file with Node version to ensure consistent dev environments +infra
+(B) Add Lighthouse CI check to GitHub Actions to catch perf/a11y regressions +infra
+
+# ─── PWA (STRETCH GOAL) ──────────────────────────────────────────────────────
+
+(B) After logo creation, generate PWA icon set from logo: icon-72.png, icon-96.png, icon-128.png, icon-144.png, icon-152.png, icon-192.png, icon-384.png, icon-512.png and place in public/ +pwa +logo
+(B) Update vite.config.ts PWA manifest icons array to reference all generated icon sizes with correct MIME types +pwa
+(B) Add offline fallback page to PWA service worker config — show cached version of app when network unavailable +pwa
+(B) Add "Add to Home Screen" prompt logic in App.tsx using beforeinstallprompt event +pwa
+(B) Test PWA install flow on Chrome, Safari, Firefox and fix any manifest validation errors +pwa
+
+# ─── TYPESCRIPT STRICTNESS (B) ────────────────────────────────────────────────
+
+(B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
+(B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
+(B) Add Zod or manual type guard for share link JSON parsing in App.tsx (line ~369) to prevent malformed data creating invalid Note objects +refactor +security
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# END — 126 tasks total
+# (A) priority: 12 tasks (user-requested + streamlining)
+# (B) priority: 114 tasks (audit-suggested improvements)
+# ═══════════════════════════════════════════════════════════════════════════════
