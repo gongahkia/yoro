@@ -26,7 +26,13 @@ export type Theme =
     | 'catppuccin-light' | 'catppuccin-dark'
     | 'rose-pine-light' | 'rose-pine-dark'
     | 'tokyo-night-light' | 'tokyo-night-dark'
-    | 'kanagawa-light' | 'kanagawa-dark';
+    | 'kanagawa-light' | 'kanagawa-dark'
+    | 'monokai-light' | 'monokai-dark'
+    | 'ayu-light' | 'ayu-dark'
+    | 'one-light' | 'one-dark'
+    | 'zenburn-light' | 'zenburn-dark'
+    | 'palenight-light' | 'palenight-dark'
+    | 'material-light' | 'material-dark';
 
 export interface UserPreferences {
     theme: Theme;

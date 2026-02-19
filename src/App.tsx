@@ -517,7 +517,10 @@ function App() {
 # nord-light, nord-dark, solarized-light, solarized-dark,
 # gruvbox-light, gruvbox-dark, everforest-light, everforest-dark,
 # catppuccin-light, catppuccin-dark, rose-pine-light, rose-pine-dark,
-# tokyo-night-light, tokyo-night-dark, kanagawa-light, kanagawa-dark
+# tokyo-night-light, tokyo-night-dark, kanagawa-light, kanagawa-dark,
+# monokai-light, monokai-dark, ayu-light, ayu-dark,
+# one-light, one-dark, zenburn-light, zenburn-dark,
+# palenight-light, palenight-dark, material-light, material-dark
 theme = "${prev.preferences.theme}"
 
 # Home view mode: "3d-carousel" or "2d-semicircle"
@@ -984,6 +987,90 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
             id: 'theme-kanagawa-dark',
             label: 'Theme: Kanagawa Dark',
             action: () => handleUpdatePreferences({ theme: 'kanagawa-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-monokai-light',
+            label: 'Theme: Monokai Light',
+            action: () => handleUpdatePreferences({ theme: 'monokai-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-monokai-dark',
+            label: 'Theme: Monokai Dark',
+            action: () => handleUpdatePreferences({ theme: 'monokai-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-ayu-light',
+            label: 'Theme: Ayu Light',
+            action: () => handleUpdatePreferences({ theme: 'ayu-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-ayu-dark',
+            label: 'Theme: Ayu Dark',
+            action: () => handleUpdatePreferences({ theme: 'ayu-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-one-light',
+            label: 'Theme: One Light',
+            action: () => handleUpdatePreferences({ theme: 'one-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-one-dark',
+            label: 'Theme: One Dark',
+            action: () => handleUpdatePreferences({ theme: 'one-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-zenburn-light',
+            label: 'Theme: Zenburn Light',
+            action: () => handleUpdatePreferences({ theme: 'zenburn-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-zenburn-dark',
+            label: 'Theme: Zenburn Dark',
+            action: () => handleUpdatePreferences({ theme: 'zenburn-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-palenight-light',
+            label: 'Theme: Palenight Light',
+            action: () => handleUpdatePreferences({ theme: 'palenight-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-palenight-dark',
+            label: 'Theme: Palenight Dark',
+            action: () => handleUpdatePreferences({ theme: 'palenight-dark' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-material-light',
+            label: 'Theme: Material Light',
+            action: () => handleUpdatePreferences({ theme: 'material-light' }),
+            category: 'Theme',
+            groupId: 'theme-settings'
+        },
+        {
+            id: 'theme-material-dark',
+            label: 'Theme: Material Dark',
+            action: () => handleUpdatePreferences({ theme: 'material-dark' }),
             category: 'Theme',
             groupId: 'theme-settings'
         },
