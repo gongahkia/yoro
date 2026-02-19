@@ -7,26 +7,11 @@
 # ─── USER-REQUESTED / CORE VISION (A) ────────────────────────────────────────
 
 (A) Create Yoro logo using Google Nanobanana tool and add generated assets to asset/logo/, public/ (favicon.ico, icon.svg, apple-touch-icon.png, icon-192.png, icon-512.png), and update index.html and vite.config.ts PWA manifest to reference them +logo +infra
-(A) Add Monokai theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
-(A) Add Ayu theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
-(A) Add One Light / One Dark theme pair with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
-(A) Add Zenburn theme (dark only or light+dark) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
-(A) Add Palenight theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
-(A) Add Material theme (light + dark pair) with full CSS variable coverage in src/styles/themes.css, add command palette entries in App.tsx, update Theme type in src/types/index.ts +theme +feature
 (A) Streamline App.tsx by extracting the massive commands array into a dedicated src/commands/index.ts module that exports a factory function accepting the required callbacks and state +refactor
 (A) Streamline App.tsx by extracting theme command entries into a data-driven loop over the Theme type union instead of 22 individual command objects +refactor
 (A) Streamline NoteEditorWrapper into its own file src/components/NoteEditorWrapper.tsx to reduce App.tsx line count +refactor
 (A) Streamline config.toml template string in App.tsx into src/utils/configTemplate.ts as a pure function that accepts UserPreferences and returns TOML string +refactor
 (A) Streamline the About modal JSX in App.tsx into its own src/components/AboutModal.tsx component +refactor
-
-# ─── SECURITY (B) ─────────────────────────────────────────────────────────────
-
-(B) Install DOMPurify (npm i dompurify @types/dompurify) and sanitize all dangerouslySetInnerHTML usage in src/components/PresentationMode.tsx (line 245) +security
-(B) Sanitize dangerouslySetInnerHTML usage in src/components/HelpManual.tsx (line 287) with DOMPurify +security
-(B) Add URL validation and allowlist in src/extensions/wikilinks.ts fetch() call (line ~76) to prevent SSRF — reject non-http(s) schemes, add AbortController timeout of 5s +security
-(B) Add Content-Security-Policy meta tag to index.html restricting script-src, style-src, img-src, connect-src to self and known CDNs +security
-(B) Audit share link import in App.tsx (line 364-397) — validate and sanitize decompressed JSON fields before creating Note objects to prevent prototype pollution +security
-(B) Add input length limits to QuickCaptureModal textarea to prevent localStorage quota abuse from massive single-note captures +security
 
 # ─── PERFORMANCE (B) ──────────────────────────────────────────────────────────
 
