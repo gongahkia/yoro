@@ -366,20 +366,34 @@ function App() {
                 const decompressed = LZString.decompressFromEncodedURIComponent(shareData);
                 if (decompressed) {
                     const parsed = JSON.parse(decompressed);
-                    const { title, content, tags, format, viewMode, isFavorite } = parsed;
+                    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+                        throw new Error('Invalid share data');
+                    }
+                    // Validate and sanitize individual fields to prevent prototype pollution
+                    const title = typeof parsed.title === 'string' ? parsed.title.slice(0, 500) : 'Shared Note';
+                    const content = typeof parsed.content === 'string' ? parsed.content.slice(0, 1_000_000) : '';
+                    const rawTags = Array.isArray(parsed.tags) ? parsed.tags : [];
+                    const tags = rawTags
+                        .filter((t: unknown) => typeof t === 'string')
+                        .map((t: string) => t.slice(0, 100)) as string[];
+                    const VALID_FORMATS = ['markdown', 'canvas'] as const;
+                    const format = VALID_FORMATS.includes(parsed.format) ? parsed.format : 'markdown';
+                    const VALID_VIEW_MODES = ['editor', 'mindmap', 'flowchart', 'state'] as const;
+                    const viewMode = VALID_VIEW_MODES.includes(parsed.viewMode) ? parsed.viewMode : undefined;
+                    const isFavorite = parsed.isFavorite === true;
                     // Merge existing tags with 'shared' tag
-                    const existingTags = Array.isArray(tags) ? tags : [];
+                    const existingTags = tags;
                     const mergedTags = existingTags.includes('shared') ? existingTags : [...existingTags, 'shared'];
                     const newNote: Note = {
                         id: crypto.randomUUID(),
-                        title: title || 'Shared Note',
-                        content: content || '',
-                        format: format || 'markdown',
+                        title,
+                        content,
+                        format,
                         tags: mergedTags,
                         createdAt: Date.now(),
                         updatedAt: Date.now(),
-                        isFavorite: isFavorite || false,
-                        viewMode: viewMode,
+                        isFavorite,
+                        viewMode,
                     };
                     setTimeout(() => {
                         setData(prev => ({

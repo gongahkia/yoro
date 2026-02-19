@@ -72,14 +72,25 @@ export const getMentionCompletion = (notes: Note[]) => {
                         changes: { from, to, insert: insertText }
                     });
 
-                    // Attempt to fetch title
-                    fetch(url)
+                    // Validate URL scheme before fetching (prevent SSRF with non-http(s) schemes)
+                    let parsedUrl: URL;
+                    try {
+                        parsedUrl = new URL(url);
+                    } catch {
+                        return;
+                    }
+                    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') return;
+
+                    // Attempt to fetch title with 5s timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    fetch(url, { signal: controller.signal })
                         .then(res => res.text())
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             const title = doc.querySelector('title')?.innerText?.trim();
-                            
+
                             if (title) {
                                 // We need to find the text we inserted to replace it safely.
                                 // We look for the exact string we inserted starting from 'from'.
@@ -87,7 +98,7 @@ export const getMentionCompletion = (notes: Note[]) => {
                                 const currentDoc = view.state.doc.toString();
                                 const linkStr = `[${initialLabel}](${url})`;
                                 const foundIndex = currentDoc.indexOf(linkStr, from);
-                                
+
                                 // Ensure we are still close to where we inserted (sanity check)
                                 if (foundIndex !== -1 && Math.abs(foundIndex - from) < 10) {
                                     view.dispatch({
@@ -101,8 +112,11 @@ export const getMentionCompletion = (notes: Note[]) => {
                             }
                         })
                         .catch(err => {
-                            console.warn('Failed to fetch link title', err);
-                        });
+                            if ((err as Error).name !== 'AbortError') {
+                                console.warn('Failed to fetch link title', err);
+                            }
+                        })
+                        .finally(() => clearTimeout(timeoutId));
                 }
             });
         }

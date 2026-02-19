@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DOMPurify from 'dompurify';
 import './styles/HelpManual.css';
 
 interface HelpManualProps {
@@ -284,11 +285,11 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
                         <div className="help-section help-features-section">
                             <div
                                 className="features-markdown"
-                                dangerouslySetInnerHTML={{ __html: featuresMarkdown
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(featuresMarkdown
                                     .replace(/## (.+)/g, '<h3>$1</h3>')
                                     .replace(/- \*\*(.+?)\*\* — (.+)/g, '<li><strong>$1</strong> <span class="feature-desc">$2</span></li>')
                                     .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-                                }}
+                                ) }}
                             />
                         </div>
                     )}

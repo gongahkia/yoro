@@ -49,9 +49,10 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({ isOpen, on
                 <textarea
                     ref={inputRef}
                     value={text}
-                    onChange={e => setText(e.target.value)}
+                    onChange={e => setText(e.target.value.slice(0, 100_000))}
                     onKeyDown={handleKeyDown}
                     placeholder="Capture a thought..."
+                    maxLength={100_000}
                 />
                 <div className="quick-capture-footer">
                     <button onClick={onClose}>Cancel</button>

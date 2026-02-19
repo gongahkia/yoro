@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import katex from 'katex';
 import mermaid from 'mermaid';
 import hljs from 'highlight.js';
+import DOMPurify from 'dompurify';
 import type { Note } from '../types';
 import './styles/PresentationMode.css';
 
@@ -225,10 +226,11 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({ notes, theme
         // Parse with marked
         const html = marked.parse(processed) as string;
 
-        // Decode mermaid data attributes
-        return html.replace(/data-mermaid="([^"]+)"/g, (_, encoded) => {
+        // Decode mermaid data attributes then sanitize
+        const decoded = html.replace(/data-mermaid="([^"]+)"/g, (_, encoded) => {
             return `data-mermaid="${decodeURIComponent(encoded)}"`;
         });
+        return DOMPurify.sanitize(decoded, { ADD_ATTR: ['data-mermaid'] });
     };
 
     return (
