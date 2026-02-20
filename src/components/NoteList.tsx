@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import type { Note } from '../types';
 import { NoteCard } from './NoteCard';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/NoteList.css';
 
 interface NoteListProps {
@@ -26,6 +27,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     viewMode = '3d-carousel',
     sortOrder = 'updated'
 }) => {
+    const sl = useSinglish();
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
     // 2D Timeline State
@@ -191,7 +193,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     })}
                 </div>
             ) : (
-                <div className="empty-state">No notes leh</div>
+                <div className="empty-state">{sl ? 'No notes leh' : 'No notes found'}</div>
             )}
         </div>
     );
@@ -270,7 +272,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                         </div>
                     </>
                 ) : (
-                    <div className="empty-state">No notes leh</div>
+                    <div className="empty-state">{sl ? 'No notes leh' : 'No notes found'}</div>
                 )}
             </div>
         );
@@ -279,8 +281,8 @@ export const NoteList: React.FC<NoteListProps> = ({
     return (
         <div className="note-list-container">
             <div className="search-hint">
-                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open command palette lah.
-                {selectedTag && <span className="active-filter">Filtering by #{selectedTag} leh</span>}
+                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+                {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
             </div>
             <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
                 {displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}
