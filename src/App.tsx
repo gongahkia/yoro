@@ -473,6 +473,7 @@ function App() {
     };
 
     return (
+        <SinglishContext.Provider value={data.preferences.singlish ?? false}>
         <div className="app-container">
             <a href="#main-content" className="skip-to-content">Skip to content</a>
             <MobileWarning />
@@ -610,6 +611,7 @@ function App() {
                 onClose={() => setLightboxState({ isOpen: false, src: null })}
             />
         </div>
+        </SinglishContext.Provider>
     );
 }
 
