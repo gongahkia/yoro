@@ -8,6 +8,21 @@
   height: 100vh;
 }
 
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--accent-color, #646cff);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 10000;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -15,7 +30,7 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em var(--accent-color, #646cffaa));
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
@@ -41,7 +56,7 @@
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--text-muted, #888);
 }
 
 @media print {
@@ -105,7 +120,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-bg, rgba(0, 0, 0, 0.5));
     display: flex;
     align-items: center;
     justify-content: center;

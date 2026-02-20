@@ -326,30 +326,34 @@ function App() {
         }
     }, [location.search, navigate]);
 
-    // Sync from config.toml note to preferences
+    // Sync from config.toml note to preferences (debounced 300ms)
     useEffect(() => {
-        const configNote = data.notes.find(n => n.title === 'config.toml');
-        if (configNote) {
-            try {
-                const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
-                const updates: Partial<AppState['preferences']> = {};
-                let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
+        const timer = setTimeout(() => {
+            const configNote = data.notes.find(n => n.title === 'config.toml');
+            if (configNote) {
+                try {
+                    const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
+                    const updates: Partial<AppState['preferences']> = {};
+                    let hasUpdates = false;
+                    const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
 
-                for (const key of keys) {
-                    if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
-                        (updates as Record<string, unknown>)[key] = parsed[key];
-                        hasUpdates = true;
+                    for (const key of keys) {
+                        if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
+                            (updates as Record<string, unknown>)[key] = parsed[key];
+                            hasUpdates = true;
+                        }
                     }
-                }
 
-                if (hasUpdates) {
-                    setTimeout(() => handleUpdatePreferences(updates, false), 0);
+                    if (hasUpdates) {
+                        handleUpdatePreferences(updates, false);
+                    }
+                } catch {
+                    // ignore parse errors while typing
                 }
-            } catch {
-                // ignore parse errors while typing
             }
-        }
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [data.notes, data.preferences, handleUpdatePreferences]);
 
     const handleOpenConfig = useCallback(() => {
@@ -529,7 +533,9 @@ function App() {
 
     return (
         <div className="app-container">
+            <a href="#main-content" className="skip-to-content">Skip to content</a>
             <MobileWarning />
+            <main id="main-content">
             <Routes>
                 <Route path="/" element={
                     <NoteList
@@ -567,6 +573,7 @@ function App() {
                     <PresentationMode notes={data.notes} theme={data.preferences.theme} />
                 } />
             </Routes>
+            </main>
             <CommandPalette
                 isOpen={isPaletteOpen}
                 onClose={() => setIsPaletteOpen(false)}
