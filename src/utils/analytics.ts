@@ -4,9 +4,6 @@ type EventName =
     | 'duplicate_note'
     | 'view_note'
     | 'export_note'
-    | 'move_to_bin'
-    | 'restore_note'
-    | 'delete_note_permanent'
     | 'quick_capture';
 
 export const analytics = {

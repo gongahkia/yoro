@@ -75,10 +75,10 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
                 </div>
                 <div className="table-modal-footer">
                     <button className="table-modal-btn cancel" onClick={onClose}>
-                        Cancel
+                        Nvm
                     </button>
                     <button className="table-modal-btn insert" onClick={handleInsert}>
-                        Insert
+                        Insert lah
                     </button>
                 </div>
             </div>

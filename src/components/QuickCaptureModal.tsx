@@ -44,20 +44,20 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({ isOpen, on
             <div className="quick-capture-modal" onClick={e => e.stopPropagation()}>
                 <div className="quick-capture-header">
                     <h3>Quick Capture</h3>
-                    <span className="quick-capture-hint">Cmd+Enter to save</span>
+                    <span className="quick-capture-hint">Cmd+Enter to save lah</span>
                 </div>
                 <textarea
                     ref={inputRef}
                     value={text}
                     onChange={e => setText(e.target.value.slice(0, 100_000))}
                     onKeyDown={handleKeyDown}
-                    placeholder="Capture a thought..."
+                    placeholder="Type here lah..."
                     maxLength={100_000}
                     aria-label="Quick capture note content"
                 />
                 <div className="quick-capture-footer">
-                    <button onClick={onClose}>Cancel</button>
-                    <button className="primary" onClick={handleSubmit}>Capture</button>
+                    <button onClick={onClose}>Nvm</button>
+                    <button className="primary" onClick={handleSubmit}>Save lah</button>
                 </div>
             </div>
         </div>,

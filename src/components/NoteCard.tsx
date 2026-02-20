@@ -7,29 +7,18 @@ interface NoteCardProps {
     onClick: (id: string) => void;
     onDelete: (e: React.MouseEvent) => void;
     onDuplicate: (e: React.MouseEvent) => void;
-    onRestore?: (e: React.MouseEvent) => void;
 }
 
-export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate, onRestore }) => {
+export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate }) => {
     return (
         <div className="note-card" onClick={() => onClick(note.id)}>
             <div className="note-card-actions">
-                {note.deletedAt ? (
-                    <button className="action-btn" onClick={onRestore} title="Restore">
-                        ref
-                    </button>
-                ) : (
-                    <button className="action-btn" onClick={onDuplicate} title="Duplicate">
-                        copy
-                    </button>
-                )}
-                <button className="action-btn delete" onClick={onDelete} title={note.deletedAt ? "Delete Forever" : "Move to Bin"}>
-                    {note.deletedAt ? 'kill' : 'del'}
-                </button>
+                <button className="action-btn" onClick={onDuplicate} title="Copy lah">copy</button>
+                <button className="action-btn delete" onClick={onDelete} title="Delete lah">del</button>
             </div>
-            <h3 className="note-title">{note.title || 'Untitled'}</h3>
+            <h3 className="note-title">{note.title || 'No title'}</h3>
             <p className="note-preview">
-                {note.content.slice(0, 100).replace(/[#*`_]/g, '') || 'No content'}
+                {note.content.slice(0, 100).replace(/[#*`_]/g, '') || 'Nothing here leh'}
             </p>
             <div className="note-tags">
                 {note.tags.map(tag => (

@@ -8,7 +8,6 @@ interface NoteListProps {
     onSelectNote: (id: string) => void;
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
-    onRestoreNote?: (id: string, e: React.MouseEvent) => void;
     searchQuery: string;
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
@@ -21,7 +20,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     onSelectNote,
     onDeleteNote,
     onDuplicateNote,
-    onRestoreNote,
     searchQuery,
     selectedTag,
     onTagChange,
@@ -55,31 +53,11 @@ export const NoteList: React.FC<NoteListProps> = ({
         }
     }, [viewMode]);
 
-    useEffect(() => {
-        const handleOpenBin = () => onTagChange('bin');
-        window.addEventListener('yoro-open-bin', handleOpenBin);
-
-        return () => {
-            window.removeEventListener('yoro-open-bin', handleOpenBin);
-        };
-    }, [onTagChange]);
-
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
-            // Hide config.toml from note list (accessible via command palette only)
             if (note.title === 'config.toml') return false;
-
-            if (selectedTag === 'bin') {
-                // Bin View: Only show deleted notes
-                if (!note.deletedAt) return false;
-            } else {
-                // Normal View: Hide deleted notes
-                if (note.deletedAt) return false;
-            }
-
             const matchesSearch = (note.title + note.content).toLowerCase().includes(searchQuery.toLowerCase());
-            // Filter by tag if selected and not 'bin' (bin is handled above as a mode)
-            const matchesTag = (selectedTag && selectedTag !== 'bin') ? note.tags.includes(selectedTag) : true;
+            const matchesTag = selectedTag ? note.tags.includes(selectedTag) : true;
 
             return matchesSearch && matchesTag;
         }).sort((a, b) => {
@@ -207,14 +185,13 @@ export const NoteList: React.FC<NoteListProps> = ({
                                     onClick={onSelectNote}
                                     onDelete={(e) => onDeleteNote(note.id, e)}
                                     onDuplicate={(e) => onDuplicateNote(note.id, e)}
-                                    onRestore={(e) => onRestoreNote?.(note.id, e)}
                                 />
                             </div>
                         );
                     })}
                 </div>
             ) : (
-                <div className="empty-state">No notes found</div>
+                <div className="empty-state">No notes leh</div>
             )}
         </div>
     );
@@ -293,7 +270,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                         </div>
                     </>
                 ) : (
-                    <div className="empty-state">No notes found</div>
+                    <div className="empty-state">No notes leh</div>
                 )}
             </div>
         );
@@ -302,8 +279,8 @@ export const NoteList: React.FC<NoteListProps> = ({
     return (
         <div className="note-list-container">
             <div className="search-hint">
-                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open the command palette.
-                {selectedTag && <span className="active-filter">Filtering: #{selectedTag}</span>}
+                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> to open command palette lah.
+                {selectedTag && <span className="active-filter">Filtering by #{selectedTag} leh</span>}
             </div>
             <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
                 {displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}

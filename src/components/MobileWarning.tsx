@@ -44,27 +44,24 @@ export const MobileWarning: React.FC = () => {
                     </svg>
                 </div>
 
-                <h1 className="mobile-warning-title">Desktop Recommended</h1>
+                <h1 className="mobile-warning-title">Eh, use desktop lah</h1>
 
                 <p className="mobile-warning-message">
-                    <strong>Yoro</strong> is a desktop-first text editor designed for
-                    focused writing with keyboard shortcuts, vim/emacs modes, and
-                    advanced editing features.
+                    <strong>Yoro</strong> best on desktop one, got vim/emacs mode and all those power features.
                 </p>
 
                 <p className="mobile-warning-submessage">
-                    For the best experience, please access Yoro from a desktop or laptop computer
-                    with a physical keyboard.
+                    For best experience, use desktop or laptop with keyboard lah.
                 </p>
 
                 <div className="mobile-warning-features">
                     <div className="mobile-warning-feature">
                         <span className="feature-icon">⌨️</span>
-                        <span>Keyboard-centric editing</span>
+                        <span>Keyboard shiok to use</span>
                     </div>
                     <div className="mobile-warning-feature">
                         <span className="feature-icon">📐</span>
-                        <span>Wide-screen layout</span>
+                        <span>Wide screen layout</span>
                     </div>
                     <div className="mobile-warning-feature">
                         <span className="feature-icon">🎯</span>
@@ -76,11 +73,11 @@ export const MobileWarning: React.FC = () => {
                     className="mobile-warning-dismiss"
                     onClick={() => setDismissed(true)}
                 >
-                    Continue Anyway
+                    Nvm, go in lah
                 </button>
 
                 <p className="mobile-warning-note">
-                    Some features may not work as expected on mobile devices.
+                    Mobile some things cannot work properly one lah.
                 </p>
             </div>
         </div>

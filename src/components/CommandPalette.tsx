@@ -221,7 +221,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             cmd.action();
         } catch (err) {
             showToast(
-                `Command failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+                `Command siao liao: ${err instanceof Error ? err.message : 'dunno what happen'}`,
                 'error'
             );
         }
@@ -284,7 +284,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                             setSelectedIndex(0);
                         }}
                         onKeyDown={handleKeyDown}
-                        placeholder={isSearchMode ? "Search notes..." : "Type a command (or / to search notes)..."}
+                        placeholder={isSearchMode ? "Search notes..." : "Type command lah, or / to search notes..."}
                         aria-label="Search commands"
                     />
                 </div>
@@ -318,7 +318,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                 </li>
                             ))}
                             {allTags.length === 0 && (
-                                <li className="command-palette-empty">No tags found</li>
+                                <li className="command-palette-empty">No tags leh</li>
                             )}
                         </ul>
                     </div>
@@ -357,7 +357,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                             );
                         })}
                         {filteredCommands.length === 0 && (
-                            <li className="command-palette-empty">No commands found</li>
+                            <li className="command-palette-empty">No such command leh</li>
                         )}
                     </ul>
                 )}

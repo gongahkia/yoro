@@ -55,7 +55,6 @@ export interface CommandFactoryArgs {
     handleUpdateNote: (id: string, updates: Partial<Note>) => void;
     handleDeleteNote: (id: string, e?: { stopPropagation: () => void }) => void;
     handleDuplicateNote: (id: string, e?: { stopPropagation: () => void }) => void;
-    handleRestoreNote: (id: string) => void;
     handleUpdatePreferences: (updates: Partial<UserPreferences>) => void;
     handleOpenConfig: () => void;
     setIsHelpOpen: (open: boolean) => void;
@@ -72,7 +71,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
     const {
         notes, preferences, navigate, getCurrentNoteId,
         handleCreateNote, handleSelectNote, handleUpdateNote,
-        handleDeleteNote, handleDuplicateNote, handleRestoreNote,
+        handleDeleteNote, handleDuplicateNote,
         handleUpdatePreferences, handleOpenConfig,
         setIsHelpOpen, setIsAboutOpen, setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen, setIsBacklinksPanelOpen, setIsOutlineOpen,
@@ -147,7 +146,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: 'Font: Sans Serif',
             action: () => {
                 handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' });
-                showToast('Font: Sans Serif', 'info');
+                showToast('Sans Serif liao', 'info');
             },
             category: 'Font',
             groupId: 'font-settings'
@@ -157,7 +156,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: 'Font: Serif',
             action: () => {
                 handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' });
-                showToast('Font: Serif', 'info');
+                showToast('Serif liao', 'info');
             },
             category: 'Font',
             groupId: 'font-settings'
@@ -167,7 +166,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: 'Font: Monospace',
             action: () => {
                 handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" });
-                showToast('Font: Monospace', 'info');
+                showToast('Monospace liao', 'info');
             },
             category: 'Font',
             groupId: 'font-settings'
@@ -177,7 +176,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: 'Font: Comic Sans',
             action: () => {
                 handleUpdatePreferences({ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" });
-                showToast('Font: Comic Sans', 'info');
+                showToast('Comic Sans sia...', 'info');
             },
             category: 'Font',
             groupId: 'font-settings'
@@ -248,7 +247,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                     vimMode: newVimMode,
                     emacsMode: newVimMode ? false : preferences.emacsMode
                 });
-                showToast(`Vim mode ${newVimMode ? 'enabled' : 'disabled'}`, 'info');
+                showToast(`Vim mode ${newVimMode ? 'on' : 'off'} liao`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -262,7 +261,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                     emacsMode: newEmacsMode,
                     vimMode: newEmacsMode ? false : preferences.vimMode
                 });
-                showToast(`Emacs mode ${newEmacsMode ? 'enabled' : 'disabled'}`, 'info');
+                showToast(`Emacs mode ${newEmacsMode ? 'on' : 'off'} liao`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -296,7 +295,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => {
                 const newFocusMode = !preferences.focusMode;
                 handleUpdatePreferences({ focusMode: newFocusMode });
-                showToast(`Focus mode ${newFocusMode ? 'enabled' : 'disabled'}`, 'info');
+                showToast(`Focus mode ${newFocusMode ? 'on' : 'off'} liao`, 'info');
             },
             category: 'View',
             groupId: 'view-settings'
@@ -323,6 +322,22 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             groupId: 'view-settings'
         },
         {
+            id: 'fold-all',
+            label: 'Fold All',
+            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'fold-all' } })),
+            category: 'Editor',
+            context: 'editor' as const,
+            groupId: 'editor-settings'
+        },
+        {
+            id: 'unfold-all',
+            label: 'Unfold All',
+            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'unfold-all' } })),
+            category: 'Editor',
+            context: 'editor' as const,
+            groupId: 'editor-settings'
+        },
+        {
             id: 'hard-wrap',
             label: 'Hard Wrap Text (80 cols)',
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
@@ -339,7 +354,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                     current === 'none' ? 'subtle' :
                     current === 'subtle' ? 'particles' : 'none';
                 handleUpdatePreferences({ cursorAnimations: next });
-                showToast(`Cursor animation: ${next}`, 'info');
+                showToast(`Cursor now ${next} liao`, 'info');
             },
             category: 'Editor',
             groupId: 'editor-settings'
@@ -407,16 +422,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             },
             category: 'Navigation'
         },
-        // Open Bin (conditional)
-        ...(notes.some(n => n.deletedAt) ? [{
-            id: 'open-bin',
-            label: 'Open Bin',
-            action: () => {
-                navigate('/');
-                window.dispatchEvent(new CustomEvent('yoro-open-bin'));
-            },
-            category: 'Navigation'
-        }] : []),
         // Note Navigation
         ...notes.filter(n => n.title !== 'config.toml').map(note => ({
             id: `open-note-${note.id}`,
@@ -431,17 +436,9 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => handleDuplicateNote(note.id),
             category: 'Note Operations'
         })),
-        ...notes.filter(n => n.deletedAt && n.title !== 'config.toml').map(note => ({
-            id: `restore-note-${note.id}`,
-            label: `Restore Note: ${note.title || 'Untitled'}`,
-            action: () => handleRestoreNote(note.id),
-            category: 'Note Operations'
-        })),
         ...notes.filter(n => n.title !== 'config.toml').map(note => ({
             id: `delete-note-${note.id}`,
-            label: note.deletedAt
-                ? `Permanently Delete Note: ${note.title || 'Untitled'}`
-                : `Delete Note: ${note.title || 'Untitled'}`,
+            label: `Delete Note: ${note.title || 'Untitled'}`,
             action: () => handleDeleteNote(note.id),
             category: 'Note Operations'
         })),
@@ -450,7 +447,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             id: 'export-all',
             label: 'Export All Notes (ZIP)',
             action: async () => {
-                showToast('Preparing export...', 'info');
+                showToast('Preparing export liao...', 'info');
                 const zip = new JSZip();
                 notes.forEach(note => {
                     const filename = `${note.title || 'Untitled'}-${note.id.slice(0, 6)}.md`;
@@ -463,7 +460,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 a.download = `yoro-export-${new Date().toISOString().slice(0, 10)}.zip`;
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast(`Exported ${notes.length} notes`, 'success');
+                showToast(`${notes.length} notes exported liao`, 'success');
             },
             category: 'Export'
         },
@@ -503,7 +500,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                         a.download = `${note.title || 'untitled'}.md`;
                         a.click();
                         URL.revokeObjectURL(url);
-                        showToast('Markdown exported', 'success');
+                        showToast('Markdown exported liao', 'success');
                     }
                 },
                 category: 'Export',
@@ -517,12 +514,12 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                     const note = notes.find(n => n.id === id);
                     if (note) {
                         try {
-                            showToast('Generating PDF...', 'success');
+                            showToast('PDF coming liao...', 'info');
                             await exportToPDF(note.content, note.title || 'Untitled');
-                            showToast('PDF exported successfully', 'success');
+                            showToast('PDF done liao', 'success');
                         } catch (err) {
                             console.error('PDF export error:', err);
-                            showToast('Failed to export PDF', 'error');
+                            showToast('PDF cannot export lah', 'error');
                         }
                     }
                 },
@@ -537,12 +534,12 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                     const note = notes.find(n => n.id === id);
                     if (note) {
                         try {
-                            showToast('Generating DOCX...', 'success');
+                            showToast('DOCX coming liao...', 'info');
                             await exportToDOCX(note.content, note.title || 'Untitled');
-                            showToast('DOCX exported successfully', 'success');
+                            showToast('DOCX done liao', 'success');
                         } catch (err) {
                             console.error('DOCX export error:', err);
-                            showToast('Failed to export DOCX', 'error');
+                            showToast('DOCX cannot export lah', 'error');
                         }
                     }
                 },
@@ -567,7 +564,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                         const compressed = LZString.compressToEncodedURIComponent(dataToCompress);
                         const url = `${window.location.origin}/?share=${compressed}`;
                         navigator.clipboard.writeText(url).then(() => {
-                            showToast('Share link copied to clipboard!', 'success');
+                            showToast('Link copied liao, can share now', 'success');
                         });
                     }
                 },

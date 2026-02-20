@@ -62,19 +62,8 @@ function App() {
     // Compute all tags from notes
     const allTags = useMemo(() => {
         const tags = new Set<string>();
-        let hasDeleted = false;
-        data.notes.forEach(note => {
-            if (note.deletedAt) {
-                hasDeleted = true;
-            } else {
-                note.tags.forEach(tag => tags.add(tag));
-            }
-        });
-        const sorted = Array.from(tags).sort();
-        if (hasDeleted) {
-            sorted.push('bin');
-        }
-        return sorted;
+        data.notes.forEach(note => { note.tags.forEach(tag => tags.add(tag)); });
+        return Array.from(tags).sort();
     }, [data.notes]);
 
     useEffect(() => {
@@ -90,24 +79,6 @@ function App() {
         document.documentElement.style.setProperty('--editor-font-size', `${data.preferences.fontSize}px`);
     }, [data.preferences.fontFamily, data.preferences.fontSize]);
 
-    useEffect(() => {
-        // Auto-cleanup bin items older than 30 days
-        const cleanupBin = () => {
-            const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            setData(prev => {
-                const hasExpired = prev.notes.some(n => n.deletedAt && (now - n.deletedAt > THIRTY_DAYS_MS));
-                if (!hasExpired) return prev;
-                return {
-                    ...prev,
-                    notes: prev.notes.filter(n => !n.deletedAt || (now - n.deletedAt <= THIRTY_DAYS_MS))
-                };
-            });
-        };
-        cleanupBin(); // Check on mount
-        const interval = setInterval(cleanupBin, 60 * 60 * 1000); // Check every hour
-        return () => clearInterval(interval);
-    }, []);
 
     const handleUpdatePreferences = useCallback((updates: Partial<AppState['preferences']>, syncToConfig = true) => {
         setData(prev => {
@@ -185,7 +156,7 @@ function App() {
             };
         });
         analytics.track('create_note');
-        showToast('New note created', 'success');
+        showToast('Note created liao', 'success');
         navigate(`/note/${newId}`);
     }, [navigate]);
 
@@ -210,15 +181,11 @@ function App() {
                 notes: [newNote, ...prev.notes]
             }));
             analytics.track('duplicate_note');
-            showToast(`Duplicated "${noteToDuplicate.title || 'Untitled'}"`, 'success');
+            showToast(`"${noteToDuplicate.title || 'Untitled'}" copied liao`, 'success');
         }
     }, [data.notes]);
 
-    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null; isPermanent: boolean }>({
-        isOpen: false,
-        noteId: null,
-        isPermanent: false
-    });
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; noteId: string | null; isPermanent: boolean }>({ isOpen: false, noteId: null, isPermanent: true });
 
     const [tableModalOpen, setTableModalOpen] = useState(false);
     const [paramModalOpen, setParamModalOpen] = useState(false);
@@ -242,35 +209,7 @@ function App() {
         e?.stopPropagation();
         const note = data.notes.find(n => n.id === id);
         if (!note) return;
-
-        if (note.deletedAt) {
-            // Already in bin, confirm permanent deletion
-            setDeleteConfirmation({ isOpen: true, noteId: id, isPermanent: true });
-        } else {
-            // Not in bin, move to bin (Soft delete)
-            setData(prev => ({
-                ...prev,
-                notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: Date.now() } : n)
-            }));
-            analytics.track('move_to_bin');
-            showToast(`"${note.title || 'Untitled'}" moved to bin`, 'info');
-
-            // If moved current note to bin, go home
-            if (getCurrentNoteId() === id) {
-                navigate('/');
-            }
-        }
-    }, [data.notes, navigate, getCurrentNoteId]);
-
-    const handleRestoreNote = useCallback((id: string, e?: { stopPropagation: () => void }) => {
-        e?.stopPropagation();
-        const note = data.notes.find(n => n.id === id);
-        setData(prev => ({
-            ...prev,
-            notes: prev.notes.map(n => n.id === id ? { ...n, deletedAt: undefined } : n)
-        }));
-        analytics.track('restore_note');
-        showToast(`"${note?.title || 'Untitled'}" restored`, 'success');
+        setDeleteConfirmation({ isOpen: true, noteId: id, isPermanent: true });
     }, [data.notes]);
 
     useEffect(() => {
@@ -321,7 +260,7 @@ function App() {
                 }
             } catch {
                 console.error('Failed to import shared note:');
-                showToast('Failed to load shared note. The link might be corrupted.', 'error');
+                showToast('Cannot load lah, link jialat liao', 'error');
             }
         }
     }, [location.search, navigate]);
@@ -390,7 +329,6 @@ function App() {
         handleUpdateNote,
         handleDeleteNote,
         handleDuplicateNote,
-        handleRestoreNote,
         handleUpdatePreferences,
         handleOpenConfig,
         setIsHelpOpen,
@@ -401,7 +339,7 @@ function App() {
         setIsOutlineOpen,
         setIsQuickCaptureOpen,
         setTableModalOpen,
-    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate, handleOpenConfig]);
+    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, navigate, handleOpenConfig]);
 
 
     const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
@@ -442,7 +380,7 @@ function App() {
             notes: [newNote, ...prev.notes]
         }));
         analytics.track('quick_capture');
-        showToast('Saved to Inbox', 'success');
+        showToast('Saved to inbox liao', 'success');
     }, []);
 
     useEffect(() => {
@@ -508,15 +446,11 @@ function App() {
                 ...prev,
                 notes: prev.notes.filter(n => n.id !== id)
             }));
-            analytics.track('delete_note_permanent');
-            showToast(`"${note?.title || 'Untitled'}" permanently deleted`, 'info');
-
-            // If we deleted the current note, navigate home
-            if (getCurrentNoteId() === id) {
-                navigate('/');
-            }
+            analytics.track('delete_note');
+            showToast(`"${note?.title || 'Untitled'}" delete liao`, 'info');
+            if (getCurrentNoteId() === id) navigate('/');
         }
-        setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false });
+        setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: true });
     };
 
     const handleTableInsert = (rows: number, cols: number) => {
@@ -548,7 +482,6 @@ function App() {
                         onSelectNote={handleSelectNote}
                         onDeleteNote={handleDeleteNote}
                         onDuplicateNote={handleDuplicateNote}
-                        onRestoreNote={handleRestoreNote}
                         searchQuery={searchQuery}
                         selectedTag={selectedTag}
                         onTagChange={setSelectedTag}
@@ -599,12 +532,10 @@ function App() {
 
             <ConfirmationModal
                 isOpen={deleteConfirmation.isOpen}
-                title={deleteConfirmation.isPermanent ? "Permanently Delete" : "Delete Note"}
-                message={deleteConfirmation.isPermanent
-                    ? "Are you sure you want to permanently delete this note from the bin? This action cannot be undone."
-                    : "Are you sure you want to move this note to the bin?"}
+                title="Delete or not?"
+                message="Delete liao cannot undo one leh. Sure anot?"
                 onConfirm={handleConfirmDelete}
-                onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: false })}
+                onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: true })}
             />
 
             <TableInsertModal

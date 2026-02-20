@@ -10,7 +10,6 @@ export interface Note {
     updatedAt: number;
     isFavorite: boolean;
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state';
-    deletedAt?: number;
     lastCursorPosition?: number;
     lastScrollPosition?: number;
 }

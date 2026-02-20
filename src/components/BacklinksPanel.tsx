@@ -138,7 +138,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
             <div className="backlinks-content">
                 {!currentNote ? (
                     <div className="backlinks-empty">
-                        No note selected
+                        No note selected leh
                     </div>
                 ) : groupedBacklinks.length === 0 ? (
                     <div className="backlinks-empty">
@@ -146,9 +146,9 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                             <circle cx="12" cy="12" r="10" />
                             <path d="M12 6v6M12 15v1.5" />
                         </svg>
-                        <span>No backlinks found</span>
+                        <span>No backlinks leh</span>
                         <span className="backlinks-empty-hint">
-                            Link to this note using [[{currentNote.title || 'note title'}]]
+                            Use [[{currentNote.title || 'note title'}]] to link here lah
                         </span>
                     </div>
                 ) : (
@@ -190,7 +190,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
 
             <div className="backlinks-footer">
                 <span className="backlinks-stats">
-                    {backlinks.length} reference{backlinks.length !== 1 ? 's' : ''} from {groupedBacklinks.length} note{groupedBacklinks.length !== 1 ? 's' : ''}
+                    {backlinks.length} ref from {groupedBacklinks.length} note
                 </span>
             </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
+import { foldAll, unfoldAll } from '@codemirror/language';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { themeSyntaxHighlighting } from '../extensions/theme-highlighting';
 import { yamlFrontmatter } from '@codemirror/lang-yaml';
@@ -328,6 +329,10 @@ stateDiagram-v2
                 if (text) {
                     view.dispatch(view.state.replaceSelection(text));
                 }
+            } else if (command === 'fold-all') {
+                foldAll(view);
+            } else if (command === 'unfold-all') {
+                unfoldAll(view);
             } else if (['bold', 'italic', 'strikethrough', 'code', 'link', 'blockquote', 'list-ul', 'list-ol', 'checklist', 'h1', 'h2', 'h3'].includes(command)) {
                 handleFormatting(view, command);
             }
@@ -429,7 +434,7 @@ stateDiagram-v2
                     className="editor-title"
                     value={note.title}
                     onChange={(e) => onTitleChange(e.target.value)}
-                    placeholder="Untitled"
+                    placeholder="No title..."
                 />
                 <HeadingBreadcrumb content={note.content} cursorLine={cursorLine} noteId={note.id} />
                 <CodeMirror

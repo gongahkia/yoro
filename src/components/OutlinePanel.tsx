@@ -49,7 +49,7 @@ export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, content, not
             </div>
             <div className="outline-body">
                 {headings.length === 0 ? (
-                    <p className="no-headings">No headings found.</p>
+                    <p className="no-headings">No headings leh</p>
                 ) : (
                     <ul className="outline-list">
                         {headings.map((heading, index) => (

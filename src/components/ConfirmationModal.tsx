@@ -9,7 +9,7 @@ interface ConfirmationModalProps {
     onCancel: () => void;
 }
 
-export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title = 'Confirm Action', message, onConfirm, onCancel }) => {
+export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title = 'Confirm anot?', message, onConfirm, onCancel }) => {
     const dialogRef = useRef<HTMLDivElement>(null);
 
     const readyRef = useRef(false);
@@ -49,8 +49,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, ti
                 <h3 className="modal-title" id="confirmation-modal-title">{title}</h3>
                 <p className="modal-message">{message}</p>
                 <div className="modal-actions">
-                    <button className="modal-btn cancel" onClick={onCancel}>Cancel</button>
-                    <button className="modal-btn confirm" onClick={onConfirm}>Delete</button>
+                    <button className="modal-btn cancel" onClick={onCancel}>Dun want</button>
+                    <button className="modal-btn confirm" onClick={onConfirm}>Delete lah</button>
                 </div>
             </div>
         </div>
