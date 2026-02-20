@@ -21,7 +21,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({ src, alt, onClose 
     if (!src) return null;
 
     return (
-        <div className="lightbox-overlay" onClick={onClose}>
+        <div className="lightbox-overlay" onClick={onClose} aria-label="Image lightbox" role="dialog">
             <div className="lightbox-content" onClick={e => e.stopPropagation()}>
                 <img src={src} alt={alt || 'Full size'} />
                 <button className="lightbox-close" onClick={onClose}>&times;</button>

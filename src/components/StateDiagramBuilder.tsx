@@ -177,7 +177,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
     return { nodes: layoutedNodes, edges };
 };
 
-export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, onUpdateNote }) => {
+export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.memo(({ note, onUpdateNote }) => {
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
@@ -451,16 +451,23 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
     };
 
     const handleInsert = () => {
-        const result = generateMermaid();
-        if (!result.isValid) {
-            console.error('[StateDiagram] Invalid mermaid:', result.error);
+        try {
+            const result = generateMermaid();
+            if (!result.isValid) {
+                console.error('[StateDiagram] Invalid mermaid:', result.error);
+                window.dispatchEvent(new CustomEvent('yoro-toast', {
+                    detail: { message: result.error || 'Cannot generate state diagram', type: 'error' }
+                }));
+                return;
+            }
+            const newContent = note.content + '\n\n' + result.code;
+            onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
+        } catch (err) {
+            console.error('[StateDiagram] Failed to generate mermaid:', err);
             window.dispatchEvent(new CustomEvent('yoro-toast', {
-                detail: { message: result.error || 'Cannot generate state diagram', type: 'error' }
+                detail: { message: `State diagram error: ${err instanceof Error ? err.message : 'Unknown error'}`, type: 'error' }
             }));
-            return;
         }
-        const newContent = note.content + '\n\n' + result.code;
-        onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
     };
 
     const handleCancel = () => {
@@ -526,4 +533,4 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = ({ note, 
             </ReactFlow>
         </div>
     );
-};
+});

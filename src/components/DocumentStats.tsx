@@ -52,7 +52,7 @@ export const DocumentStats: React.FC<DocumentStatsProps> = ({ content, visible }
     if (!visible) return null;
 
     return (
-        <div className="document-stats">
+        <div className="document-stats" role="status" aria-live="polite">
             <span className="document-stats-item">{stats.words} words</span>
             <span className="document-stats-separator">|</span>
             <span className="document-stats-item">{stats.characters} chars</span>

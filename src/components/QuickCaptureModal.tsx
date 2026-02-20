@@ -53,6 +53,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({ isOpen, on
                     onKeyDown={handleKeyDown}
                     placeholder="Capture a thought..."
                     maxLength={100_000}
+                    aria-label="Quick capture note content"
                 />
                 <div className="quick-capture-footer">
                     <button onClick={onClose}>Cancel</button>

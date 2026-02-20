@@ -122,14 +122,14 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
         <div className="backlinks-panel">
             <div className="backlinks-header">
                 <h3 className="backlinks-title">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                     </svg>
                     Backlinks
                 </h3>
-                <button className="backlinks-close" onClick={onClose} title="Close">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <button className="backlinks-close" onClick={onClose} title="Close" aria-label="Close backlinks panel">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                         <path d="M18 6L6 18M6 6l12 12" />
                     </svg>
                 </button>
@@ -142,7 +142,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                     </div>
                 ) : groupedBacklinks.length === 0 ? (
                     <div className="backlinks-empty">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                             <circle cx="12" cy="12" r="10" />
                             <path d="M12 6v6M12 15v1.5" />
                         </svg>
@@ -159,7 +159,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                                     className="backlink-note-title"
                                     onClick={() => handleNavigate(note.id)}
                                 >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                         <polyline points="14 2 14 8 20 8" />
                                     </svg>

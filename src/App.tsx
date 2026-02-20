@@ -464,8 +464,13 @@ function App() {
                 return;
             }
 
-            // Global shortcuts not in commands list (yet)
+            // Global shortcuts: Cmd+Shift+P or Cmd+K to open command palette
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+                e.preventDefault();
+                setIsPaletteOpen(prev => !prev);
+                return;
+            }
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K') && !e.shiftKey) {
                 e.preventDefault();
                 setIsPaletteOpen(prev => !prev);
                 return;
