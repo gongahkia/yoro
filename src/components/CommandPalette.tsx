@@ -282,6 +282,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     <input
                         ref={inputRef}
                         type="text"
+                        role="combobox"
+                        aria-expanded={true}
+                        aria-haspopup="listbox"
+                        aria-controls="cp-listbox"
+                        aria-activedescendant={`cp-item-${selectedIndex}`}
+                        aria-label="Search commands"
                         value={query}
                         onChange={e => {
                             setQuery(e.target.value);
@@ -289,7 +295,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         }}
                         onKeyDown={handleKeyDown}
                         placeholder={isSearchMode ? "Search notes..." : (sl ? "Type command lah, or / to search notes..." : "Type a command (or / to search notes)...")}
-                        aria-label="Search commands"
                     />
                 </div>
                 {isSearchMode ? (
@@ -327,7 +332,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         </ul>
                     </div>
                 ) : (
-                    <ul className="command-palette-list" ref={listRef}>
+                    <ul className="command-palette-list" id="cp-listbox" role="listbox" ref={listRef}>
                         {filteredCommands.map((cmd, index) => {
                             const isGroupHeader = cmd.isGroupHeader;
                             const isExpanded = cmd.groupId ? expandedGroups.has(cmd.groupId) : false;
@@ -336,6 +341,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                             return (
                                 <li
                                     key={cmd.id}
+                                    id={`cp-item-${index}`}
+                                    role="option"
                                     className={`command-palette-item ${index === selectedIndex ? 'selected' : ''} ${isGroupHeader ? 'group-header' : ''} ${isChildOfGroup ? 'group-child' : ''}`}
                                     onClick={() => executeCommand(cmd)}
                                     onMouseEnter={() => setSelectedIndex(index)}
