@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { ReactFlow, Background, Controls, useNodesState, useEdgesState, Panel, useOnSelectionChange, SelectionMode, ReactFlowProvider, Position, type Node, type Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
@@ -133,6 +133,7 @@ const MindMapInner: React.FC<MindMapProps> = ({ markdown, title, onViewModeChang
     const [nodes, setNodes, onNodesChange] = useNodesState(initialState.nodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialState.edges);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+    const layoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const handleLabelChange = useCallback((id: string, newLabel: string) => {
         setNodes(nds => nds.map(n =>
@@ -174,13 +175,8 @@ const MindMapInner: React.FC<MindMapProps> = ({ markdown, title, onViewModeChang
             type: 'smoothstep',
         };
 
-        setNodes(nds => {
-            const allNodes = [...nds, newNode];
-            const allEdges = [...edges, newEdge];
-            const { nodes: layoutedNodes } = getLayoutedElements(allNodes, allEdges);
-            return layoutedNodes;
-        });
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setNodes((nds: any) => [...nds, newNode]);
         setEdges(eds => [...eds, newEdge]);
     }, [nodeIdCounter, edges, setNodes, setEdges]);
 
@@ -200,15 +196,21 @@ const MindMapInner: React.FC<MindMapProps> = ({ markdown, title, onViewModeChang
         };
         selectedNodes.forEach(findDescendants);
 
-        setNodes(nds => {
-            const remaining = nds.filter(n => !nodesToDelete.has(n.id));
-            const remainingEdges = edges.filter(e => !nodesToDelete.has(e.source) && !nodesToDelete.has(e.target));
-            const { nodes: layoutedNodes } = getLayoutedElements(remaining, remainingEdges);
-            return layoutedNodes;
-        });
-
+        setNodes(nds => nds.filter(n => !nodesToDelete.has(n.id)));
         setEdges(eds => eds.filter(e => !nodesToDelete.has(e.source) && !nodesToDelete.has(e.target)));
     }, [selectedNodes, edges, setNodes, setEdges]);
+
+    // Debounced layout: batch rapid node add/delete into single dagre run
+    const nodesRef = useRef(nodes);
+    nodesRef.current = nodes;
+    useEffect(() => {
+        if (layoutTimerRef.current) clearTimeout(layoutTimerRef.current);
+        layoutTimerRef.current = setTimeout(() => {
+            const { nodes: layouted } = getLayoutedElements(nodesRef.current, edges);
+            setNodes(layouted);
+        }, 150);
+        return () => { if (layoutTimerRef.current) clearTimeout(layoutTimerRef.current); };
+    }, [edges]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
