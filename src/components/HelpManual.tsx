@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DOMPurify from 'dompurify';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/HelpManual.css';
 
 interface HelpManualProps {
@@ -11,87 +12,93 @@ interface HelpManualProps {
 
 type HelpSection = 'shortcuts' | 'markdown' | 'features';
 
-const keyboardShortcuts = {
-    general: [
-        { keys: 'Cmd/Ctrl + Shift + P', description: 'Open command palette lah' },
-        { keys: 'Cmd/Ctrl + Shift + I', description: 'Quick capture note' },
-        { keys: 'Cmd/Ctrl + Click', description: 'Follow link (wikilink or URL)' },
-        { keys: 'Escape', description: 'Close modal / get out lah' },
-    ],
-    editor: [
-        { keys: 'Cmd/Ctrl + H', description: 'Find and replace' },
-        { keys: 'Cmd/Ctrl + B', description: 'Bold lah' },
-        { keys: 'Cmd/Ctrl + I', description: 'Italic lah' },
-        { keys: 'Tab', description: 'Indent / add child node' },
-        { keys: 'Shift + Tab', description: 'Outdent' },
-        { keys: 'Delete/Backspace', description: 'Remove selected node' },
-        { keys: 'Alt + Up/Down', description: 'Move line up/down' },
-    ],
-    vim: [
-        { keys: ':q', description: 'Go home lah' },
-        { keys: ':wq', description: 'Save and go home' },
-        { keys: 'i', description: 'Enter insert mode' },
-        { keys: 'Esc', description: 'Exit insert mode' },
-        { keys: 'dd', description: 'Delete line liao' },
-        { keys: 'yy', description: 'Yank (copy) line' },
-        { keys: 'p', description: 'Paste' },
-        { keys: '/', description: 'Search forward' },
-        { keys: 'n', description: 'Next result' },
-        { keys: 'u', description: 'Undo lah' },
-        { keys: 'Ctrl + r', description: 'Redo' },
-    ],
-    emacs: [
-        { keys: 'C-f', description: 'Move forward' },
-        { keys: 'C-b', description: 'Move backward' },
-        { keys: 'C-n', description: 'Next line' },
-        { keys: 'C-p', description: 'Previous line' },
-        { keys: 'C-a', description: 'Start of line' },
-        { keys: 'C-e', description: 'End of line' },
-        { keys: 'C-k', description: 'Kill to end of line' },
-        { keys: 'C-y', description: 'Yank (paste)' },
-        { keys: 'C-w', description: 'Kill selection' },
-        { keys: 'M-w', description: 'Copy region' },
-        { keys: 'C-s', description: 'Search forward' },
-        { keys: 'C-r', description: 'Search backward' },
-        { keys: 'C-g', description: 'Cancel lah' },
-        { keys: 'C-/', description: 'Undo' },
-    ],
-};
+function getKeyboardShortcuts(sl: boolean) {
+    return {
+        general: [
+            { keys: 'Cmd/Ctrl + Shift + P', description: sl ? 'Open command palette lah' : 'Open command palette' },
+            { keys: 'Cmd/Ctrl + Shift + I', description: 'Quick capture note' },
+            { keys: 'Cmd/Ctrl + Click', description: 'Follow link (wikilink or URL)' },
+            { keys: 'Escape', description: sl ? 'Close modal / get out lah' : 'Close modal / Exit focus' },
+        ],
+        editor: [
+            { keys: 'Cmd/Ctrl + H', description: 'Find and replace' },
+            { keys: 'Cmd/Ctrl + B', description: sl ? 'Bold lah' : 'Bold text' },
+            { keys: 'Cmd/Ctrl + I', description: sl ? 'Italic lah' : 'Italic text' },
+            { keys: 'Tab', description: sl ? 'Indent / add child node' : 'Indent / Add child node (in visual editors)' },
+            { keys: 'Shift + Tab', description: 'Outdent' },
+            { keys: 'Delete/Backspace', description: sl ? 'Remove selected node' : 'Remove selected node (in visual editors)' },
+            { keys: 'Alt + Up/Down', description: 'Move line up/down' },
+        ],
+        vim: [
+            { keys: ':q', description: sl ? 'Go home lah' : 'Return to home' },
+            { keys: ':wq', description: sl ? 'Save and go home' : 'Save and return to home' },
+            { keys: 'i', description: 'Enter insert mode' },
+            { keys: 'Esc', description: 'Exit insert mode' },
+            { keys: 'dd', description: sl ? 'Delete line liao' : 'Delete line' },
+            { keys: 'yy', description: 'Yank (copy) line' },
+            { keys: 'p', description: 'Paste' },
+            { keys: '/', description: 'Search forward' },
+            { keys: 'n', description: 'Next result' },
+            { keys: 'u', description: sl ? 'Undo lah' : 'Undo' },
+            { keys: 'Ctrl + r', description: 'Redo' },
+        ],
+        emacs: [
+            { keys: 'C-f', description: sl ? 'Move forward' : 'Move forward one character' },
+            { keys: 'C-b', description: sl ? 'Move backward' : 'Move backward one character' },
+            { keys: 'C-n', description: sl ? 'Next line' : 'Move to next line' },
+            { keys: 'C-p', description: sl ? 'Previous line' : 'Move to previous line' },
+            { keys: 'C-a', description: sl ? 'Start of line' : 'Move to beginning of line' },
+            { keys: 'C-e', description: sl ? 'End of line' : 'Move to end of line' },
+            { keys: 'C-k', description: sl ? 'Kill to end of line' : 'Kill (delete) to end of line' },
+            { keys: 'C-y', description: sl ? 'Yank (paste)' : 'Yank (paste) killed text' },
+            { keys: 'C-w', description: sl ? 'Kill selection' : 'Kill (cut) selected region' },
+            { keys: 'M-w', description: sl ? 'Copy region' : 'Copy selected region' },
+            { keys: 'C-s', description: sl ? 'Search forward' : 'Search forward incrementally' },
+            { keys: 'C-r', description: sl ? 'Search backward' : 'Search backward incrementally' },
+            { keys: 'C-g', description: sl ? 'Cancel lah' : 'Cancel current operation' },
+            { keys: 'C-/', description: sl ? 'Undo' : 'Undo last change' },
+        ],
+    };
+}
 
-const markdownSyntax = [
-    { syntax: '# Heading 1', description: 'Big heading lah' },
-    { syntax: '## Heading 2', description: 'Medium heading' },
-    { syntax: '### Heading 3', description: 'Small heading' },
-    { syntax: '**bold**', description: 'Bold lah' },
-    { syntax: '*italic*', description: 'Italic lah' },
-    { syntax: '***bold italic***', description: 'Bold and italic sia' },
-    { syntax: '~~strikethrough~~', description: 'Strike out liao' },
-    { syntax: '`code`', description: 'Inline code' },
-    { syntax: '```lang\\ncode\\n```', description: 'Code block with highlighting' },
-    { syntax: '```mermaid\\n...\\n```', description: 'Mermaid diagram lah' },
-    { syntax: '[[Note Title]]', description: 'Wikilink to another note' },
-    { syntax: '[text](url)', description: 'Hyperlink' },
-    { syntax: '![alt](url)', description: 'Image' },
-    { syntax: '- item', description: 'Bullet point' },
-    { syntax: '1. item', description: 'Numbered list' },
-    { syntax: '- [ ] task', description: 'Task (not done yet)' },
-    { syntax: '- [x] task', description: 'Task (done liao)' },
-    { syntax: '> quote', description: 'Blockquote' },
-    { syntax: '> [!note]', description: 'Note callout' },
-    { syntax: '> [!warning]', description: 'Warning callout' },
-    { syntax: '> [!tip]', description: 'Tip callout' },
-    { syntax: '| Col1 | Col2 |', description: 'Table header' },
-    { syntax: '|---|---|', description: 'Table separator' },
-    { syntax: '---', description: 'Horizontal line' },
-    { syntax: '$math$', description: 'Inline math' },
-    { syntax: '$$math$$', description: 'Block math' },
-    { syntax: '==highlight==', description: 'Highlight lah' },
-    { syntax: ':emoji:', description: 'Emoji (e.g., :smile:)' },
-    { syntax: '[^1]', description: 'Footnote reference' },
-    { syntax: '[^1]: text', description: 'Footnote definition' },
-];
+function getMarkdownSyntax(sl: boolean) {
+    return [
+        { syntax: '# Heading 1', description: sl ? 'Big heading lah' : 'First-level heading' },
+        { syntax: '## Heading 2', description: sl ? 'Medium heading' : 'Second-level heading' },
+        { syntax: '### Heading 3', description: sl ? 'Small heading' : 'Third-level heading' },
+        { syntax: '**bold**', description: sl ? 'Bold lah' : 'Bold text' },
+        { syntax: '*italic*', description: sl ? 'Italic lah' : 'Italic text' },
+        { syntax: '***bold italic***', description: sl ? 'Bold and italic sia' : 'Bold italic text' },
+        { syntax: '~~strikethrough~~', description: sl ? 'Strike out liao' : 'Strikethrough text' },
+        { syntax: '`code`', description: 'Inline code' },
+        { syntax: '```lang\\ncode\\n```', description: 'Code block with highlighting' },
+        { syntax: '```mermaid\\n...\\n```', description: sl ? 'Mermaid diagram lah' : 'Mermaid diagram' },
+        { syntax: '[[Note Title]]', description: 'Wikilink to another note' },
+        { syntax: '[text](url)', description: 'Hyperlink' },
+        { syntax: '![alt](url)', description: 'Image' },
+        { syntax: '- item', description: 'Bullet point' },
+        { syntax: '1. item', description: 'Numbered list' },
+        { syntax: '- [ ] task', description: sl ? 'Task (not done yet)' : 'Unchecked task item' },
+        { syntax: '- [x] task', description: sl ? 'Task (done liao)' : 'Checked task item' },
+        { syntax: '> quote', description: 'Blockquote' },
+        { syntax: '> [!note]', description: 'Note callout' },
+        { syntax: '> [!warning]', description: 'Warning callout' },
+        { syntax: '> [!tip]', description: 'Tip callout' },
+        { syntax: '| Col1 | Col2 |', description: 'Table header' },
+        { syntax: '|---|---|', description: 'Table separator' },
+        { syntax: '---', description: 'Horizontal line' },
+        { syntax: '$math$', description: 'Inline math' },
+        { syntax: '$$math$$', description: 'Block math' },
+        { syntax: '==highlight==', description: sl ? 'Highlight lah' : 'Highlighted text' },
+        { syntax: ':emoji:', description: 'Emoji (e.g., :smile:)' },
+        { syntax: '[^1]', description: 'Footnote reference' },
+        { syntax: '[^1]: text', description: 'Footnote definition' },
+    ];
+}
 
-const featuresMarkdown = `
+function getFeaturesMarkdown(sl: boolean) {
+    if (sl) {
+        return `
 ## Editor
 - **Live Preview** — Markdown render inline as you type, shiok one
 - **Syntax Highlighting** — Got colors for 100+ languages
@@ -155,17 +162,88 @@ Press Cmd/Ctrl+Shift+P lah:
 - **Export** — PDF, DOCX, Markdown, ZIP
 - **Navigation** — Go to note, go home
 `;
+    }
+    return `
+## Editor
+- **Live Preview** — Renders Markdown inline as you type
+- **Syntax Highlighting** — Supports 100+ programming languages
+- **Vim Mode** — Full Vim keybindings including :q, :wq, and search
+- **Emacs Mode** — Emacs keybindings including C-f, C-b, C-k, C-y
+- **Focus Mode** — Dims surrounding lines to keep focus on current line
+- **Find & Replace** — Cmd/Ctrl+H to open find and replace panel
+- **Multi-cursor** — Edit multiple locations simultaneously
+- **Smart Lists** — Automatically continues bullets and checkboxes
+- **Line Wrapping** — Soft wrap or hard wrap at 80 columns
+- **Line Move** — Alt+Arrow keys to move lines up or down
+
+## Linking & Navigation
+- **Wikilinks** — Link notes using [[Note Title]] syntax
+- **Backlinks** — View all notes that reference the current note
+- **Knowledge Graph** — Visualise all note connections in a graph
+- **Outline Panel** — Navigate headings via the command palette
+
+## Rich Content
+- **Math (KaTeX)** — Inline $x^2$ and block $$\\sum_{i=1}^n$$ equations
+- **Mermaid Diagrams** — Flowcharts, mindmaps, and sequence diagrams
+- **Visual Builders** — Drag-and-drop flowchart and state diagram editors
+- **Tables** — Insert tables with column alignment support
+- **Callouts** — Styled blocks: > [!note], > [!warning], > [!tip]
+- **Code Blocks** — Fenced blocks with syntax highlighting
+- **Images** — Inline preview with click-to-lightbox
+- **Footnotes** — Hover to preview footnote content
+- **Highlighting** — Use ==text== to highlight
+
+## Organisation
+- **Tags** — Use #tags and filter by tag in the command palette
+- **Favourites** — Star important notes for quick access
+- **Sorting** — Sort by date updated, date created, or title
+
+## Capture & Export
+- **Quick Capture** — Cmd/Ctrl+Shift+I for rapid note capture
+- **Presentation Mode** — Present notes as slides (headings become slides)
+- **Export** — Export as Markdown, PDF, or Word (.docx)
+- **Share** — Share notes via compressed URL links
+- **ZIP Export** — Bulk export all notes as a ZIP archive
+
+## Customisation
+- **20+ Themes** — Nord, Dracula, Gruvbox, Catppuccin, Solarized, Tokyo Night, Kanagawa, Rose Pine, Everforest, and more
+- **Font Family** — Choose from Sans-serif, Serif, Monospace, or Comic Sans
+- **Font Size** — Adjustable from 10px to 32px
+- **Editor Alignment** — Left, center, or right alignment
+- **Cursor Animations** — None, subtle, or particles
+- **Line Numbers** — Toggle line numbers on or off
+- **Document Stats** — Displays word count and estimated reading time
+- **Home View** — Switch between 2D timeline and 3D carousel
+- **config.toml** — Manage all settings from a single config file
+
+## Command Palette
+Press Cmd/Ctrl+Shift+P to open:
+- **General** — New note, help manual, about, configuration
+- **View** — Knowledge graph, backlinks, outline, presentation, focus mode
+- **Editor** — Vim/Emacs mode, line wrapping, document stats
+- **Font** — Family (Sans/Serif/Mono/Comic Sans), size adjustment
+- **Theme** — 20+ themes in light and dark variants
+- **Sort** — Sort by date or title (A-Z / Z-A)
+- **Export** — PDF, DOCX, Markdown, ZIP
+- **Navigation** — Open a note or return home
+`;
+}
 
 export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode, emacsMode }) => {
     const [activeSection, setActiveSection] = useState<HelpSection>('shortcuts');
+    const sl = useSinglish();
 
     if (!isOpen) return null;
+
+    const shortcuts = getKeyboardShortcuts(sl);
+    const markdownSyntax = getMarkdownSyntax(sl);
+    const featuresMarkdown = getFeaturesMarkdown(sl);
 
     return (
         <div className="help-manual-overlay" onClick={onClose}>
             <div className="help-manual-modal" onClick={e => e.stopPropagation()}>
                 <div className="help-manual-header">
-                    <h2>Help lah</h2>
+                    <h2>{sl ? 'Help lah' : 'Help Manual'}</h2>
                     <button className="help-close-btn" onClick={onClose}>&times;</button>
                 </div>
 
@@ -174,13 +252,13 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
                         className={activeSection === 'shortcuts' ? 'active' : ''}
                         onClick={() => setActiveSection('shortcuts')}
                     >
-                        Shortcuts
+                        {sl ? 'Shortcuts' : 'Keyboard Shortcuts'}
                     </button>
                     <button
                         className={activeSection === 'markdown' ? 'active' : ''}
                         onClick={() => setActiveSection('markdown')}
                     >
-                        Markdown
+                        {sl ? 'Markdown' : 'Markdown Syntax'}
                     </button>
                     <button
                         className={activeSection === 'features' ? 'active' : ''}
@@ -196,7 +274,7 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
                             <h3>General</h3>
                             <table className="help-table">
                                 <tbody>
-                                    {keyboardShortcuts.general.map(s => (
+                                    {shortcuts.general.map(s => (
                                         <tr key={s.keys}>
                                             <td><kbd>{s.keys}</kbd></td>
                                             <td>{s.description}</td>
@@ -208,7 +286,7 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
                             <h3>Editor</h3>
                             <table className="help-table">
                                 <tbody>
-                                    {keyboardShortcuts.editor.map(s => (
+                                    {shortcuts.editor.map(s => (
                                         <tr key={s.keys}>
                                             <td><kbd>{s.keys}</kbd></td>
                                             <td>{s.description}</td>
@@ -219,10 +297,10 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
 
                             {vimMode && (
                                 <>
-                                    <h3>Vim Mode (On liao)</h3>
+                                    <h3>{sl ? 'Vim Mode (On liao)' : 'Vim Mode (Active)'}</h3>
                                     <table className="help-table">
                                         <tbody>
-                                            {keyboardShortcuts.vim.map(s => (
+                                            {shortcuts.vim.map(s => (
                                                 <tr key={s.keys}>
                                                     <td><kbd>{s.keys}</kbd></td>
                                                     <td>{s.description}</td>
@@ -235,11 +313,11 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
 
                             {emacsMode && (
                                 <>
-                                    <h3>Emacs Mode (On liao)</h3>
-                                    <p className="help-note">C = Ctrl, M = Alt/Option lah</p>
+                                    <h3>{sl ? 'Emacs Mode (On liao)' : 'Emacs Mode (Active)'}</h3>
+                                    <p className="help-note">{sl ? 'C = Ctrl, M = Alt/Option lah' : 'C = Ctrl, M = Alt/Option'}</p>
                                     <table className="help-table">
                                         <tbody>
-                                            {keyboardShortcuts.emacs.map(s => (
+                                            {shortcuts.emacs.map(s => (
                                                 <tr key={s.keys}>
                                                     <td><kbd>{s.keys}</kbd></td>
                                                     <td>{s.description}</td>
@@ -252,7 +330,7 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
 
                             {!vimMode && !emacsMode && (
                                 <p className="help-note">
-                                    Enable Vim or Emacs mode via command palette lah, got more shortcuts one.
+                                    {sl ? 'Enable Vim or Emacs mode via command palette lah, got more shortcuts one.' : 'Enable Vim or Emacs mode via the command palette for additional keybindings.'}
                                 </p>
                             )}
                         </div>
