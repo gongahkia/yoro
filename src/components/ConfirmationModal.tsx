@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/ConfirmationModal.css';
 
 interface ConfirmationModalProps {
@@ -9,7 +10,9 @@ interface ConfirmationModalProps {
     onCancel: () => void;
 }
 
-export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title = 'Confirm anot?', message, onConfirm, onCancel }) => {
+export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title, message, onConfirm, onCancel }) => {
+    const sl = useSinglish();
+    const resolvedTitle = title ?? (sl ? 'Confirm anot?' : 'Confirm');
     const dialogRef = useRef<HTMLDivElement>(null);
 
     const readyRef = useRef(false);
@@ -46,11 +49,11 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, ti
     return (
         <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="confirmation-modal-title">
             <div className="modal-container" onClick={(e) => e.stopPropagation()} ref={dialogRef}>
-                <h3 className="modal-title" id="confirmation-modal-title">{title}</h3>
+                <h3 className="modal-title" id="confirmation-modal-title">{resolvedTitle}</h3>
                 <p className="modal-message">{message}</p>
                 <div className="modal-actions">
-                    <button className="modal-btn cancel" onClick={onCancel}>Dun want</button>
-                    <button className="modal-btn confirm" onClick={onConfirm}>Delete lah</button>
+                    <button className="modal-btn cancel" onClick={onCancel}>{sl ? 'Dun want' : 'Cancel'}</button>
+                    <button className="modal-btn confirm" onClick={onConfirm}>{sl ? 'Delete lah' : 'Delete'}</button>
                 </div>
             </div>
         </div>
