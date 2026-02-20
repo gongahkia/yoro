@@ -34,6 +34,7 @@ export const getWikilinkCompletion = (notes: Note[]) => {
 };
 
 export const getMentionCompletion = (notes: Note[]) => {
+    let activeController: AbortController | null = null; // aborts previous fetch on new completion
     return (context: CompletionContext): CompletionResult | null => {
         // Allow URL characters in the match
         const word = context.matchBefore(/@(?:[\w\d\s\-_.:/?#&=%])*/);
@@ -81,8 +82,10 @@ export const getMentionCompletion = (notes: Note[]) => {
                     }
                     if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') return;
 
-                    // Attempt to fetch title with 5s timeout
+                    // Abort previous pending fetch, then start new one
+                    activeController?.abort();
                     const controller = new AbortController();
+                    activeController = controller;
                     const timeoutId = setTimeout(() => controller.abort(), 5000);
                     fetch(url, { signal: controller.signal })
                         .then(res => res.text())
@@ -116,7 +119,10 @@ export const getMentionCompletion = (notes: Note[]) => {
                                 console.warn('Failed to fetch link title', err);
                             }
                         })
-                        .finally(() => clearTimeout(timeoutId));
+                        .finally(() => {
+                            clearTimeout(timeoutId);
+                            if (activeController === controller) activeController = null;
+                        });
                 }
             });
         }
