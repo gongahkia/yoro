@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showToast } from './Toast';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/CommandPalette.css';
 
 export interface CommandParameter {
@@ -63,6 +64,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     initialQuery = '',
     onInitialQueryConsumed
 }) => {
+    const sl = useSinglish();
     const [query, setQuery] = useState(initialQuery);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
@@ -221,7 +223,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             cmd.action();
         } catch (err) {
             showToast(
-                `Command siao liao: ${err instanceof Error ? err.message : 'dunno what happen'}`,
+                sl ? `Command siao liao: ${err instanceof Error ? err.message : 'dunno what happen'}` : `Command failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
                 'error'
             );
         }
@@ -284,7 +286,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                             setSelectedIndex(0);
                         }}
                         onKeyDown={handleKeyDown}
-                        placeholder={isSearchMode ? "Search notes..." : "Type command lah, or / to search notes..."}
+                        placeholder={isSearchMode ? "Search notes..." : (sl ? "Type command lah, or / to search notes..." : "Type a command (or / to search notes)...")}
                         aria-label="Search commands"
                     />
                 </div>
@@ -318,7 +320,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                 </li>
                             ))}
                             {allTags.length === 0 && (
-                                <li className="command-palette-empty">No tags leh</li>
+                                <li className="command-palette-empty">{sl ? 'No tags leh' : 'No tags found'}</li>
                             )}
                         </ul>
                     </div>
@@ -357,7 +359,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                             );
                         })}
                         {filteredCommands.length === 0 && (
-                            <li className="command-palette-empty">No such command leh</li>
+                            <li className="command-palette-empty">{sl ? 'No such command leh' : 'No commands found'}</li>
                         )}
                     </ul>
                 )}
