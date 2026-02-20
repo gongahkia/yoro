@@ -291,6 +291,8 @@ class LivePreviewPlugin {
         return Decoration.set(widgets, true);
     }
 
+    destroy() {}
+
     isFocused(selection: { from: number, to: number }, from: number, to: number) {
         return (selection.from >= from && selection.from <= to) ||
             (selection.to >= from && selection.to <= to);

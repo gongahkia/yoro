@@ -71,6 +71,8 @@ class BracketPulsePlugin {
         return Decoration.set(widgets, true);
     }
 
+    destroy() {}
+
     findMatchingBracket(doc: string, pos: number, bracket: string): number | null {
         const target = BRACKETS[bracket];
         const isOpening = OPENING_BRACKETS.has(bracket);
