@@ -71,10 +71,6 @@
 
 # ─── MEMORY LEAKS / CLEANUP (B) ───────────────────────────────────────────────
 
-(B) Add cleanup for setTimeout in FindReplacePanel.tsx replaceCurrentMatch (line ~217) — store ref and clear on unmount +fix
-(B) Add cleanup for setTimeout in BacklinksPanel.tsx (line ~116) — store ref and clear on unmount +fix
-(B) Verify all ViewPlugin instances in src/extensions/ have proper destroy() methods — audit mermaid.ts, live-preview.ts, wikilink-preview.ts, bracket-pulse.ts +fix
-(B) Add AbortController to wikilinks.ts fetch() call and abort on extension destroy to prevent leaked promises +fix
 (B) Add Lighthouse CI check to GitHub Actions to catch perf/a11y regressions +infra
 (B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
 (B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
