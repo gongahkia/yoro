@@ -41,6 +41,7 @@ function App() {
                 focusModeBlur: loaded.preferences.focusModeBlur !== false,
                 cursorAnimations: loaded.preferences.cursorAnimations || 'subtle',
                 sortOrder: loaded.preferences.sortOrder || 'updated',
+                singlish: loaded.preferences.singlish || false,
             }
         };
     });
