@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import type { Note } from '../types';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/BacklinksPanel.css';
 
 interface BacklinksPanelProps {
@@ -24,6 +25,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
     notes,
     onNavigate,
 }) => {
+    const sl = useSinglish();
     // Find all backlinks to the current note
     const backlinks = useMemo(() => {
         if (!currentNote) return [];
@@ -138,7 +140,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
             <div className="backlinks-content">
                 {!currentNote ? (
                     <div className="backlinks-empty">
-                        No note selected leh
+                        {sl ? 'No note selected leh' : 'No note selected'}
                     </div>
                 ) : groupedBacklinks.length === 0 ? (
                     <div className="backlinks-empty">
@@ -146,9 +148,9 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                             <circle cx="12" cy="12" r="10" />
                             <path d="M12 6v6M12 15v1.5" />
                         </svg>
-                        <span>No backlinks leh</span>
+                        <span>{sl ? 'No backlinks leh' : 'No backlinks found'}</span>
                         <span className="backlinks-empty-hint">
-                            Use [[{currentNote.title || 'note title'}]] to link here lah
+                            {sl ? `Use [[${currentNote.title || 'note title'}]] to link here lah` : `Link to this note using [[${currentNote.title || 'note title'}]]`}
                         </span>
                     </div>
                 ) : (
@@ -190,7 +192,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
 
             <div className="backlinks-footer">
                 <span className="backlinks-stats">
-                    {backlinks.length} ref from {groupedBacklinks.length} note
+                    {sl ? `${backlinks.length} ref from ${groupedBacklinks.length} note` : `${backlinks.length} reference${backlinks.length !== 1 ? 's' : ''} from ${groupedBacklinks.length} note${groupedBacklinks.length !== 1 ? 's' : ''}`}
                 </span>
             </div>
         </div>
