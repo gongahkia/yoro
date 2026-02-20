@@ -44,9 +44,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, ti
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay" onClick={onCancel}>
+        <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="confirmation-modal-title">
             <div className="modal-container" onClick={(e) => e.stopPropagation()} ref={dialogRef}>
-                <h3 className="modal-title">{title}</h3>
+                <h3 className="modal-title" id="confirmation-modal-title">{title}</h3>
                 <p className="modal-message">{message}</p>
                 <div className="modal-actions">
                     <button className="modal-btn cancel" onClick={onCancel}>Cancel</button>

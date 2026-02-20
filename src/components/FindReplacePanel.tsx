@@ -148,20 +148,24 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
         return results;
     }, [editorView, findValue, caseSensitive, useRegex]);
 
-    // Update search highlighting
+    // Update search highlighting (debounced 150ms)
     useEffect(() => {
         if (!editorView) return;
 
-        editorView.dispatch({
-            effects: findValue
-                ? setSearchQuery.of({ query: findValue, caseSensitive, regex: useRegex })
-                : clearSearch.of(null)
-        });
+        const timer = setTimeout(() => {
+            editorView.dispatch({
+                effects: findValue
+                    ? setSearchQuery.of({ query: findValue, caseSensitive, regex: useRegex })
+                    : clearSearch.of(null)
+            });
 
-        const results = findMatches();
-        if (results.length > 0 && currentMatchIndex >= results.length) {
-            setCurrentMatchIndex(0);
-        }
+            const results = findMatches();
+            if (results.length > 0 && currentMatchIndex >= results.length) {
+                setCurrentMatchIndex(0);
+            }
+        }, 150);
+
+        return () => clearTimeout(timer);
     }, [findValue, caseSensitive, useRegex, editorView, findMatches, currentMatchIndex]);
 
     // Focus input when panel opens
@@ -274,6 +278,7 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
                     placeholder="Find..."
                     value={findValue}
                     onChange={(e) => setFindValue(e.target.value)}
+                    aria-label="Find"
                 />
                 <div className="find-replace-toggles">
                     <button
@@ -300,6 +305,7 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
                     placeholder="Replace..."
                     value={replaceValue}
                     onChange={(e) => setReplaceValue(e.target.value)}
+                    aria-label="Replace"
                 />
                 <div className="find-replace-nav">
                     <button
@@ -326,7 +332,7 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
             </div>
 
             <div className="find-replace-row">
-                <span className={`find-replace-match-count ${findValue && matches.length === 0 ? 'no-matches' : ''}`}>
+                <span className={`find-replace-match-count ${findValue && matches.length === 0 ? 'no-matches' : ''}`} aria-live="polite">
                     {findValue ? (
                         matches.length > 0
                             ? `${currentMatchIndex + 1} of ${matches.length}`

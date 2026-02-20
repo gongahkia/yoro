@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
-import JSZip from 'jszip';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import LZString from 'lz-string';
 import { parse, stringify } from 'smol-toml';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
-import { templates } from './utils/templates';
+import { generateConfigTemplate } from './utils/configTemplate';
+import { createCommands } from './commands';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
@@ -13,102 +13,17 @@ import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { OutlinePanel } from './components/OutlinePanel';
 import { ImageLightbox } from './components/ImageLightbox';
 import { PresentationMode } from './components/PresentationMode';
-
 import { NoteList } from './components/NoteList';
-import { Editor } from './components/Editor';
-import { MindMap } from './components/MindMap';
+import { NoteEditorWrapper } from './components/NoteEditorWrapper';
+import { AboutModal } from './components/AboutModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
-import { FlowchartBuilder } from './components/FlowchartBuilder';
-import { StateDiagramBuilder } from './components/StateDiagramBuilder';
 import { TableInsertModal } from './components/TableInsertModal';
 import { ToastContainer, showToast } from './components/Toast';
 import { HelpManual } from './components/HelpManual';
 import { KnowledgeGraph } from './components/KnowledgeGraph';
 import { BacklinksPanel } from './components/BacklinksPanel';
 import { MobileWarning } from './components/MobileWarning';
-import { exportToPDF, exportToDOCX } from './utils/exportUtils';
 import './App.css';
-
-interface NoteEditorWrapperProps {
-    notes: Note[];
-    onUpdateNote: (id: string, updates: Partial<Note>) => void;
-    onNavigate: (id: string) => void;
-    vimMode: boolean;
-    emacsMode: boolean;
-    focusMode: boolean;
-    focusModeBlur: boolean;
-    lineWrapping: boolean;
-    showLineNumbers: boolean;
-    editorAlignment: 'left' | 'center' | 'right';
-    showDocumentStats: boolean;
-    cursorAnimations: 'none' | 'subtle' | 'particles';
-    findReplaceOpen: boolean;
-    onCloseFindReplace: () => void;
-}
-
-const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({ notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, cursorAnimations, findReplaceOpen, onCloseFindReplace }) => {
-    const { id } = useParams<{ id: string }>();
-    const note = notes.find(n => n.id === id);
-
-    if (!note) return <div>Note not found</div>;
-
-    if (note.viewMode === 'mindmap') {
-        return (
-            <MindMap
-                markdown={note.content}
-                title={note.title}
-                noteId={note.id}
-                onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
-                onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
-            />
-        );
-    }
-
-    if (note.viewMode === 'flowchart') {
-        return (
-            <FlowchartBuilder
-                note={note}
-                onUpdateNote={onUpdateNote}
-            />
-        );
-    }
-
-    if (note.viewMode === 'state') {
-        return (
-            <StateDiagramBuilder
-                note={note}
-                onUpdateNote={onUpdateNote}
-            />
-        );
-    }
-
-    return (
-        <Editor
-            note={note}
-            notes={notes}
-            onChange={(content) => onUpdateNote(note.id, { content })}
-            onTitleChange={(title) => onUpdateNote(note.id, { title })}
-            onNavigate={onNavigate}
-            onPositionChange={(cursorPos, scrollPos) => {
-                onUpdateNote(note.id, {
-                    lastCursorPosition: cursorPos,
-                    lastScrollPosition: scrollPos
-                });
-            }}
-            vimMode={vimMode}
-            emacsMode={emacsMode}
-            focusMode={focusMode}
-            focusModeBlur={focusModeBlur}
-            lineWrapping={lineWrapping}
-            showLineNumbers={showLineNumbers}
-            editorAlignment={editorAlignment}
-            showDocumentStats={showDocumentStats}
-            cursorAnimations={cursorAnimations}
-            findReplaceOpen={findReplaceOpen}
-            onCloseFindReplace={onCloseFindReplace}
-        />
-    );
-};
 
 function App() {
     const [data, setData] = useState<AppState>(() => {
@@ -278,7 +193,7 @@ function App() {
         navigate(`/note/${id}`);
     }, [navigate]);
 
-    const handleDuplicateNote = useCallback((id: string, e?: React.MouseEvent) => {
+    const handleDuplicateNote = useCallback((id: string, e?: { stopPropagation: () => void }) => {
         e?.stopPropagation();
         const noteToDuplicate = data.notes.find(n => n.id === id);
         if (noteToDuplicate) {
@@ -323,7 +238,7 @@ function App() {
         return 'global';
     }, [location.pathname]);
 
-    const handleDeleteNote = useCallback((id: string, e?: React.MouseEvent) => {
+    const handleDeleteNote = useCallback((id: string, e?: { stopPropagation: () => void }) => {
         e?.stopPropagation();
         const note = data.notes.find(n => n.id === id);
         if (!note) return;
@@ -347,7 +262,7 @@ function App() {
         }
     }, [data.notes, navigate, getCurrentNoteId]);
 
-    const handleRestoreNote = useCallback((id: string, e?: React.MouseEvent) => {
+    const handleRestoreNote = useCallback((id: string, e?: { stopPropagation: () => void }) => {
         e?.stopPropagation();
         const note = data.notes.find(n => n.id === id);
         setData(prev => ({
@@ -411,935 +326,83 @@ function App() {
         }
     }, [location.search, navigate]);
 
-    // Sync from config.toml note to preferences
+    // Sync from config.toml note to preferences (debounced 300ms)
     useEffect(() => {
-        const configNote = data.notes.find(n => n.title === 'config.toml');
-        if (configNote) {
-            try {
-                const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
-                const updates: Partial<AppState['preferences']> = {};
-                let hasUpdates = false;
-                const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
+        const timer = setTimeout(() => {
+            const configNote = data.notes.find(n => n.title === 'config.toml');
+            if (configNote) {
+                try {
+                    const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
+                    const updates: Partial<AppState['preferences']> = {};
+                    let hasUpdates = false;
+                    const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
 
-                for (const key of keys) {
-                    if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
-                        (updates as Record<string, unknown>)[key] = parsed[key];
-                        hasUpdates = true;
+                    for (const key of keys) {
+                        if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
+                            (updates as Record<string, unknown>)[key] = parsed[key];
+                            hasUpdates = true;
+                        }
                     }
-                }
 
-                if (hasUpdates) {
-                    setTimeout(() => handleUpdatePreferences(updates, false), 0);
+                    if (hasUpdates) {
+                        handleUpdatePreferences(updates, false);
+                    }
+                } catch {
+                    // ignore parse errors while typing
                 }
-            } catch {
-                // ignore parse errors while typing
             }
-        }
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [data.notes, data.preferences, handleUpdatePreferences]);
 
-    const commands: Command[] = useMemo(() => [
-        {
-            id: 'new-note',
-            label: 'Create New Note',
-            action: () => handleCreateNote(),
-            category: 'General'
-        },
-        {
-            id: 'open-help',
-            label: 'Open Help Manual',
-            action: () => setIsHelpOpen(true),
-            category: 'General'
-        },
-        {
-            id: 'about-yoro',
-            label: 'About Yoro',
-            action: () => setIsAboutOpen(true),
-            category: 'General'
-        },
-        {
-            id: 'open-knowledge-graph',
-            label: 'Open Knowledge Graph',
-            action: () => setIsKnowledgeGraphOpen(true),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'open-backlinks',
-            label: 'Show Backlinks',
-            action: () => setIsBacklinksPanelOpen(true),
-            category: 'View',
-            context: 'editor' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-outline',
-            label: 'Toggle Outline',
-            action: () => setIsOutlineOpen(prev => !prev),
-            category: 'View',
-            context: 'editor' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-presentation',
-            label: 'Start Presentation',
-            action: () => {
-                const id = getCurrentNoteId();
-                if (id) {
-                    navigate(`/note/${id}/presentation`);
-                }
-            },
-            category: 'View',
-            context: 'editor' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'open-config',
-            label: 'Open Configuration (config.toml)',
-            action: () => {
-                const existing = data.notes.find(n => n.title === 'config.toml');
-                if (existing) {
-                    handleSelectNote(existing.id);
-                } else {
-                    // Create config note with current defaults
-                    const newId = crypto.randomUUID();
-                    setData(prev => {
-                        const now = Date.now();
-                        const configContent = `# Yoro Configuration
-# Edit these values to customize your experience.
-# Changes are applied automatically when you save.
-
-# ═══════════════════════════════════════════════════════════════
-# APPEARANCE
-# ═══════════════════════════════════════════════════════════════
-
-# Theme options:
-# light, dark, sepia-light, sepia-dark, dracula-light, dracula-dark,
-# nord-light, nord-dark, solarized-light, solarized-dark,
-# gruvbox-light, gruvbox-dark, everforest-light, everforest-dark,
-# catppuccin-light, catppuccin-dark, rose-pine-light, rose-pine-dark,
-# tokyo-night-light, tokyo-night-dark, kanagawa-light, kanagawa-dark,
-# monokai-light, monokai-dark, ayu-light, ayu-dark,
-# one-light, one-dark, zenburn-light, zenburn-dark,
-# palenight-light, palenight-dark, material-light, material-dark
-theme = "${prev.preferences.theme}"
-
-# Home view mode: "3d-carousel" or "2d-semicircle"
-homeViewMode = "${prev.preferences.homeViewMode}"
-
-# Sort order: "updated", "created", "alpha", "alpha-reverse"
-sortOrder = "${prev.preferences.sortOrder}"
-
-# ═══════════════════════════════════════════════════════════════
-# EDITOR
-# ═══════════════════════════════════════════════════════════════
-
-# Keybinding modes (only one can be active)
-vimMode = ${prev.preferences.vimMode}
-emacsMode = ${prev.preferences.emacsMode}
-
-# Focus mode dims non-active lines
-focusMode = ${prev.preferences.focusMode}
-focusModeBlur = ${prev.preferences.focusModeBlur}
-
-# Line display options
-showLineNumbers = ${prev.preferences.showLineNumbers}
-lineWrapping = ${prev.preferences.lineWrapping}
-
-# Editor alignment: "left", "center", or "right"
-editorAlignment = "${prev.preferences.editorAlignment}"
-
-# Cursor animation: "none", "subtle", or "particles"
-cursorAnimations = "${prev.preferences.cursorAnimations}"
-
-# ═══════════════════════════════════════════════════════════════
-# TYPOGRAPHY
-# ═══════════════════════════════════════════════════════════════
-
-# Font family options:
-# Sans:  "Inter, system-ui, -apple-system, sans-serif"
-# Serif: "Merriweather, Georgia, Cambria, 'Times New Roman', serif"
-# Mono:  "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace"
-# Comic: "'Comic Sans MS', 'Comic Sans', cursive"
-fontFamily = "${prev.preferences.fontFamily}"
-
-# Font size in pixels (10-32)
-fontSize = ${prev.preferences.fontSize}
-
-# ═══════════════════════════════════════════════════════════════
-# DISPLAY
-# ═══════════════════════════════════════════════════════════════
-
-# Show word count, character count, and reading time
-showDocumentStats = ${prev.preferences.showDocumentStats}
-`;
-                        const newNote: Note = {
-                            id: newId,
-                            title: 'config.toml',
-                            content: configContent.trim(),
-                            format: 'markdown', // acts as text
-                            tags: ['config'],
-                            createdAt: now,
-                            updatedAt: now,
-                            isFavorite: false,
-                        };
-                        return {
-                            ...prev,
-                            notes: [newNote, ...prev.notes]
-                        };
-                    });
-                    handleSelectNote(newId);
-                }
-            },
-            category: 'General'
-        },
-        // Font Settings
-        {
-            id: 'font-sans',
-            label: 'Font: Sans Serif',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' });
-                showToast('Font: Sans Serif', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-serif',
-            label: 'Font: Serif',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' });
-                showToast('Font: Serif', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-mono',
-            label: 'Font: Monospace',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" });
-                showToast('Font: Monospace', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-comic',
-            label: 'Font: Comic Sans',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" });
-                showToast('Font: Comic Sans', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-increase',
-            label: 'Font Size: Increase',
-            action: () => handleUpdatePreferences({ fontSize: Math.min(data.preferences.fontSize + 2, 32) }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-decrease',
-            label: 'Font Size: Decrease',
-            action: () => handleUpdatePreferences({ fontSize: Math.max(data.preferences.fontSize - 2, 10) }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-reset',
-            label: 'Font Size: Reset (16px)',
-            action: () => handleUpdatePreferences({ fontSize: 16 }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'toggle-alignment',
-            label: 'Cycle Editor Alignment',
-            action: () => {
-                const map: Record<string, 'left' | 'center' | 'right'> = {
-                    'left': 'center',
-                    'center': 'right',
-                    'right': 'left'
+    const handleOpenConfig = useCallback(() => {
+        const existing = data.notes.find(n => n.title === 'config.toml');
+        if (existing) {
+            handleSelectNote(existing.id);
+        } else {
+            const newId = crypto.randomUUID();
+            setData(prev => {
+                const now = Date.now();
+                const newNote: Note = {
+                    id: newId,
+                    title: 'config.toml',
+                    content: generateConfigTemplate(prev.preferences),
+                    format: 'markdown',
+                    tags: ['config'],
+                    createdAt: now,
+                    updatedAt: now,
+                    isFavorite: false,
                 };
-                const current = data.preferences.editorAlignment || 'left';
-                handleUpdatePreferences({ editorAlignment: map[current] || 'left' });
-            },
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'align-left',
-            label: 'Align Editor Left (Natural)',
-            action: () => handleUpdatePreferences({ editorAlignment: 'left' }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'align-center',
-            label: 'Align Editor Center',
-            action: () => handleUpdatePreferences({ editorAlignment: 'center' }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'align-right',
-            label: 'Align Editor Right',
-            action: () => handleUpdatePreferences({ editorAlignment: 'right' }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-vim',
-            label: 'Toggle Vim Mode',
-            action: () => {
-                const newVimMode = !data.preferences.vimMode;
-                handleUpdatePreferences({
-                    vimMode: newVimMode,
-                    emacsMode: newVimMode ? false : data.preferences.emacsMode
-                });
-                showToast(`Vim mode ${newVimMode ? 'enabled' : 'disabled'}`, 'info');
-            },
-            category: 'Editor',
-            groupId: 'editor-settings'
-        },
-        {
-            id: 'toggle-emacs',
-            label: 'Toggle Emacs Mode',
-            action: () => {
-                const newEmacsMode = !data.preferences.emacsMode;
-                handleUpdatePreferences({
-                    emacsMode: newEmacsMode,
-                    vimMode: newEmacsMode ? false : data.preferences.vimMode
-                });
-                showToast(`Emacs mode ${newEmacsMode ? 'enabled' : 'disabled'}`, 'info');
-            },
-            category: 'Editor',
-            groupId: 'editor-settings'
-        },
-        {
-            id: 'toggle-line-numbers',
-            label: 'Toggle Line Numbers',
-            action: () => handleUpdatePreferences({ showLineNumbers: !data.preferences.showLineNumbers }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-mindmap',
-            label: 'Create Mindmap',
-            action: () => {
-                const id = getCurrentNoteId();
-                if (id) {
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        handleUpdateNote(id, { viewMode: note.viewMode === 'mindmap' ? 'editor' : 'mindmap' });
-                    }
-                }
-            },
-            category: 'View',
-            context: 'editor' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-focus-mode',
-            label: 'Toggle Focus Mode',
-            action: () => {
-                const newFocusMode = !data.preferences.focusMode;
-                handleUpdatePreferences({ focusMode: newFocusMode });
-                showToast(`Focus mode ${newFocusMode ? 'enabled' : 'disabled'}`, 'info');
-            },
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-focus-mode-blur',
-            label: 'Toggle Focus Mode Blur',
-            action: () => handleUpdatePreferences({ focusModeBlur: !data.preferences.focusModeBlur }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'toggle-line-wrapping',
-            label: 'Toggle Line Wrapping (Soft)',
-            action: () => handleUpdatePreferences({ lineWrapping: !data.preferences.lineWrapping }),
-            category: 'View',
-            groupId: 'editor-settings'
-        },
-        {
-            id: 'toggle-document-stats',
-            label: 'Toggle Document Stats',
-            action: () => handleUpdatePreferences({ showDocumentStats: !data.preferences.showDocumentStats }),
-            category: 'View',
-            groupId: 'view-settings'
-        },
-        {
-            id: 'hard-wrap',
-            label: 'Hard Wrap Text (80 cols)',
-            action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
-            category: 'Editor',
-            context: 'editor' as const,
-            groupId: 'editor-settings'
-        },
-        {
-            id: 'cycle-cursor-animation',
-            label: 'Cycle Cursor Animation',
-            action: () => {
-                const current = data.preferences.cursorAnimations || 'subtle';
-                const next: 'none' | 'subtle' | 'particles' =
-                    current === 'none' ? 'subtle' :
-                    current === 'subtle' ? 'particles' : 'none';
-                handleUpdatePreferences({ cursorAnimations: next });
-                showToast(`Cursor animation: ${next}`, 'info');
-            },
-            category: 'Editor',
-            groupId: 'editor-settings'
-        },
-        // Home View Toggle
-        {
-            id: 'toggle-home-view',
-            label: 'Switch Home View (2D/3D)',
-            action: () => handleUpdatePreferences({
-                homeViewMode: data.preferences.homeViewMode === '3d-carousel'
-                    ? '2d-semicircle' : '3d-carousel'
-            }),
-            category: 'View',
-            context: 'home' as const,
-            groupId: 'view-settings'
-        },
-        // Sort Commands
-        {
-            id: 'sort-updated',
-            label: 'Sort by Date Updated',
-            action: () => handleUpdatePreferences({ sortOrder: 'updated' }),
-            category: 'Sort',
-            context: 'home' as const
-        },
-        {
-            id: 'sort-created',
-            label: 'Sort by Date Created',
-            action: () => handleUpdatePreferences({ sortOrder: 'created' }),
-            category: 'Sort',
-            context: 'home' as const
-        },
-        {
-            id: 'sort-alpha',
-            label: 'Sort by Title A-Z',
-            action: () => handleUpdatePreferences({ sortOrder: 'alpha' }),
-            category: 'Sort',
-            context: 'home' as const
-        },
-        {
-            id: 'sort-alpha-reverse',
-            label: 'Sort by Title Z-A',
-            action: () => handleUpdatePreferences({ sortOrder: 'alpha-reverse' }),
-            category: 'Sort',
-            context: 'home' as const
-        },
-        {
-            id: 'theme-light',
-            label: 'Theme: Yoro Light',
-            action: () => handleUpdatePreferences({ theme: 'light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-dark',
-            label: 'Theme: Yoro Dark',
-            action: () => handleUpdatePreferences({ theme: 'dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-sepia-light',
-            label: 'Theme: Sepia Light',
-            action: () => handleUpdatePreferences({ theme: 'sepia-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-sepia-dark',
-            label: 'Theme: Sepia Dark',
-            action: () => handleUpdatePreferences({ theme: 'sepia-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-dracula-light',
-            label: 'Theme: Dracula Light',
-            action: () => handleUpdatePreferences({ theme: 'dracula-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-dracula-dark',
-            label: 'Theme: Dracula Dark',
-            action: () => handleUpdatePreferences({ theme: 'dracula-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-nord-light',
-            label: 'Theme: Nord Light',
-            action: () => handleUpdatePreferences({ theme: 'nord-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-nord-dark',
-            label: 'Theme: Nord Dark',
-            action: () => handleUpdatePreferences({ theme: 'nord-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-gruvbox-light',
-            label: 'Theme: Gruvbox Light',
-            action: () => handleUpdatePreferences({ theme: 'gruvbox-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-gruvbox-dark',
-            label: 'Theme: Gruvbox Dark',
-            action: () => handleUpdatePreferences({ theme: 'gruvbox-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-everforest-light',
-            label: 'Theme: Everforest Light',
-            action: () => handleUpdatePreferences({ theme: 'everforest-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-everforest-dark',
-            label: 'Theme: Everforest Dark',
-            action: () => handleUpdatePreferences({ theme: 'everforest-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-catppuccin-light',
-            label: 'Theme: Catppuccin Light',
-            action: () => handleUpdatePreferences({ theme: 'catppuccin-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-catppuccin-dark',
-            label: 'Theme: Catppuccin Dark',
-            action: () => handleUpdatePreferences({ theme: 'catppuccin-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-solarized-light',
-            label: 'Theme: Solarized Light',
-            action: () => handleUpdatePreferences({ theme: 'solarized-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-solarized-dark',
-            label: 'Theme: Solarized Dark',
-            action: () => handleUpdatePreferences({ theme: 'solarized-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-rose-pine-light',
-            label: 'Theme: Rose Pine Light',
-            action: () => handleUpdatePreferences({ theme: 'rose-pine-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-rose-pine-dark',
-            label: 'Theme: Rose Pine Dark',
-            action: () => handleUpdatePreferences({ theme: 'rose-pine-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-tokyo-night-light',
-            label: 'Theme: Tokyo Night Light',
-            action: () => handleUpdatePreferences({ theme: 'tokyo-night-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-tokyo-night-dark',
-            label: 'Theme: Tokyo Night Dark',
-            action: () => handleUpdatePreferences({ theme: 'tokyo-night-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-kanagawa-light',
-            label: 'Theme: Kanagawa Light',
-            action: () => handleUpdatePreferences({ theme: 'kanagawa-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-kanagawa-dark',
-            label: 'Theme: Kanagawa Dark',
-            action: () => handleUpdatePreferences({ theme: 'kanagawa-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-monokai-light',
-            label: 'Theme: Monokai Light',
-            action: () => handleUpdatePreferences({ theme: 'monokai-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-monokai-dark',
-            label: 'Theme: Monokai Dark',
-            action: () => handleUpdatePreferences({ theme: 'monokai-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-ayu-light',
-            label: 'Theme: Ayu Light',
-            action: () => handleUpdatePreferences({ theme: 'ayu-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-ayu-dark',
-            label: 'Theme: Ayu Dark',
-            action: () => handleUpdatePreferences({ theme: 'ayu-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-one-light',
-            label: 'Theme: One Light',
-            action: () => handleUpdatePreferences({ theme: 'one-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-one-dark',
-            label: 'Theme: One Dark',
-            action: () => handleUpdatePreferences({ theme: 'one-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-zenburn-light',
-            label: 'Theme: Zenburn Light',
-            action: () => handleUpdatePreferences({ theme: 'zenburn-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-zenburn-dark',
-            label: 'Theme: Zenburn Dark',
-            action: () => handleUpdatePreferences({ theme: 'zenburn-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-palenight-light',
-            label: 'Theme: Palenight Light',
-            action: () => handleUpdatePreferences({ theme: 'palenight-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-palenight-dark',
-            label: 'Theme: Palenight Dark',
-            action: () => handleUpdatePreferences({ theme: 'palenight-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-material-light',
-            label: 'Theme: Material Light',
-            action: () => handleUpdatePreferences({ theme: 'material-light' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'theme-material-dark',
-            label: 'Theme: Material Dark',
-            action: () => handleUpdatePreferences({ theme: 'material-dark' }),
-            category: 'Theme',
-            groupId: 'theme-settings'
-        },
-        {
-            id: 'go-home',
-            label: 'Go to Home',
-            action: () => {
-                // Close all overlays
-                setIsKnowledgeGraphOpen(false);
-                setIsHelpOpen(false);
-                setIsBacklinksPanelOpen(false);
-                setIsOutlineOpen(false);
-                setIsFindReplaceOpen(false);
-                setIsQuickCaptureOpen(false);
-                navigate('/');
-            },
-            category: 'Navigation'
-        },
-        // Open Bin Command
-        ...(data.notes.some(n => n.deletedAt) ? [{
-            id: 'open-bin',
-            label: 'Open Bin',
-            action: () => {
-                navigate('/');
-                const event = new CustomEvent('yoro-open-bin');
-                window.dispatchEvent(event);
-            },
-            category: 'Navigation'
-        }] : []),
-        // Note Navigation Commands (exclude config.toml - has its own command)
-        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
-            id: `open-note-${note.id}`,
-            label: `Open Note: ${note.title || 'Untitled'}`,
-            action: () => handleSelectNote(note.id),
-            category: 'Navigation'
-        })),
-        // Note Operations (exclude config.toml)
-        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
-            id: `duplicate-note-${note.id}`,
-            label: `Duplicate Note: ${note.title || 'Untitled'}`,
-            action: () => handleDuplicateNote(note.id),
-            category: 'Note Operations'
-        })),
-        ...data.notes.filter(n => n.deletedAt && n.title !== 'config.toml').map(note => ({
-            id: `restore-note-${note.id}`,
-            label: `Restore Note: ${note.title || 'Untitled'}`,
-            action: () => handleRestoreNote(note.id),
-            category: 'Note Operations'
-        })),
-        ...data.notes.filter(n => n.title !== 'config.toml').map(note => ({
-            id: `delete-note-${note.id}`,
-            label: note.deletedAt
-                ? `Permanently Delete Note: ${note.title || 'Untitled'}`
-                : `Delete Note: ${note.title || 'Untitled'}`,
-            action: () => handleDeleteNote(note.id),
-            category: 'Note Operations'
-        })),
-        // Global Export
-        {
-            id: 'export-all',
-            label: 'Export All Notes (ZIP)',
-            action: async () => {
-                showToast('Preparing export...', 'info');
-                const zip = new JSZip();
-                data.notes.forEach(note => {
-                    const filename = `${note.title || 'Untitled'}-${note.id.slice(0, 6)}.md`;
-                    zip.file(filename, note.content);
-                });
-                const blob = await zip.generateAsync({ type: 'blob' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `yoro-export-${new Date().toISOString().slice(0, 10)}.zip`;
-                a.click();
-                URL.revokeObjectURL(url);
-                showToast(`Exported ${data.notes.length} notes`, 'success');
-            },
-            category: 'Export'
-        },
-        // Current Note Actions (editor context)
-        ...(getCurrentNoteId() ? [
-            {
-                id: 'delete-note',
-                label: 'Delete Current Note',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleDeleteNote(id, { stopPropagation: () => { } } as React.MouseEvent);
-                },
-                category: 'Note',
-                context: 'editor' as const
-            },
-            {
-                id: 'duplicate-note',
-                label: 'Duplicate Current Note',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleDuplicateNote(id, { stopPropagation: () => { } } as React.MouseEvent);
-                },
-                category: 'Note',
-                context: 'editor' as const
-            },
-            {
-                id: 'export-markdown',
-                label: 'Export as Markdown',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        const blob = new Blob([note.content], { type: 'text/markdown' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${note.title || 'untitled'}.md`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        showToast('Markdown exported', 'success');
-                    }
-                },
-                category: 'Export',
-                context: 'editor' as const
-            },
-            {
-                id: 'export-pdf',
-                label: 'Export as PDF',
-                action: async () => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        try {
-                            showToast('Generating PDF...', 'success');
-                            await exportToPDF(note.content, note.title || 'Untitled');
-                            showToast('PDF exported successfully', 'success');
-                        } catch (err) {
-                            console.error('PDF export error:', err);
-                            showToast('Failed to export PDF', 'error');
-                        }
-                    }
-                },
-                category: 'Export',
-                context: 'editor' as const
-            },
-            {
-                id: 'export-docx',
-                label: 'Export as Word Document',
-                action: async () => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        try {
-                            showToast('Generating DOCX...', 'success');
-                            await exportToDOCX(note.content, note.title || 'Untitled');
-                            showToast('DOCX exported successfully', 'success');
-                        } catch (err) {
-                            console.error('DOCX export error:', err);
-                            showToast('Failed to export DOCX', 'error');
-                        }
-                    }
-                },
-                category: 'Export',
-                context: 'editor' as const
-            },
-            {
-                id: 'share-note',
-                label: 'Share Note (Copy Link)',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    const note = data.notes.find(n => n.id === id);
-                    if (note) {
-                        const dataToCompress = JSON.stringify({
-                            title: note.title,
-                            content: note.content,
-                            tags: note.tags,
-                            format: note.format,
-                            viewMode: note.viewMode,
-                            isFavorite: note.isFavorite
-                        });
-                        const compressed = LZString.compressToEncodedURIComponent(dataToCompress);
-                        const url = `${window.location.origin}/?share=${compressed}`;
-                        navigator.clipboard.writeText(url).then(() => {
-                            showToast('Share link copied to clipboard!', 'success');
-                        });
-                    }
-                },
-                category: 'Share',
-                context: 'editor' as const
-            },
-            // Find and Replace
-            {
-                id: 'find-replace',
-                label: 'Find and Replace',
-                action: () => setIsFindReplaceOpen(true),
-                            category: 'Editor',
-                            context: 'editor' as const,
-                            groupId: 'editor-settings',
-                            shortcut: 'Cmd+h'
-                        },
-                        // Editor Insert Commands
-                        {
-                            id: 'insert-table',
-                
-                label: 'Insert Table',
-                action: () => setTableModalOpen(true),
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            },
-            {
-                id: 'insert-code-block',
-                label: 'Insert Code Block',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-code-block' } })),
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            },
-            {
-                id: 'insert-hr',
-                label: 'Insert Horizontal Rule',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-horizontal-rule' } })),
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            },
-            {
-                id: 'insert-heading-auto',
-                label: 'Insert Heading (Auto-Level)',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-heading-auto' } })),
-                            category: 'Editor',
-                            context: 'editor' as const,
-                            groupId: 'editor-settings'
-                        },
-                        ...templates.map(t => ({
-                            id: `insert-template-${t.id}`,
-                            label: `Insert Template: ${t.name}`,
-                            action: () => {
-                                window.dispatchEvent(new CustomEvent('yoro-editor-cmd', {
-                                    detail: { command: 'insert-template', content: t.content }
-                                }));
-                            },
-                            category: 'Editor',
-                            context: 'editor' as const,
-                            groupId: 'editor-settings'
-                        })),
-                        {
-                            id: 'insert-mermaid-flowchart',
-                
-                label: 'Insert Flowchart',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) {
-                        handleUpdateNote(id, { viewMode: 'flowchart' });
-                    }
-                },
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            },
-            {
-                id: 'insert-mermaid-state-diagram',
-                label: 'Insert State Diagram',
-                action: () => {
-                    const id = getCurrentNoteId();
-                    if (id) handleUpdateNote(id, { viewMode: 'state' });
-                },
-                category: 'Editor',
-                context: 'editor' as const,
-                groupId: 'editor-settings'
-            }
-        ] : [])
-    ], [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate]);
+                return { ...prev, notes: [newNote, ...prev.notes] };
+            });
+            handleSelectNote(newId);
+        }
+    }, [data.notes, handleSelectNote]);
+
+    const commands: Command[] = useMemo(() => createCommands({
+        notes: data.notes,
+        preferences: data.preferences,
+        navigate,
+        getCurrentNoteId,
+        handleCreateNote,
+        handleSelectNote,
+        handleUpdateNote,
+        handleDeleteNote,
+        handleDuplicateNote,
+        handleRestoreNote,
+        handleUpdatePreferences,
+        handleOpenConfig,
+        setIsHelpOpen,
+        setIsAboutOpen,
+        setIsKnowledgeGraphOpen,
+        setIsFindReplaceOpen,
+        setIsBacklinksPanelOpen,
+        setIsOutlineOpen,
+        setIsQuickCaptureOpen,
+        setTableModalOpen,
+    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, handleRestoreNote, navigate, handleOpenConfig]);
+
 
     const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
         const parts = shortcut.split('+');
@@ -1401,8 +464,13 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                 return;
             }
 
-            // Global shortcuts not in commands list (yet)
+            // Global shortcuts: Cmd+Shift+P or Cmd+K to open command palette
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+                e.preventDefault();
+                setIsPaletteOpen(prev => !prev);
+                return;
+            }
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K') && !e.shiftKey) {
                 e.preventDefault();
                 setIsPaletteOpen(prev => !prev);
                 return;
@@ -1470,7 +538,9 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
 
     return (
         <div className="app-container">
+            <a href="#main-content" className="skip-to-content">Skip to content</a>
             <MobileWarning />
+            <main id="main-content">
             <Routes>
                 <Route path="/" element={
                     <NoteList
@@ -1508,6 +578,7 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                     <PresentationMode notes={data.notes} theme={data.preferences.theme} />
                 } />
             </Routes>
+            </main>
             <CommandPalette
                 isOpen={isPaletteOpen}
                 onClose={() => setIsPaletteOpen(false)}
@@ -1564,31 +635,7 @@ showDocumentStats = ${prev.preferences.showDocumentStats}
                 emacsMode={data.preferences.emacsMode}
             />
 
-            {/* About Yoro Modal */}
-            {isAboutOpen && (
-                <div className="modal-overlay" onClick={() => setIsAboutOpen(false)}>
-                    <div className="about-modal" onClick={e => e.stopPropagation()}>
-                        <div className="about-header">
-                            <h2>About Yoro</h2>
-                            <button className="about-close-btn" onClick={() => setIsAboutOpen(false)}>&times;</button>
-                        </div>
-                        <div className="about-content">
-                            <p className="about-tagline">
-                                Made with <span className="heart-icon">❤️</span> by{' '}
-                                <a href="https://gabrielongzm.com" target="_blank" rel="noopener noreferrer">
-                                    Gabriel Ong
-                                </a>
-                            </p>
-                            <p className="about-source">
-                                Source code{' '}
-                                <a href="https://github.com/gongahkia/yoro" target="_blank" rel="noopener noreferrer">
-                                    here
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
             <QuickCaptureModal
                 isOpen={isQuickCaptureOpen}

@@ -43,7 +43,7 @@ export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, content, not
     if (!isOpen) return null;
 
     return (
-        <div className="outline-panel">
+        <div className="outline-panel" role="region" aria-label="Outline">
             <div className="outline-header">
                 <h3>Outline</h3>
             </div>

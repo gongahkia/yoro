@@ -1,6 +1,12 @@
 import type { AppState } from '../types';
 
 const STORAGE_KEY = 'yoro_app_state';
+const SCHEMA_VERSION = 1;
+
+interface VersionedData {
+    version: number;
+    state: AppState;
+}
 
 // Default initial state
 const initialState: AppState = {
@@ -24,6 +30,25 @@ const initialState: AppState = {
     },
 };
 
+function migrate(data: unknown): AppState {
+    // Handle unversioned legacy data (pre-versioning)
+    if (data && typeof data === 'object' && !('version' in data) && 'notes' in data) {
+        return data as AppState;
+    }
+
+    const versioned = data as VersionedData;
+
+    // Future migrations go here:
+    // if (versioned.version < 2) { ... migrate to v2 ... }
+
+    if (versioned.version <= SCHEMA_VERSION) {
+        return versioned.state;
+    }
+
+    // Unknown future version — return as-is, best effort
+    return versioned.state;
+}
+
 export class StorageError extends Error {
     code: 'QUOTA_EXCEEDED' | 'UNKNOWN';
 
@@ -37,9 +62,10 @@ export class StorageError extends Error {
 export const storage = {
     get: (): AppState => {
         try {
-            const data = localStorage.getItem(STORAGE_KEY);
-            if (!data) return initialState;
-            return JSON.parse(data);
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return initialState;
+            const parsed = JSON.parse(raw);
+            return migrate(parsed);
         } catch (error) {
             console.error('Failed to load data from storage:', error);
             return initialState;
@@ -48,7 +74,8 @@ export const storage = {
 
     set: (data: AppState): void => {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            const versioned: VersionedData = { version: SCHEMA_VERSION, state: data };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(versioned));
         } catch (error: unknown) {
             if (
                 error instanceof DOMException &&

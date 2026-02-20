@@ -123,7 +123,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
     return { nodes: layoutedNodes, edges };
 };
 
-export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = ({ note, onUpdateNote }) => {
+export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = React.memo(({ note, onUpdateNote }) => {
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
@@ -261,16 +261,23 @@ export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = ({ note, onUpda
     };
 
     const handleInsert = () => {
-        const result = generateMermaid();
-        if (!result.isValid) {
-            console.error('[Flowchart] Invalid mermaid:', result.error);
+        try {
+            const result = generateMermaid();
+            if (!result.isValid) {
+                console.error('[Flowchart] Invalid mermaid:', result.error);
+                window.dispatchEvent(new CustomEvent('yoro-toast', {
+                    detail: { message: result.error || 'Cannot generate flowchart', type: 'error' }
+                }));
+                return;
+            }
+            const newContent = note.content + '\n\n' + result.code;
+            onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
+        } catch (err) {
+            console.error('[Flowchart] Failed to generate mermaid:', err);
             window.dispatchEvent(new CustomEvent('yoro-toast', {
-                detail: { message: result.error || 'Cannot generate flowchart', type: 'error' }
+                detail: { message: `Flowchart error: ${err instanceof Error ? err.message : 'Unknown error'}`, type: 'error' }
             }));
-            return;
         }
-        const newContent = note.content + '\n\n' + result.code;
-        onUpdateNote(note.id, { content: newContent, viewMode: 'editor' });
     };
 
     const handleCancel = () => {
@@ -309,4 +316,4 @@ export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = ({ note, onUpda
             </ReactFlow>
         </div>
     );
-};
+});

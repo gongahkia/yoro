@@ -4,6 +4,7 @@ import { Editor } from './Editor';
 import { MindMap } from './MindMap';
 import { FlowchartBuilder } from './FlowchartBuilder';
 import { StateDiagramBuilder } from './StateDiagramBuilder';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface NoteEditorWrapperProps {
     notes: Note[];
@@ -34,58 +35,66 @@ export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
 
     if (note.viewMode === 'mindmap') {
         return (
-            <MindMap
-                markdown={note.content}
-                title={note.title}
-                noteId={note.id}
-                onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
-                onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
-            />
+            <ErrorBoundary>
+                <MindMap
+                    markdown={note.content}
+                    title={note.title}
+                    noteId={note.id}
+                    onViewModeChange={(mode) => onUpdateNote(note.id, { viewMode: mode })}
+                    onMarkdownChange={(newMarkdown) => onUpdateNote(note.id, { content: newMarkdown })}
+                />
+            </ErrorBoundary>
         );
     }
 
     if (note.viewMode === 'flowchart') {
         return (
-            <FlowchartBuilder
-                note={note}
-                onUpdateNote={onUpdateNote}
-            />
+            <ErrorBoundary>
+                <FlowchartBuilder
+                    note={note}
+                    onUpdateNote={onUpdateNote}
+                />
+            </ErrorBoundary>
         );
     }
 
     if (note.viewMode === 'state') {
         return (
-            <StateDiagramBuilder
-                note={note}
-                onUpdateNote={onUpdateNote}
-            />
+            <ErrorBoundary>
+                <StateDiagramBuilder
+                    note={note}
+                    onUpdateNote={onUpdateNote}
+                />
+            </ErrorBoundary>
         );
     }
 
     return (
-        <Editor
-            note={note}
-            notes={notes}
-            onChange={(content) => onUpdateNote(note.id, { content })}
-            onTitleChange={(title) => onUpdateNote(note.id, { title })}
-            onNavigate={onNavigate}
-            onPositionChange={(cursorPos, scrollPos) => {
-                onUpdateNote(note.id, {
-                    lastCursorPosition: cursorPos,
-                    lastScrollPosition: scrollPos
-                });
-            }}
-            vimMode={vimMode}
-            emacsMode={emacsMode}
-            focusMode={focusMode}
-            focusModeBlur={focusModeBlur}
-            lineWrapping={lineWrapping}
-            showLineNumbers={showLineNumbers}
-            editorAlignment={editorAlignment}
-            showDocumentStats={showDocumentStats}
-            cursorAnimations={cursorAnimations}
-            findReplaceOpen={findReplaceOpen}
-            onCloseFindReplace={onCloseFindReplace}
-        />
+        <ErrorBoundary>
+            <Editor
+                note={note}
+                notes={notes}
+                onChange={(content) => onUpdateNote(note.id, { content })}
+                onTitleChange={(title) => onUpdateNote(note.id, { title })}
+                onNavigate={onNavigate}
+                onPositionChange={(cursorPos, scrollPos) => {
+                    onUpdateNote(note.id, {
+                        lastCursorPosition: cursorPos,
+                        lastScrollPosition: scrollPos
+                    });
+                }}
+                vimMode={vimMode}
+                emacsMode={emacsMode}
+                focusMode={focusMode}
+                focusModeBlur={focusModeBlur}
+                lineWrapping={lineWrapping}
+                showLineNumbers={showLineNumbers}
+                editorAlignment={editorAlignment}
+                showDocumentStats={showDocumentStats}
+                cursorAnimations={cursorAnimations}
+                findReplaceOpen={findReplaceOpen}
+                onCloseFindReplace={onCloseFindReplace}
+            />
+        </ErrorBoundary>
     );
 };

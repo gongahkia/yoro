@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { showToast } from './Toast';
 import './styles/CommandPalette.css';
 
 export interface CommandParameter {
@@ -216,7 +217,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             return;
         }
 
-        cmd.action();
+        try {
+            cmd.action();
+        } catch (err) {
+            showToast(
+                `Command failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+                'error'
+            );
+        }
         onCommandExecuted?.(cmd.id);
         onClose();
     };
@@ -277,6 +285,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         }}
                         onKeyDown={handleKeyDown}
                         placeholder={isSearchMode ? "Search notes..." : "Type a command (or / to search notes)..."}
+                        aria-label="Search commands"
                     />
                 </div>
                 {isSearchMode ? (
@@ -326,6 +335,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                                     className={`command-palette-item ${index === selectedIndex ? 'selected' : ''} ${isGroupHeader ? 'group-header' : ''} ${isChildOfGroup ? 'group-child' : ''}`}
                                     onClick={() => executeCommand(cmd)}
                                     onMouseEnter={() => setSelectedIndex(index)}
+                                    aria-selected={index === selectedIndex}
                                 >
                                     {isGroupHeader ? (
                                         <div className="group-header-content">

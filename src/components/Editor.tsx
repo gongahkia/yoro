@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { keymap, highlightActiveLine, EditorView } from '@codemirror/view';
@@ -96,6 +96,15 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         }),
         [onPositionChange]
     );
+
+    // Clean up positionSaveTimeout on unmount
+    React.useEffect(() => {
+        return () => {
+            if (positionSaveTimeoutRef.current) {
+                clearTimeout(positionSaveTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleFormatting = useCallback((view: EditorView, type: string) => {
         const { from, to } = view.state.selection.main;
@@ -210,13 +219,15 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
             });
 
             // Restore scroll position after a small delay to let the view settle
-            setTimeout(() => {
+            const scrollTimer = setTimeout(() => {
                 if (editorRef.current?.view) {
                     editorRef.current.view.scrollDOM.scrollTop = scrollPos;
                 }
             }, 50);
 
             prevNoteIdRef.current = note.id;
+
+            return () => clearTimeout(scrollTimer);
         }
     }, [note.id]);
 
@@ -358,6 +369,49 @@ stateDiagram-v2
         }
     };
 
+    const editorExtensions = useMemo(() => [
+        vimMode ? vim() : [],
+        emacsMode && !vimMode ? emacsModeExtension : [],
+        lineWrapping ? EditorView.lineWrapping : [],
+        themeSyntaxHighlighting,
+        yamlFrontmatter({
+            content: markdown({
+                base: markdownLanguage,
+                codeLanguages: languages,
+                extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList, FootnoteExtension]
+            })
+        }),
+        livePreview,
+        handleImageEvents,
+        frontmatterFold,
+        mathPreview,
+        markdownPairs,
+        footnoteTooltip,
+        textHighlight,
+        callouts,
+        inlineCode,
+        mermaidPreview,
+        tablePreview,
+        autocompletion({ override: [emojiCompletion, calloutCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
+        createWikilinkPlugin(notes, onNavigate),
+        createWikilinkPreview(notes, onNavigate),
+        headingColors,
+        highlightActiveLine(),
+        focusMode ? createFocusModeExtension(focusModeBlur) : [],
+        smartLists,
+        syntaxErrors,
+        bracketPulse,
+        cursorLineTracker,
+        positionTracker,
+        keymap.of(markdownKeymap),
+        createSearchHighlightExtension(),
+        multiCursorExtension,
+        codeBlockEnhancements,
+        markdownFolding,
+        lineMoveExtension,
+        smartPaste
+    ], [vimMode, emacsMode, lineWrapping, focusMode, focusModeBlur, notes, onNavigate, cursorLineTracker, positionTracker]);
+
     return (
         <div
             className={`editor-container ${focusMode ? 'focus-mode' : ''} editor-align-${editorAlignment}`}
@@ -383,48 +437,7 @@ stateDiagram-v2
                     value={note.content}
                     height="100%"
                     theme="none"
-                    extensions={[
-                        vimMode ? vim() : [],
-                        emacsMode && !vimMode ? emacsModeExtension : [],
-                        lineWrapping ? EditorView.lineWrapping : [],
-                        themeSyntaxHighlighting,
-                        yamlFrontmatter({
-                            content: markdown({
-                                base: markdownLanguage,
-                                codeLanguages: languages,
-                                extensions: [GFM, Subscript, Superscript, Strikethrough, Table, TaskList, FootnoteExtension]
-                            })
-                        }),
-                        livePreview,
-                        handleImageEvents,
-                        frontmatterFold,
-                        mathPreview,
-                        markdownPairs,
-                        footnoteTooltip,
-                        textHighlight,
-                        callouts,
-                        inlineCode,
-                        mermaidPreview,
-                        tablePreview,
-                        autocompletion({ override: [emojiCompletion, calloutCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
-                        createWikilinkPlugin(notes, onNavigate),
-                        createWikilinkPreview(notes, onNavigate),
-                        headingColors,
-                        highlightActiveLine(),
-                        focusMode ? createFocusModeExtension(focusModeBlur) : [],
-                        smartLists,
-                        syntaxErrors,
-                        bracketPulse,
-                        cursorLineTracker,
-                        positionTracker,
-                        keymap.of(markdownKeymap),
-                        createSearchHighlightExtension(),
-                        multiCursorExtension,
-                        codeBlockEnhancements,
-                        markdownFolding,
-                        lineMoveExtension,
-                        smartPaste
-                    ]}
+                    extensions={editorExtensions}
                     onChange={onChange}
                     className="editor-cm-wrapper"
                     basicSetup={{
