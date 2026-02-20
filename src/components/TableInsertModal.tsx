@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/TableInsertModal.css';
 
 interface TableInsertModalProps {
@@ -12,6 +13,7 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
     onClose,
     onInsert
 }) => {
+    const sl = useSinglish();
     const [rows, setRows] = useState(3);
     const [cols, setCols] = useState(3);
     const rowsInputRef = useRef<HTMLInputElement>(null);
@@ -75,10 +77,10 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
                 </div>
                 <div className="table-modal-footer">
                     <button className="table-modal-btn cancel" onClick={onClose}>
-                        Nvm
+                        {sl ? 'Nvm' : 'Cancel'}
                     </button>
                     <button className="table-modal-btn insert" onClick={handleInsert}>
-                        Insert lah
+                        {sl ? 'Insert lah' : 'Insert'}
                     </button>
                 </div>
             </div>
