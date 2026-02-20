@@ -23,7 +23,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     onDuplicateNote,
     searchQuery,
     selectedTag,
-    onTagChange,
+    onTagChange: _onTagChange,
     viewMode = '3d-carousel',
     sortOrder = 'updated'
 }) => {
@@ -258,7 +258,6 @@ export const NoteList: React.FC<NoteListProps> = ({
                                             onClick={onSelectNote}
                                             onDelete={(e) => onDeleteNote(note.id, e)}
                                             onDuplicate={(e) => onDuplicateNote(note.id, e)}
-                                            onRestore={(e) => onRestoreNote?.(note.id, e)}
                                         />
 
                                         {/* Date marker below card */}

@@ -340,7 +340,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
     const allTags = useMemo(() => {
         const tags = new Set<string>();
         notes.forEach(note => {
-            if (!note.deletedAt && note.title !== 'config.toml') {
+            if (note.title !== 'config.toml') {
                 note.tags.forEach(t => tags.add(t));
             }
         });
@@ -362,7 +362,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
         const noteById = new Map<string, Note>();
 
         // Filter out deleted notes and config
-        const activeNotes = notes.filter(n => !n.deletedAt && n.title !== 'config.toml');
+        const activeNotes = notes.filter(n => n.title !== 'config.toml');
 
         activeNotes.forEach(note => {
             noteByTitle.set(note.title || 'Untitled', note);

@@ -40,8 +40,8 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
         for (const note of notes) {
             // Don't include the current note itself
             if (note.id === currentId) continue;
-            // Skip deleted notes
-            if (note.deletedAt) continue;
+            // Skip config note
+            if (note.title === 'config.toml') continue;
 
             const lines = note.content.split('\n');
 

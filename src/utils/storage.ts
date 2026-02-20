@@ -27,6 +27,7 @@ const initialState: AppState = {
         sortOrder: 'updated',
         showDocumentStats: true,
         cursorAnimations: 'subtle',
+        singlish: false,
     },
 };
 
