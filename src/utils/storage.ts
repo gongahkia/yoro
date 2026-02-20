@@ -1,3 +1,4 @@
+import LZString from 'lz-string';
 import type { AppState } from '../types';
 
 const STORAGE_KEY = 'yoro_app_state';
@@ -65,7 +66,15 @@ export const storage = {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return initialState;
-            const parsed = JSON.parse(raw);
+            // support both compressed and legacy uncompressed data
+            let jsonStr: string;
+            try {
+                const decompressed = LZString.decompress(raw);
+                jsonStr = decompressed && decompressed.length > 0 ? decompressed : raw;
+            } catch {
+                jsonStr = raw;
+            }
+            const parsed = JSON.parse(jsonStr);
             return migrate(parsed);
         } catch (error) {
             console.error('Failed to load data from storage:', error);
@@ -76,7 +85,8 @@ export const storage = {
     set: (data: AppState): void => {
         try {
             const versioned: VersionedData = { version: SCHEMA_VERSION, state: data };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(versioned));
+            const compressed = LZString.compress(JSON.stringify(versioned));
+            localStorage.setItem(STORAGE_KEY, compressed);
         } catch (error: unknown) {
             if (
                 error instanceof DOMException &&
