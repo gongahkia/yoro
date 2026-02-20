@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Note } from '../types';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/NoteCard.css';
 
 interface NoteCardProps {
@@ -10,15 +11,16 @@ interface NoteCardProps {
 }
 
 export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate }) => {
+    const sl = useSinglish();
     return (
         <div className="note-card" onClick={() => onClick(note.id)}>
             <div className="note-card-actions">
-                <button className="action-btn" onClick={onDuplicate} title="Copy lah">copy</button>
-                <button className="action-btn delete" onClick={onDelete} title="Delete lah">del</button>
+                <button className="action-btn" onClick={onDuplicate} title={sl ? 'Copy lah' : 'Duplicate'}>copy</button>
+                <button className="action-btn delete" onClick={onDelete} title={sl ? 'Delete lah' : 'Delete'}>del</button>
             </div>
-            <h3 className="note-title">{note.title || 'No title'}</h3>
+            <h3 className="note-title">{note.title || (sl ? 'No title' : 'Untitled')}</h3>
             <p className="note-preview">
-                {note.content.slice(0, 100).replace(/[#*`_]/g, '') || 'Nothing here leh'}
+                {note.content.slice(0, 100).replace(/[#*`_]/g, '') || (sl ? 'Nothing here leh' : 'No content')}
             </p>
             <div className="note-tags">
                 {note.tags.map(tag => (
