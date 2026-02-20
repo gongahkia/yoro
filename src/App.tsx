@@ -46,6 +46,7 @@ function App() {
             }
         };
     });
+    const sl = data.preferences.singlish ?? false;
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -158,7 +159,7 @@ function App() {
             };
         });
         analytics.track('create_note');
-        showToast('Note created liao', 'success');
+        showToast(sl ? 'Note created liao' : 'Note created', 'success');
         navigate(`/note/${newId}`);
     }, [navigate]);
 
@@ -183,7 +184,7 @@ function App() {
                 notes: [newNote, ...prev.notes]
             }));
             analytics.track('duplicate_note');
-            showToast(`"${noteToDuplicate.title || 'Untitled'}" copied liao`, 'success');
+            showToast(sl ? `"${noteToDuplicate.title || 'Untitled'}" copied liao` : `"${noteToDuplicate.title || 'Untitled'}" duplicated`, 'success');
         }
     }, [data.notes]);
 
@@ -262,7 +263,7 @@ function App() {
                 }
             } catch {
                 console.error('Failed to import shared note:');
-                showToast('Cannot load lah, link jialat liao', 'error');
+                showToast(sl ? 'Cannot load lah, link jialat liao' : 'Failed to load shared note. Link may be corrupted.', 'error');
             }
         }
     }, [location.search, navigate]);
@@ -382,7 +383,7 @@ function App() {
             notes: [newNote, ...prev.notes]
         }));
         analytics.track('quick_capture');
-        showToast('Saved to inbox liao', 'success');
+        showToast(sl ? 'Saved to inbox liao' : 'Saved to Inbox', 'success');
     }, []);
 
     useEffect(() => {
@@ -449,7 +450,7 @@ function App() {
                 notes: prev.notes.filter(n => n.id !== id)
             }));
             analytics.track('delete_note');
-            showToast(`"${note?.title || 'Untitled'}" delete liao`, 'info');
+            showToast(sl ? `"${note?.title || 'Untitled'}" delete liao` : `"${note?.title || 'Untitled'}" deleted`, 'info');
             if (getCurrentNoteId() === id) navigate('/');
         }
         setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: true });
@@ -535,8 +536,8 @@ function App() {
 
             <ConfirmationModal
                 isOpen={deleteConfirmation.isOpen}
-                title="Delete or not?"
-                message="Delete liao cannot undo one leh. Sure anot?"
+                title={sl ? 'Delete or not?' : 'Delete Note'}
+                message={sl ? 'Delete liao cannot undo one leh. Sure anot?' : 'Are you sure you want to permanently delete this note? This action cannot be undone.'}
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setDeleteConfirmation({ isOpen: false, noteId: null, isPermanent: true })}
             />
