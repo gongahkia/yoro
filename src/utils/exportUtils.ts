@@ -9,7 +9,7 @@ mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
 let exportOverlay: HTMLDivElement | null = null;
 
-function showExportLoading(msg: string) {
+function showExportLoading(msg: string, onCancel?: () => void) {
     exportOverlay = document.createElement('div');
     exportOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;font-family:inherit;font-size:1rem';
     const spinner = document.createElement('div');
@@ -20,12 +20,27 @@ function showExportLoading(msg: string) {
     const label = document.createElement('span');
     label.textContent = msg;
     exportOverlay.append(spinner, label);
+    if (onCancel) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Cancel';
+        btn.style.cssText = 'margin-top:8px;padding:6px 16px;border:1px solid rgba(255,255,255,0.5);border-radius:4px;background:transparent;color:#fff;cursor:pointer;font-size:0.875rem';
+        btn.onclick = onCancel;
+        exportOverlay.append(btn);
+    }
     document.body.appendChild(exportOverlay);
 }
 
 function hideExportLoading() {
     exportOverlay?.remove();
     exportOverlay = null;
+}
+
+class ExportAbortError extends Error {
+    constructor() { super('Export cancelled'); this.name = 'ExportAbortError'; }
+}
+
+function checkAbort(signal?: AbortSignal) {
+    if (signal?.aborted) throw new ExportAbortError();
 }
 
 // Helper to convert KaTeX math to PNG for DOCX embedding
@@ -303,11 +318,15 @@ export async function renderMarkdownToHTML(content: string, title: string): Prom
     `.trim();
 }
 
-export async function exportToPDF(content: string, title: string): Promise<void> {
-    showExportLoading('Exporting PDF…');
+export async function exportToPDF(content: string, title: string, signal?: AbortSignal): Promise<void> {
+    const ac = new AbortController();
+    const sig = signal ?? ac.signal;
+    showExportLoading('Exporting PDF…', () => ac.abort());
     try {
+    checkAbort(sig);
     // Dynamic import html2pdf to avoid SSR issues
     const html2pdf = (await import('html2pdf.js')).default;
+    checkAbort(sig);
 
     const html = await renderMarkdownToHTML(content, title);
 
@@ -425,9 +444,12 @@ function parseMarkdownTable(text: string): { headers: string[]; rows: string[][]
     return { headers, rows };
 }
 
-export async function exportToDOCX(content: string, title: string): Promise<void> {
-    showExportLoading('Exporting DOCX…');
+export async function exportToDOCX(content: string, title: string, signal?: AbortSignal): Promise<void> {
+    const ac = new AbortController();
+    const sig = signal ?? ac.signal;
+    showExportLoading('Exporting DOCX…', () => ac.abort());
     try {
+    checkAbort(sig);
     // Pre-process content to handle block math
     let processedContent = content;
 
@@ -515,6 +537,7 @@ export async function exportToDOCX(content: string, title: string): Promise<void
                 if (codeBlockLang === 'mermaid') {
                     // Try to render mermaid diagram
                     const mermaidCode = codeBlockLines.join('\n').trim();
+                    checkAbort(sig);
                     try {
                         const { svg } = await mermaid.render(`mermaid-docx-${Date.now()}-${i}`, mermaidCode);
                         const pngData = await svgToPngBlob(svg);
@@ -590,6 +613,7 @@ export async function exportToDOCX(content: string, title: string): Promise<void
         // Check for block math placeholder
         const mathMatch = blockMathMatches.find(m => line.includes(m.placeholder));
         if (mathMatch && line.trim() === mathMatch.placeholder) {
+            checkAbort(sig);
             // Render math as image
             const pngData = await mathToPngBlob(mathMatch.math, true);
             if (pngData) {
