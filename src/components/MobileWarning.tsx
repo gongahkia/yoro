@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/MobileWarning.css';
 
 const isMobileDevice = (): boolean => {
@@ -16,6 +17,7 @@ const isMobileDevice = (): boolean => {
 };
 
 export const MobileWarning: React.FC = () => {
+    const sl = useSinglish();
     const [isMobile, setIsMobile] = useState(false);
     const [dismissed, setDismissed] = useState(false);
 
@@ -44,20 +46,20 @@ export const MobileWarning: React.FC = () => {
                     </svg>
                 </div>
 
-                <h1 className="mobile-warning-title">Eh, use desktop lah</h1>
+                <h1 className="mobile-warning-title">{sl ? 'Eh, use desktop lah' : 'Desktop Recommended'}</h1>
 
                 <p className="mobile-warning-message">
-                    <strong>Yoro</strong> best on desktop one, got vim/emacs mode and all those power features.
+                    <strong>Yoro</strong> {sl ? 'best on desktop one, got vim/emacs mode and all those power features.' : 'is a desktop-first text editor designed for focused writing with keyboard shortcuts, vim/emacs modes, and advanced editing features.'}
                 </p>
 
                 <p className="mobile-warning-submessage">
-                    For best experience, use desktop or laptop with keyboard lah.
+                    {sl ? 'For best experience, use desktop or laptop with keyboard lah.' : 'For the best experience, please access Yoro from a desktop or laptop computer with a physical keyboard.'}
                 </p>
 
                 <div className="mobile-warning-features">
                     <div className="mobile-warning-feature">
                         <span className="feature-icon">⌨️</span>
-                        <span>Keyboard shiok to use</span>
+                        <span>{sl ? 'Keyboard shiok to use' : 'Keyboard-centric editing'}</span>
                     </div>
                     <div className="mobile-warning-feature">
                         <span className="feature-icon">📐</span>
@@ -73,11 +75,11 @@ export const MobileWarning: React.FC = () => {
                     className="mobile-warning-dismiss"
                     onClick={() => setDismissed(true)}
                 >
-                    Nvm, go in lah
+                    {sl ? 'Nvm, go in lah' : 'Continue Anyway'}
                 </button>
 
                 <p className="mobile-warning-note">
-                    Mobile some things cannot work properly one lah.
+                    {sl ? 'Mobile some things cannot work properly one lah.' : 'Some features may not work as expected on mobile devices.'}
                 </p>
             </div>
         </div>
