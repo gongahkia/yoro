@@ -322,6 +322,16 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             groupId: 'view-settings'
         },
         {
+            id: 'toggle-singlish',
+            label: 'Toggle Singlish',
+            action: () => {
+                const next = !preferences.singlish;
+                handleUpdatePreferences({ singlish: next });
+                showToast(next ? 'Singlish on liao' : 'Singlish off', 'info');
+            },
+            category: 'General',
+        },
+        {
             id: 'fold-all',
             label: 'Fold All',
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'fold-all' } })),
