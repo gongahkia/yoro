@@ -127,91 +127,64 @@ const getHierarchicalLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | '
     });
 };
 
-// Force-directed layout (simple spring simulation)
-const getForceLayout = (nodes: Node[], edges: Edge[]): Node[] => {
-    const positions = new Map<string, { x: number; y: number; vx: number; vy: number }>();
-    const width = 1200;
-    const height = 800;
+type ForcePos = { x: number; y: number; vx: number; vy: number };
 
-    // Initialize random positions
+const initForcePositions = (nodes: Node[]): Map<string, ForcePos> => {
+    const positions = new Map<string, ForcePos>();
+    const width = 1200, height = 800;
     nodes.forEach((node, i) => {
         const angle = (2 * Math.PI * i) / nodes.length;
         const radius = Math.min(width, height) / 3;
         positions.set(node.id, {
             x: width / 2 + radius * Math.cos(angle),
             y: height / 2 + radius * Math.sin(angle),
-            vx: 0,
-            vy: 0
+            vx: 0, vy: 0
         });
     });
+    return positions;
+};
 
-    // Create adjacency for faster lookup
-    const adjacency = new Map<string, Set<string>>();
-    nodes.forEach(n => adjacency.set(n.id, new Set()));
-    edges.forEach(e => {
-        adjacency.get(e.source)?.add(e.target);
-        adjacency.get(e.target)?.add(e.source);
-    });
-
-    // Run simulation
-    const iterations = 100;
-    const repulsion = 5000;
-    const attraction = 0.05;
-    const damping = 0.9;
-
-    for (let i = 0; i < iterations; i++) {
-        // Repulsion between all nodes
+const runForceIterations = (
+    nodes: Node[], edges: Edge[], positions: Map<string, ForcePos>, count: number
+): void => {
+    const width = 1200, height = 800;
+    const repulsion = 5000, attraction = 0.05, damping = 0.9;
+    for (let i = 0; i < count; i++) {
         nodes.forEach(n1 => {
             const p1 = positions.get(n1.id)!;
             nodes.forEach(n2 => {
                 if (n1.id === n2.id) return;
                 const p2 = positions.get(n2.id)!;
-                const dx = p1.x - p2.x;
-                const dy = p1.y - p2.y;
+                const dx = p1.x - p2.x, dy = p1.y - p2.y;
                 const dist = Math.sqrt(dx * dx + dy * dy) || 1;
                 const force = repulsion / (dist * dist);
                 p1.vx += (dx / dist) * force;
                 p1.vy += (dy / dist) * force;
             });
         });
-
-        // Attraction along edges
         edges.forEach(e => {
-            const p1 = positions.get(e.source);
-            const p2 = positions.get(e.target);
+            const p1 = positions.get(e.source), p2 = positions.get(e.target);
             if (!p1 || !p2) return;
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
+            const dx = p2.x - p1.x, dy = p2.y - p1.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
             const force = dist * attraction;
-            p1.vx += (dx / dist) * force;
-            p1.vy += (dy / dist) * force;
-            p2.vx -= (dx / dist) * force;
-            p2.vy -= (dy / dist) * force;
+            p1.vx += (dx / dist) * force; p1.vy += (dy / dist) * force;
+            p2.vx -= (dx / dist) * force; p2.vy -= (dy / dist) * force;
         });
-
-        // Apply velocities with damping
         positions.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vx *= damping;
-            p.vy *= damping;
-            // Keep in bounds
+            p.x += p.vx; p.y += p.vy;
+            p.vx *= damping; p.vy *= damping;
             p.x = Math.max(nodeWidth, Math.min(width - nodeWidth, p.x));
             p.y = Math.max(nodeHeight, Math.min(height - nodeHeight, p.y));
         });
     }
-
-    return nodes.map(node => {
-        const pos = positions.get(node.id)!;
-        return {
-            ...node,
-            position: { x: pos.x - nodeWidth / 2, y: pos.y - nodeHeight / 2 },
-            targetPosition: Position.Top,
-            sourcePosition: Position.Bottom,
-        };
-    });
 };
+
+const applyForcePositions = (nodes: Node[], positions: Map<string, ForcePos>): Node[] =>
+    nodes.map(node => {
+        const pos = positions.get(node.id)!;
+        return { ...node, position: { x: pos.x - nodeWidth / 2, y: pos.y - nodeHeight / 2 }, targetPosition: Position.Top, sourcePosition: Position.Bottom };
+    });
 
 // Radial layout
 const getRadialLayout = (nodes: Node[], edges: Edge[]): Node[] => {
@@ -334,6 +307,8 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
     const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
     const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
     const [showIsolated, setShowIsolated] = useState(true);
+    const [forceLayoutNodes, setForceLayoutNodes] = useState<Node[]>([]);
+    const forceIdleRef = useRef<number | null>(null);
     const { fitView } = useReactFlow();
 
     // Collect all unique tags
@@ -494,13 +469,37 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
         return { filteredNodes: nodes, filteredEdges: edges };
     }, [baseNodes, baseEdges, searchQuery, selectedTags, showIsolated, focusedNodeId, adjacencyMap]);
 
+    // Async force layout via requestIdleCallback
+    useEffect(() => {
+        if (layout !== 'force') return;
+        if (forceIdleRef.current !== null) cancelIdleCallback(forceIdleRef.current);
+        const positions = initForcePositions(filteredNodes);
+        // show initial circle positions immediately
+        setForceLayoutNodes(applyForcePositions(filteredNodes, positions));
+        const totalIter = 100, chunkSize = 10;
+        let done = 0;
+        const tick = () => {
+            const toRun = Math.min(chunkSize, totalIter - done);
+            runForceIterations(filteredNodes, filteredEdges, positions, toRun);
+            done += toRun;
+            setForceLayoutNodes(applyForcePositions(filteredNodes, positions));
+            if (done < totalIter) {
+                forceIdleRef.current = requestIdleCallback(tick);
+            } else {
+                forceIdleRef.current = null;
+            }
+        };
+        forceIdleRef.current = requestIdleCallback(tick);
+        return () => { if (forceIdleRef.current !== null) cancelIdleCallback(forceIdleRef.current); };
+    }, [filteredNodes, filteredEdges, layout]);
+
     // Apply layout
     const layoutedNodes = useMemo(() => {
         switch (layout) {
             case 'hierarchical':
                 return getHierarchicalLayout(filteredNodes, filteredEdges);
             case 'force':
-                return getForceLayout(filteredNodes, filteredEdges);
+                return forceLayoutNodes;
             case 'radial':
                 return getRadialLayout(filteredNodes, filteredEdges);
             case 'circular':
@@ -508,7 +507,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
             default:
                 return filteredNodes;
         }
-    }, [filteredNodes, filteredEdges, layout]);
+    }, [filteredNodes, filteredEdges, layout, forceLayoutNodes]);
 
     const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(layoutedNodes);
     const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(filteredEdges);
