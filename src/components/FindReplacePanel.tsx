@@ -109,6 +109,8 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
     const [matches, setMatches] = useState<{ from: number; to: number }[]>([]);
     const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
     const findInputRef = useRef<HTMLInputElement>(null);
+    const replaceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => { if (replaceTimerRef.current !== null) clearTimeout(replaceTimerRef.current); }, []);
 
     // Find all matches
     const findMatches = useCallback(() => {
@@ -220,7 +222,7 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
         });
 
         // Re-find matches after replace
-        setTimeout(() => {
+        replaceTimerRef.current = setTimeout(() => {
             const newMatches = findMatches();
             if (newMatches.length > 0) {
                 const newIndex = Math.min(currentMatchIndex, newMatches.length - 1);
