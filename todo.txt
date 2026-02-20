@@ -55,6 +55,10 @@
 (B) Add @media (prefers-reduced-motion: reduce) to Editor.css bracket-pulse and cursor particle animations +css +a11y
 (B) Add print-specific theme overrides in App.css that use theme vars instead of hardcoded black/white (lines 86-92) +css
 
+# -- DRAWING FEATURE --
+
+(B) In same contextual format as inserting existing mermaid diagrams, add a feature for users to write and draw (just take raw cursor input and export to SVG) to allow for inkscape like drawings natively within yoro
+
 # ─── ERROR HANDLING (B) ───────────────────────────────────────────────────────
 
 (B) Wrap KnowledgeGraph component with ErrorBoundary in App.tsx to catch layout/render failures +fix
@@ -108,6 +112,7 @@
 (B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
 (B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
 (B) Add Zod or manual type guard for share link JSON parsing in App.tsx (line ~369) to prevent malformed data creating invalid Note objects +refactor +security
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # END
