@@ -6,6 +6,7 @@ import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
 import { generateConfigTemplate } from './utils/configTemplate';
 import { createCommands } from './commands';
+import { SinglishContext } from './contexts/SinglishContext';
 import type { AppState, Note } from './types';
 import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
