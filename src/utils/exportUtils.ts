@@ -7,6 +7,27 @@ import mermaid from 'mermaid';
 // Initialize mermaid for server-side rendering
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
+let exportOverlay: HTMLDivElement | null = null;
+
+function showExportLoading(msg: string) {
+    exportOverlay = document.createElement('div');
+    exportOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;font-family:inherit;font-size:1rem';
+    const spinner = document.createElement('div');
+    spinner.style.cssText = 'width:36px;height:36px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:yoro-spin 0.7s linear infinite';
+    const style = document.createElement('style');
+    style.textContent = '@keyframes yoro-spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    const label = document.createElement('span');
+    label.textContent = msg;
+    exportOverlay.append(spinner, label);
+    document.body.appendChild(exportOverlay);
+}
+
+function hideExportLoading() {
+    exportOverlay?.remove();
+    exportOverlay = null;
+}
+
 // Helper to convert KaTeX math to PNG for DOCX embedding
 async function mathToPngBlob(mathExpression: string, displayMode: boolean = false): Promise<Uint8Array | null> {
     return new Promise((resolve) => {
@@ -283,6 +304,8 @@ export async function renderMarkdownToHTML(content: string, title: string): Prom
 }
 
 export async function exportToPDF(content: string, title: string): Promise<void> {
+    showExportLoading('Exporting PDF…');
+    try {
     // Dynamic import html2pdf to avoid SSR issues
     const html2pdf = (await import('html2pdf.js')).default;
 
@@ -376,6 +399,9 @@ export async function exportToPDF(content: string, title: string): Promise<void>
     } finally {
         document.body.removeChild(iframe);
     }
+    } finally {
+        hideExportLoading();
+    }
 }
 
 // Parse markdown tables for DOCX
@@ -400,6 +426,8 @@ function parseMarkdownTable(text: string): { headers: string[]; rows: string[][]
 }
 
 export async function exportToDOCX(content: string, title: string): Promise<void> {
+    showExportLoading('Exporting DOCX…');
+    try {
     // Pre-process content to handle block math
     let processedContent = content;
 
@@ -682,6 +710,9 @@ export async function exportToDOCX(content: string, title: string): Promise<void
 
     const blob = await Packer.toBlob(doc);
     saveAs(blob, `${title || 'untitled'}.docx`);
+    } finally {
+        hideExportLoading();
+    }
 }
 
 // Parse inline markdown formatting
