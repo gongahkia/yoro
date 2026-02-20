@@ -147,6 +147,19 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Tilt the deck slightly for better 3D view
     const deckTilt = -5; // degrees X-axis
 
+    // window visible cards for 3D carousel (±120deg from front)
+    const visibleCarouselIndices = useMemo(() => {
+        if (count === 0) return new Set<number>();
+        const visible = new Set<number>();
+        const buffer = 120;
+        for (let i = 0; i < count; i++) {
+            const cardAngle = i * (360 / count);
+            const relAngle = ((cardAngle - rotation) % 360 + 360) % 360;
+            if (relAngle <= buffer || relAngle >= 360 - buffer) visible.add(i);
+        }
+        return visible;
+    }, [count, rotation]);
+
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
             {filteredNotes.length > 0 ? (
@@ -157,6 +170,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     }}
                 >
                     {filteredNotes.map((note, index) => {
+                        if (!visibleCarouselIndices.has(index)) return null;
                         const angle = index * (360 / Math.max(count, 1));
                         const isHovered = hoveredId === note.id;
 
@@ -205,6 +219,10 @@ export const NoteList: React.FC<NoteListProps> = ({
 
         const cardSpacing = 320; // Space between card centers
 
+        const timelineWindow = 15; // render ±15 cards from active
+        const winStart = Math.max(0, activeIndex - timelineWindow);
+        const winEnd = Math.min(count - 1, activeIndex + timelineWindow);
+
         return (
             <div className="timeline-container" ref={deckRef}>
                 {filteredNotes.length > 0 ? (
@@ -214,6 +232,7 @@ export const NoteList: React.FC<NoteListProps> = ({
 
                         <div className="timeline-cards">
                             {filteredNotes.map((note, index) => {
+                                if (index < winStart || index > winEnd) return null;
                                 const isActive = index === activeIndex;
                                 const isHovered = hoveredId === note.id;
 
