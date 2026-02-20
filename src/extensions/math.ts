@@ -25,16 +25,21 @@ class MathWidget extends WidgetType {
 
     toDOM() {
         const span = document.createElement('span');
-        try {
-            katex.render(this.formula, span, {
-                displayMode: this.displayMode,
-                throwOnError: false
-            });
-        } catch {
-            span.innerText = this.formula;
-            span.style.color = 'red';
-        }
         span.className = 'cm-math-widget';
+        const formula = this.formula, displayMode = this.displayMode;
+        const render = () => {
+            try {
+                katex.render(formula, span, { displayMode, throwOnError: false });
+            } catch {
+                span.innerText = formula;
+                span.style.color = 'red';
+            }
+        };
+        // defer until visible in viewport
+        const observer = new IntersectionObserver((entries, obs) => {
+            if (entries[0].isIntersecting) { obs.disconnect(); render(); }
+        }, { threshold: 0.01 });
+        observer.observe(span);
         return span;
     }
 

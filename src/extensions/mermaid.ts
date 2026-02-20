@@ -150,10 +150,14 @@ class MermaidWidget extends WidgetType {
     toDOM() {
         const container = document.createElement('div');
         container.className = 'cm-mermaid-widget';
-
-        // Render mermaid diagram asynchronously
-        this.renderMermaid(container);
-
+        // defer render until visible in viewport
+        const observer = new IntersectionObserver((entries, obs) => {
+            if (entries[0].isIntersecting) {
+                obs.disconnect();
+                this.renderMermaid(container);
+            }
+        }, { threshold: 0.01 });
+        observer.observe(container);
         return container;
     }
 

@@ -59,6 +59,7 @@ class ImageWidget extends WidgetType {
         const img = document.createElement('img');
         img.src = this.src;
         img.alt = this.alt;
+        img.loading = 'lazy';
         img.className = 'cm-image-widget';
         img.style.maxWidth = '100%';
         img.style.cursor = 'zoom-in';
@@ -94,6 +95,7 @@ class URLImageWidget extends WidgetType {
         const img = document.createElement('img');
         img.src = this.src;
         img.alt = 'Image';
+        img.loading = 'lazy';
         img.className = 'cm-image-url-widget';
         img.style.display = 'block';
         img.style.margin = '1em auto';
