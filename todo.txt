@@ -75,6 +75,10 @@
 (B) Add cleanup for setTimeout in BacklinksPanel.tsx (line ~116) — store ref and clear on unmount +fix
 (B) Verify all ViewPlugin instances in src/extensions/ have proper destroy() methods — audit mermaid.ts, live-preview.ts, wikilink-preview.ts, bracket-pulse.ts +fix
 (B) Add AbortController to wikilinks.ts fetch() call and abort on extension destroy to prevent leaked promises +fix
+(B) Add Lighthouse CI check to GitHub Actions to catch perf/a11y regressions +infra
+(B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
+(B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
+(B) Add Zod or manual type guard for share link JSON parsing in App.tsx (line ~369) to prevent malformed data creating invalid Note objects +refactor +security
 
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
@@ -95,10 +99,6 @@
 (B) Add recent notes list (last 5 opened) accessible from command palette or sidebar +feature
 (B) Implement the analytics.ts stub — add privacy-respecting local analytics (note count over time, words written per day) stored in localStorage +feature
 
-# ─── INFRA / CI (B) ───────────────────────────────────────────────────────────
-
-(B) Add Lighthouse CI check to GitHub Actions to catch perf/a11y regressions +infra
-
 # ─── PWA (STRETCH GOAL) ──────────────────────────────────────────────────────
 
 (B) After logo creation, generate PWA icon set from logo: icon-72.png, icon-96.png, icon-128.png, icon-144.png, icon-152.png, icon-192.png, icon-384.png, icon-512.png and place in public/ +pwa +logo
@@ -106,12 +106,6 @@
 (B) Add offline fallback page to PWA service worker config — show cached version of app when network unavailable +pwa
 (B) Add "Add to Home Screen" prompt logic in App.tsx using beforeinstallprompt event +pwa
 (B) Test PWA install flow on Chrome, Safari, Firefox and fix any manifest validation errors +pwa
-
-# ─── TYPESCRIPT STRICTNESS (B) ────────────────────────────────────────────────
-
-(B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
-(B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
-(B) Add Zod or manual type guard for share link JSON parsing in App.tsx (line ~369) to prevent malformed data creating invalid Note objects +refactor +security
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
