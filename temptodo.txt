@@ -1,0 +1,211 @@
+SINGLISH TOGGLE FEATURE — remaining tasks
+Context: add a command palette toggle (Toggle Singlish) that switches all UI text between Singlish and standard English.
+
+Already done:
+- Added `singlish: boolean` to UserPreferences in src/types/index.ts
+- Created src/contexts/ directory
+
+--- TASKS (do in order) ---
+
+[1] CREATE src/contexts/SinglishContext.ts
+    Content:
+        import { createContext, useContext } from 'react';
+        export const SinglishContext = createContext(false);
+        export const useSinglish = () => useContext(SinglishContext);
+
+[2] EDIT src/App.tsx — add singlish default in useState initializer
+    Find the preferences object inside useState(() => { ... }):
+        sortOrder: loaded.preferences.sortOrder || 'updated',
+    Add after it:
+        singlish: loaded.preferences.singlish || false,
+
+[3] EDIT src/App.tsx — import SinglishContext
+    Add to imports at top:
+        import { SinglishContext } from './contexts/SinglishContext';
+
+[4] EDIT src/App.tsx — wrap return JSX with provider
+    Find:
+        return (
+            <div className="app-container">
+    Replace with:
+        return (
+            <SinglishContext.Provider value={data.preferences.singlish ?? false}>
+            <div className="app-container">
+    Find the closing tag of the return (last </div> before the final closing paren of return):
+        </div>
+        );
+    Replace with:
+        </div>
+        </SinglishContext.Provider>
+        );
+
+[5] EDIT src/App.tsx — make all showToast calls conditional on singlish
+    Add this line near the top of the App function body (after useState declarations):
+        const sl = data.preferences.singlish ?? false;
+    Then replace each toast string as follows (use sl variable):
+        'Note created liao'               → sl ? 'Note created liao' : 'Note created'
+        '"${...}" copied liao'            → sl ? `"${...}" copied liao` : `"${...}" duplicated`
+        'Cannot load lah, link jialat liao' → sl ? 'Cannot load lah, link jialat liao' : 'Failed to load shared note. Link may be corrupted.'
+        'Saved to inbox liao'             → sl ? 'Saved to inbox liao' : 'Saved to Inbox'
+        '"${...}" delete liao'            → sl ? `"${...}" delete liao` : `"${...}" deleted`
+    Also update the ConfirmationModal props in the JSX:
+        title:   sl ? 'Delete or not?' : 'Delete Note'
+        message: sl ? 'Delete liao cannot undo one leh. Sure anot?' : 'Are you sure you want to permanently delete this note? This action cannot be undone.'
+
+[6] EDIT src/commands/index.ts — add singlish toggle command
+    In the CommandFactoryArgs interface, handleUpdatePreferences is already there. Just add a new command entry.
+    Find the block with id: 'toggle-document-stats' and add AFTER it:
+        {
+            id: 'toggle-singlish',
+            label: 'Toggle Singlish',
+            action: () => {
+                const next = !preferences.singlish;
+                handleUpdatePreferences({ singlish: next });
+                showToast(next ? 'Singlish on liao' : 'Singlish off', 'info');
+            },
+            category: 'General',
+        },
+
+[7] EDIT src/commands/index.ts — make all showToast calls conditional on preferences.singlish
+    Add `const sl = preferences.singlish ?? false;` at the top of the createCommands function body (after the destructuring).
+    Then replace each toast string using `sl`:
+        'Sans Serif liao'            → sl ? 'Sans Serif liao' : 'Font: Sans Serif'
+        'Serif liao'                 → sl ? 'Serif liao' : 'Font: Serif'
+        'Monospace liao'             → sl ? 'Monospace liao' : 'Font: Monospace'
+        'Comic Sans sia...'          → sl ? 'Comic Sans sia...' : 'Font: Comic Sans'
+        'Vim mode on/off liao'       → sl ? `Vim mode ${...} liao` : `Vim mode ${...}`   (keep the enabled/disabled for english: 'Vim mode enabled'/'Vim mode disabled')
+        'Emacs mode on/off liao'     → same pattern as vim
+        'Focus mode on/off liao'     → same pattern
+        'Cursor now ${next} liao'    → sl ? `Cursor now ${next} liao` : `Cursor animation: ${next}`
+        'Preparing export liao...'   → sl ? 'Preparing export liao...' : 'Preparing export...'
+        '${n} notes exported liao'   → sl ? `${n} notes exported liao` : `Exported ${n} notes`
+        'Markdown exported liao'     → sl ? 'Markdown exported liao' : 'Markdown exported'
+        'PDF coming liao...'         → sl ? 'PDF coming liao...' : 'Generating PDF...'
+        'PDF done liao'              → sl ? 'PDF done liao' : 'PDF exported successfully'
+        'PDF cannot export lah'      → sl ? 'PDF cannot export lah' : 'Failed to export PDF'
+        'DOCX coming liao...'        → sl ? 'DOCX coming liao...' : 'Generating DOCX...'
+        'DOCX done liao'             → sl ? 'DOCX done liao' : 'DOCX exported successfully'
+        'DOCX cannot export lah'     → sl ? 'DOCX cannot export lah' : 'Failed to export DOCX'
+        'Link copied liao, can share now' → sl ? 'Link copied liao, can share now' : 'Share link copied to clipboard!'
+
+[8] EDIT src/components/ConfirmationModal.tsx
+    Add import at top: import { useSinglish } from '../contexts/SinglishContext';
+    Inside the component function body add: const sl = useSinglish();
+    Replace:
+        title = 'Confirm anot?'   → title = sl ? 'Confirm anot?' : 'Confirm'
+        (this is the default param value — move default out: set param default to undefined, then inside: const resolvedTitle = title ?? (sl ? 'Confirm anot?' : 'Confirm');  use resolvedTitle in JSX)
+        'Dun want'    → {sl ? 'Dun want' : 'Cancel'}
+        'Delete lah'  → {sl ? 'Delete lah' : 'Delete'}
+
+[9] EDIT src/components/QuickCaptureModal.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        'Cmd+Enter to save lah'  → {sl ? 'Cmd+Enter to save lah' : 'Cmd+Enter to save'}
+        placeholder="Type here lah..."  → placeholder={sl ? 'Type here lah...' : 'Capture a thought...'}
+        'Nvm'      → {sl ? 'Nvm' : 'Cancel'}
+        'Save lah' → {sl ? 'Save lah' : 'Capture'}
+
+[10] EDIT src/components/TableInsertModal.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        'Nvm'        → {sl ? 'Nvm' : 'Cancel'}
+        'Insert lah' → {sl ? 'Insert lah' : 'Insert'}
+
+[11] EDIT src/components/BacklinksPanel.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        'No note selected leh'         → {sl ? 'No note selected leh' : 'No note selected'}
+        'No backlinks leh'             → {sl ? 'No backlinks leh' : 'No backlinks found'}
+        'Use [[...]] to link here lah' → {sl ? `Use [[...]] to link here lah` : `Link to this note using [[...]]`}
+        '${n} ref from ${m} note'      → {sl ? `${n} ref from ${m} note` : `${n} reference${n!==1?'s':''} from ${m} note${m!==1?'s':''}`}
+
+[12] EDIT src/components/OutlinePanel.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        'No headings leh' → {sl ? 'No headings leh' : 'No headings found.'}
+
+[13] EDIT src/components/NoteCard.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        title="Copy lah"           → title={sl ? 'Copy lah' : 'Duplicate'}
+        title="Delete lah"         → title={sl ? 'Delete lah' : 'Delete'}
+        note.title || 'No title'   → note.title || (sl ? 'No title' : 'Untitled')
+        'Nothing here leh'         → sl ? 'Nothing here leh' : 'No content'
+
+[14] EDIT src/components/NoteList.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace (there are 2 occurrences of the empty state):
+        'No notes leh'  → {sl ? 'No notes leh' : 'No notes found'}
+    Replace search hint:
+        'to open command palette lah.'  → {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+    Replace filter label:
+        'Filtering by #{selectedTag} leh'  → {sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}
+
+[15] EDIT src/components/MobileWarning.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace all text strings with ternary:
+        'Eh, use desktop lah'                → {sl ? 'Eh, use desktop lah' : 'Desktop Recommended'}
+        'Yoro best on desktop one...'        → {sl ? 'Yoro best on desktop one, got vim/emacs mode and all those power features.' : 'Yoro is a desktop-first text editor designed for focused writing with keyboard shortcuts, vim/emacs modes, and advanced editing features.'}
+        'For best experience, use desktop...' → {sl ? 'For best experience, use desktop or laptop with keyboard lah.' : 'For the best experience, please access Yoro from a desktop or laptop computer with a physical keyboard.'}
+        'Keyboard shiok to use'              → {sl ? 'Keyboard shiok to use' : 'Keyboard-centric editing'}
+        'Nvm, go in lah'                     → {sl ? 'Nvm, go in lah' : 'Continue Anyway'}
+        'Mobile some things cannot work...'  → {sl ? 'Mobile some things cannot work properly one lah.' : 'Some features may not work as expected on mobile devices.'}
+
+[16] EDIT src/components/CommandPalette.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        placeholder search mode:       sl ? 'Search notes...' : 'Search notes...'  (same, keep)
+        placeholder command mode:      sl ? 'Type command lah, or / to search notes...' : 'Type a command (or / to search notes)...'
+        'No tags leh'                  → sl ? 'No tags leh' : 'No tags found'
+        'No such command leh'          → sl ? 'No such command leh' : 'No commands found'
+        error toast in executeCommand: sl ? `Command siao liao: ${msg}` : `Command failed: ${msg}`
+
+[17] EDIT src/components/Editor.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Add inside component: const sl = useSinglish();
+    Replace:
+        placeholder="No title..."  → placeholder={sl ? 'No title...' : 'Untitled'}
+
+[18] EDIT src/components/HelpManual.tsx
+    Add import: import { useSinglish } from '../contexts/SinglishContext';
+    Inside the HelpManual component function (after `const [activeSection, ...]`), add: const sl = useSinglish();
+    The keyboardShortcuts, markdownSyntax, and featuresMarkdown are module-level constants.
+    Convert them to functions that take `sl: boolean` and return the appropriate data.
+    Rename: keyboardShortcuts → getKeyboardShortcuts(sl: boolean), markdownSyntax → getMarkdownSyntax(sl: boolean), featuresMarkdown → getFeaturesMarkdown(sl: boolean)
+    Each function returns the Singlish version when sl=true, standard English when sl=false.
+    Standard English strings (to restore when sl=false):
+      keyboardShortcuts.general[0].description: 'Open command palette'
+      keyboardShortcuts.general[3].description: 'Close modal / Exit focus'
+      keyboardShortcuts.editor[1].description: 'Bold text'
+      keyboardShortcuts.editor[2].description: 'Italic text'
+      keyboardShortcuts.editor[3].description: 'Indent / Add child node (in visual editors)'
+      keyboardShortcuts.editor[5].description: 'Remove selected node (in visual editors)'
+      keyboardShortcuts.vim[0].description:  'Return to home'
+      keyboardShortcuts.vim[1].description:  'Save and return to home'
+      keyboardShortcuts.vim[4].description:  'Delete line'
+      keyboardShortcuts.vim[9].description:  'Undo'
+      keyboardShortcuts.emacs[*]: restore full original descriptions (Move forward one character, etc.)
+      markdownSyntax descriptions: restore originals (First-level heading, Bold text, etc.)
+      h2/bullets in featuresMarkdown: restore original English prose
+      HelpManual UI: 'Help lah' → sl ? 'Help lah' : 'Help Manual'
+                     'Shortcuts' tab → sl ? 'Shortcuts' : 'Keyboard Shortcuts'
+                     'Markdown' tab  → sl ? 'Markdown' : 'Markdown Syntax'
+                     'Vim Mode (On liao)' → sl ? 'Vim Mode (On liao)' : 'Vim Mode (Active)'
+                     'Emacs Mode (On liao)' → sl ? 'Emacs Mode (On liao)' : 'Emacs Mode (Active)'
+                     'C = Ctrl, M = Alt/Option lah' → sl ? ... : 'C = Ctrl, M = Alt/Option'
+                     'Enable Vim or Emacs mode via command palette lah...' → sl ? ... : 'Enable Vim or Emacs mode via the command palette for additional keybindings.'
+    Call the functions inside the component: const shortcuts = getKeyboardShortcuts(sl); etc.
+    Update all JSX references from the old constants to the new function results.
+
+[19] RUN: npx tsc --noEmit
+    Fix any type errors.
+
+--- END OF TASKS ---

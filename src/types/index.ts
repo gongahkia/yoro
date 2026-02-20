@@ -49,6 +49,7 @@ export interface UserPreferences {
     sortOrder: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
     showDocumentStats: boolean;
     cursorAnimations: 'none' | 'subtle' | 'particles';
+    singlish: boolean;
 }
 
 export interface AppState {
