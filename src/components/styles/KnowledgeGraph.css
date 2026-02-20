@@ -431,3 +431,29 @@
         overflow-y: auto;
     }
 }
+
+.kg-force-loading {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+.kg-force-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: kg-spin 0.6s linear infinite;
+}
+@keyframes kg-spin { to { transform: rotate(360deg); } }

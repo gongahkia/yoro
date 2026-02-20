@@ -308,6 +308,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
     const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
     const [showIsolated, setShowIsolated] = useState(true);
     const [forceLayoutNodes, setForceLayoutNodes] = useState<Node[]>([]);
+    const [isForceComputing, setIsForceComputing] = useState(false);
     const forceIdleRef = useRef<number | null>(null);
     const { fitView } = useReactFlow();
 
@@ -476,6 +477,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
         const positions = initForcePositions(filteredNodes);
         // show initial circle positions immediately
         setForceLayoutNodes(applyForcePositions(filteredNodes, positions));
+        setIsForceComputing(true);
         const totalIter = 100, chunkSize = 10;
         let done = 0;
         const tick = () => {
@@ -487,6 +489,7 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
                 forceIdleRef.current = requestIdleCallback(tick);
             } else {
                 forceIdleRef.current = null;
+                setIsForceComputing(false);
             }
         };
         forceIdleRef.current = requestIdleCallback(tick);
@@ -581,6 +584,12 @@ const KnowledgeGraphInner: React.FC<KnowledgeGraphProps> = ({ notes, onNavigate,
 
     return (
         <div className="knowledge-graph-container">
+            {isForceComputing && (
+                <div className="kg-force-loading" aria-label="Computing layout">
+                    <div className="kg-force-spinner" />
+                    <span>Computing layout…</span>
+                </div>
+            )}
             <ReactFlow
                 nodes={flowNodes}
                 edges={flowEdges}
