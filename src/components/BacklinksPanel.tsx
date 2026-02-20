@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import type { Note } from '../types';
 import { useSinglish } from '../contexts/SinglishContext';
 import './styles/BacklinksPanel.css';
@@ -26,6 +26,8 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
     onNavigate,
 }) => {
     const sl = useSinglish();
+    const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => { if (navTimerRef.current !== null) clearTimeout(navTimerRef.current); }, []);
     // Find all backlinks to the current note
     const backlinks = useMemo(() => {
         if (!currentNote) return [];
@@ -110,7 +112,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
 
         // Scroll to line after navigation
         if (lineNumber) {
-            setTimeout(() => {
+            navTimerRef.current = setTimeout(() => {
                 window.dispatchEvent(new CustomEvent('yoro-navigate-line', {
                     detail: { noteId: targetNoteId, lineNumber }
                 }));
