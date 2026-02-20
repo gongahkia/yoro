@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSinglish } from '../contexts/SinglishContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 import './styles/TableInsertModal.css';
 
 interface TableInsertModalProps {
@@ -17,6 +18,7 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
     const [rows, setRows] = useState(3);
     const [cols, setCols] = useState(3);
     const rowsInputRef = useRef<HTMLInputElement>(null);
+    const trapRef = useFocusTrap(isOpen);
 
     useEffect(() => {
         if (isOpen) {
@@ -47,7 +49,7 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
 
     return (
         <div className="table-modal-overlay" onClick={onClose}>
-            <div className="table-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown}>
+            <div className="table-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="table-modal-header">
                     <h3>Insert Table</h3>
                 </div>

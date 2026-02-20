@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DOMPurify from 'dompurify';
 import { useSinglish } from '../contexts/SinglishContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 import './styles/HelpManual.css';
 
 interface HelpManualProps {
@@ -232,6 +233,7 @@ Press Cmd/Ctrl+Shift+P to open:
 export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode, emacsMode }) => {
     const [activeSection, setActiveSection] = useState<HelpSection>('shortcuts');
     const sl = useSinglish();
+    const trapRef = useFocusTrap(isOpen);
 
     if (!isOpen) return null;
 
@@ -241,7 +243,7 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
 
     return (
         <div className="help-manual-overlay" onClick={onClose}>
-            <div className="help-manual-modal" onClick={e => e.stopPropagation()}>
+            <div className="help-manual-modal" onClick={e => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="help-manual-header">
                     <h2>{sl ? 'Help lah' : 'Help Manual'}</h2>
                     <button className="help-close-btn" onClick={onClose}>&times;</button>

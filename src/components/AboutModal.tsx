@@ -1,14 +1,18 @@
+import React from 'react';
+import { useFocusTrap } from '../utils/useFocusTrap';
+
 interface AboutModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
 export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
+    const trapRef = useFocusTrap(isOpen);
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="about-modal" onClick={e => e.stopPropagation()}>
+            <div className="about-modal" onClick={e => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="about-header">
                     <h2>About Yoro</h2>
                     <button className="about-close-btn" onClick={onClose}>&times;</button>

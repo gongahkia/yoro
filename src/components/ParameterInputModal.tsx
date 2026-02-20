@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Command, CommandParameter } from './CommandPalette';
+import { useFocusTrap } from '../utils/useFocusTrap';
 import './styles/ParameterInputModal.css';
 
 interface ParameterInputModalProps {
@@ -17,6 +18,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
 }) => {
     const [values, setValues] = useState<Record<string, string | number | boolean>>({});
     const firstInputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
+    const trapRef = useFocusTrap(!!(isOpen && command));
 
     useEffect(() => {
         if (isOpen && command?.parameters) {
@@ -74,7 +76,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
 
     return (
         <div className="param-modal-overlay" onClick={onClose}>
-            <div className="param-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown}>
+            <div className="param-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="param-modal-header">
                     <h3>{command.label}</h3>
                 </div>

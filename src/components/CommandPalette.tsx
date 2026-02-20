@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { showToast } from './Toast';
 import { useSinglish } from '../contexts/SinglishContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 import './styles/CommandPalette.css';
 
 export interface CommandParameter {
@@ -70,6 +71,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
+    const trapRef = useFocusTrap(isOpen);
 
     const isSearchMode = query.startsWith('/');
 
@@ -275,7 +277,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     return (
         <div className="command-palette-overlay" onClick={onClose}>
-            <div className="command-palette-modal" onClick={e => e.stopPropagation()}>
+            <div className="command-palette-modal" onClick={e => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="command-palette-search">
                     <input
                         ref={inputRef}

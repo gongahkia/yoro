@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSinglish } from '../contexts/SinglishContext';
+import { useFocusTrap } from '../utils/useFocusTrap';
 import './styles/ConfirmationModal.css';
 
 interface ConfirmationModalProps {
@@ -13,7 +14,7 @@ interface ConfirmationModalProps {
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, title, message, onConfirm, onCancel }) => {
     const sl = useSinglish();
     const resolvedTitle = title ?? (sl ? 'Confirm anot?' : 'Confirm');
-    const dialogRef = useRef<HTMLDivElement>(null);
+    const trapRef = useFocusTrap(isOpen);
 
     const readyRef = useRef(false);
 
@@ -48,7 +49,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, ti
 
     return (
         <div className="modal-overlay" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="confirmation-modal-title">
-            <div className="modal-container" onClick={(e) => e.stopPropagation()} ref={dialogRef}>
+            <div className="modal-container" onClick={(e) => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <h3 className="modal-title" id="confirmation-modal-title">{resolvedTitle}</h3>
                 <p className="modal-message">{message}</p>
                 <div className="modal-actions">
