@@ -10,38 +10,12 @@
 
 # ─── PERFORMANCE (B) ──────────────────────────────────────────────────────────
 
-(B) Add virtualization to NoteList.tsx for the note card grid — implement windowed rendering or use react-window to handle 100+ notes without DOM bloat +perf
-(B) Move KnowledgeGraph force-directed layout (100 sync iterations in src/components/KnowledgeGraph.tsx) to a Web Worker or requestIdleCallback to prevent main thread blocking +perf
-(B) Add lazy loading for Mermaid diagrams in src/extensions/mermaid.ts — defer rendering until diagram is within viewport using IntersectionObserver +perf
-(B) Add lazy loading for KaTeX math rendering in src/extensions/math.ts — defer until block is within viewport +perf
-(B) Add native lazy loading attribute (loading="lazy") to all img elements in src/extensions/live-preview.ts and src/extensions/images.ts +perf
-(B) Memoize node and edge computations in KnowledgeGraph.tsx (lines 360-432) with useMemo +perf
-(B) Add loading state spinner during KnowledgeGraph layout computation to indicate progress +perf
-(B) Add loading indicator during PDF/DOCX export in exportUtils.ts — long sync SVG-to-PNG conversions block UI +perf
-(B) Add AbortController support to export operations so users can cancel long-running PDF/DOCX exports +perf
-(B) Profile and optimize dagre layout in MindMap.tsx — layout recalculation is not debounced, triggers on every node add +perf
-(B) Memoize sorted/filtered notes computation in NoteList.tsx — currently recomputes on every render +perf
-(B) Replace inline arrow function callbacks in JSX across NoteList, BacklinksPanel, KnowledgeGraph with useCallback to prevent child re-renders +perf
-(B) Add compression to localStorage via LZ-string (already in deps but unused in storage.ts) for large note collections approaching 5MB quota +perf
 
 # ─── ACCESSIBILITY (B) ────────────────────────────────────────────────────────
 
-(B) Implement focus trap in ConfirmationModal.tsx — Tab key should cycle within modal, not escape to background +a11y
-(B) Implement focus trap in CommandPalette.tsx modal +a11y
-(B) Implement focus trap in TableInsertModal.tsx modal +a11y
-(B) Implement focus trap in ParameterInputModal.tsx modal +a11y
-(B) Implement focus trap in HelpManual.tsx modal +a11y
-(B) Implement focus trap in About modal (currently inline in App.tsx) +a11y
-(B) Add role="combobox", aria-expanded, and aria-activedescendant to CommandPalette for keyboard nav screen reader support +a11y
-(B) Add keyboard navigation (arrow keys) to NoteList card grid for non-mouse users +a11y
-(B) Ensure all interactive elements in PresentationMode have visible focus indicators for keyboard navigation +a11y
 
 # ─── CSS / THEMING FIXES (B) ──────────────────────────────────────────────────
 
-(B) Replace hardcoded #ffcccc, #d00, #ffaaaa in NoteCard.css (lines 50-53) delete hover with themed CSS variables +css
-(B) Replace hardcoded toast colors in Toast.css (lines 71-107) — #52c41a, #389e0d, #ff4d4f, #cf1322, #faad14, #d48806 — with CSS variables --toast-success, --toast-error, --toast-warning +css
-(B) Replace hardcoded #ff6b6b in Editor.css (lines 251, 266) mermaid/syntax error color with var(--error-color) +css
-(B) Replace hardcoded rgba colors in Editor.css (lines 67, 78, 235, 246, 259, 260) inline code/mermaid bg with theme vars +css
 (B) Replace hardcoded syntax highlight colors in PresentationMode.css (lines 201-267) with CSS variables from theme +css
 (B) Replace hardcoded syntax highlight colors in EditorThemeOverrides.css print section with theme-aware vars +css
 (B) Remove color-mix() usage in KnowledgeGraph.css (line 225) — limited browser support (Safari <16.2), use pre-computed fallback +css
