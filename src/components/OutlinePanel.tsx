@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSinglish } from '../contexts/SinglishContext';
 import './styles/OutlinePanel.css';
 
 interface OutlinePanelProps {
@@ -32,6 +33,7 @@ function parseHeadings(content: string): Heading[] {
 }
 
 export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, content, noteId }) => {
+    const sl = useSinglish();
     const headings = useMemo(() => parseHeadings(content), [content]);
 
     const handleClick = (lineNumber: number) => {
@@ -49,7 +51,7 @@ export const OutlinePanel: React.FC<OutlinePanelProps> = ({ isOpen, content, not
             </div>
             <div className="outline-body">
                 {headings.length === 0 ? (
-                    <p className="no-headings">No headings leh</p>
+                    <p className="no-headings">{sl ? 'No headings leh' : 'No headings found.'}</p>
                 ) : (
                     <ul className="outline-list">
                         {headings.map((heading, index) => (
