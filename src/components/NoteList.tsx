@@ -113,28 +113,34 @@ export const NoteList: React.FC<NoteListProps> = ({
         return () => container.removeEventListener('wheel', handleWheel);
     }, [viewMode, count]);
 
-    // Keyboard navigation for timeline
+    // Keyboard navigation (timeline + 3D carousel)
     useEffect(() => {
-        if (viewMode === '3d-carousel') return;
-
+        const degPerCard = count > 0 ? 360 / count : 0;
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Don't handle if user is in an input, textarea, or modal
             const target = e.target as HTMLElement;
             if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.closest('.command-palette-modal')) {
                 return;
             }
-
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                setActiveIndex(prev => Math.max(0, prev - 1));
-            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                setActiveIndex(prev => Math.min(count - 1, prev + 1));
-            } else if (e.key === 'Enter' && filteredNotes[activeIndex]) {
-                onSelectNote(filteredNotes[activeIndex].id);
+            if (viewMode === '3d-carousel') {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setRotation(prev => prev - degPerCard);
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setRotation(prev => prev + degPerCard);
+                }
+            } else {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setActiveIndex(prev => Math.max(0, prev - 1));
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setActiveIndex(prev => Math.min(count - 1, prev + 1));
+                } else if (e.key === 'Enter' && filteredNotes[activeIndex]) {
+                    onSelectNote(filteredNotes[activeIndex].id);
+                }
             }
         };
-
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [viewMode, count, activeIndex, filteredNotes, onSelectNote]);
