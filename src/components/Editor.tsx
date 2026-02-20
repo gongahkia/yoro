@@ -39,6 +39,7 @@ import { markdownFolding } from '../extensions/markdown-folding';
 import { lineMoveExtension } from '../extensions/line-move';
 import { smartPaste } from '../extensions/smart-paste';
 import { FindReplacePanel, createSearchHighlightExtension } from './FindReplacePanel';
+import { useSinglish } from '../contexts/SinglishContext';
 import type { Note } from '../types';
 import './styles/Editor.css';
 import './styles/EditorThemeOverrides.css';
@@ -64,6 +65,7 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleChange, onNavigate, onPositionChange, vimMode, emacsMode, focusMode, focusModeBlur = true, lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, cursorAnimations = 'subtle', findReplaceOpen = false, onCloseFindReplace }) => {
+    const sl = useSinglish();
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
@@ -434,7 +436,7 @@ stateDiagram-v2
                     className="editor-title"
                     value={note.title}
                     onChange={(e) => onTitleChange(e.target.value)}
-                    placeholder="No title..."
+                    placeholder={sl ? 'No title...' : 'Untitled'}
                 />
                 <HeadingBreadcrumb content={note.content} cursorLine={cursorLine} noteId={note.id} />
                 <CodeMirror
