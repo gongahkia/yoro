@@ -64,7 +64,7 @@
 
 /* Styling for inline code when backticks are hidden */
 .cm-inline-code-styled {
-    background-color: rgba(150, 150, 150, 0.15);
+    background-color: var(--code-bg, rgba(150, 150, 150, 0.15));
     border-radius: 4px;
     padding: 0.1em 0.3em;
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
@@ -75,7 +75,7 @@
 
 /* Styling for active inline code (cursor inside) */
 .cm-inline-code-active {
-    background-color: rgba(150, 150, 150, 0.1);
+    background-color: var(--code-bg-active, rgba(150, 150, 150, 0.1));
     border-radius: 4px;
 }
 
@@ -243,12 +243,12 @@
 }
 
 .cm-mermaid-source {
-    background-color: rgba(150, 150, 150, 0.05);
+    background-color: var(--mermaid-source-bg, rgba(150, 150, 150, 0.05));
     border-radius: 4px;
 }
 
 .cm-mermaid-error {
-    color: #ff6b6b;
+    color: var(--error-color, #ff6b6b);
     font-family: 'SF Mono', 'Menlo', monospace;
     font-size: 0.9em;
     padding: 8px;
@@ -256,15 +256,15 @@
 }
 
 .cm-mermaid-error-container {
-    background-color: rgba(255, 107, 107, 0.1);
-    border: 1px solid rgba(255, 107, 107, 0.3);
+    background-color: var(--error-bg, rgba(255, 107, 107, 0.1));
+    border: 1px solid var(--error-border, rgba(255, 107, 107, 0.3));
 }
 
 /* Syntax Error Highlighting */
 .cm-syntax-error {
     text-decoration: wavy underline;
-    text-decoration-color: #ff6b6b;
-    background-color: rgba(255, 107, 107, 0.1);
+    text-decoration-color: var(--error-color, #ff6b6b);
+    background-color: var(--error-bg, rgba(255, 107, 107, 0.1));
 }
 
 /* Bracket Match Pulse Animation */

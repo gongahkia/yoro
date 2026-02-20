@@ -47,10 +47,9 @@
 }
 
 .action-btn.delete:hover {
-    background: #ffcccc;
-    /* Keeping specialized color for delete */
-    color: #d00;
-    border-color: #ffaaaa;
+    background: var(--delete-bg, rgba(220, 0, 0, 0.1));
+    color: var(--delete-color, #c00);
+    border-color: var(--delete-border, rgba(220, 0, 0, 0.3));
 }
 
 .note-title {
