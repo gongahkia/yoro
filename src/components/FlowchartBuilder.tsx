@@ -241,7 +241,7 @@ export const FlowchartBuilder: React.FC<FlowchartBuilderProps> = React.memo(({ n
         const sanitizeLabel = (label: string): string => {
             return (label || 'Node')
                 .replace(/"/g, "'")          // Replace double quotes with single
-                .replace(/[\[\]{}()<>]/g, '') // Remove brackets and special chars
+                .replace(/[[\]{}()<>]/g, '') // Remove brackets and special chars
                 .replace(/\n/g, ' ')          // Replace newlines with space
                 .replace(/\s+/g, ' ')         // Collapse multiple spaces
                 .trim() || 'Node';

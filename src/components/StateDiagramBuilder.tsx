@@ -13,6 +13,7 @@ const nodeWidth = 150;
 const nodeHeight = 50;
 
 // Start state node - filled black circle
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StartStateNode = (_props: NodeProps) => {
     return (
         <div
@@ -30,6 +31,7 @@ const StartStateNode = (_props: NodeProps) => {
 };
 
 // End state node - hollow circle with inner filled circle
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EndStateNode = (_props: NodeProps) => {
     return (
         <div

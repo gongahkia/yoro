@@ -22,6 +22,7 @@ export const MobileWarning: React.FC = () => {
     const [dismissed, setDismissed] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMobile(isMobileDevice());
 
         // Also listen for resize events

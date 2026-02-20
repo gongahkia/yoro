@@ -34,7 +34,7 @@ class SyntaxErrorPlugin {
                 const lineText = line.text;
 
                 // Skip code blocks (lines starting with ``` or indented by 4+ spaces)
-                if (lineText.trim().startsWith('```') || /^    /.test(lineText)) {
+                if (lineText.trim().startsWith('```') || /^ {4}/.test(lineText)) {
                     pos = line.to + 1;
                     continue;
                 }

@@ -5,6 +5,7 @@ import { foldService } from '@codemirror/language';
 
 // Custom fold service for markdown headings
 // Folds from a heading to the next heading of equal or higher level, or end of document
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const markdownFoldService = foldService.of((state, lineStart, _lineEnd) => {
     const line = state.doc.lineAt(lineStart);
     const text = line.text;

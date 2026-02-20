@@ -22,6 +22,7 @@ declare global {
 }
 
 // Helper function to show toast from anywhere
+// eslint-disable-next-line react-refresh/only-export-components
 export const showToast = (message: string, type: ToastType = 'info', duration?: number) => {
     window.dispatchEvent(new CustomEvent('yoro-toast', {
         detail: { message, type, duration }

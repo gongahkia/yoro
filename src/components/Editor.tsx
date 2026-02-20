@@ -84,6 +84,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     // Extension to track and save position (debounced)
     const positionSaveTimeoutRef = React.useRef<number | null>(null);
     const positionTracker = React.useMemo(() =>
+        // eslint-disable-next-line react-hooks/refs
         EditorView.updateListener.of((update) => {
             if ((update.selectionSet || update.viewportChanged) && onPositionChange) {
                 // Debounce position saves
@@ -401,7 +402,7 @@ stateDiagram-v2
         tablePreview,
         autocompletion({ override: [emojiCompletion, calloutCompletion, getWikilinkCompletion(notes), getMentionCompletion(notes)] }),
         createWikilinkPlugin(notes, onNavigate),
-        createWikilinkPreview(notes, onNavigate),
+        createWikilinkPreview(notes),
         headingColors,
         highlightActiveLine(),
         focusMode ? createFocusModeExtension(focusModeBlur) : [],
@@ -428,6 +429,7 @@ stateDiagram-v2
             <FindReplacePanel
                 isOpen={findReplaceOpen}
                 onClose={onCloseFindReplace || (() => {})}
+                // eslint-disable-next-line react-hooks/refs
                 editorView={editorRef.current?.view || null}
             />
             <div className="editor-content">

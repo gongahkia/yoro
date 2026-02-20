@@ -63,6 +63,7 @@ export const HeadingBreadcrumb: React.FC<HeadingBreadcrumbProps> = ({ content, c
 
     // Fade when content changes (typing)
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsTyping(true);
         const timeout = setTimeout(() => setIsTyping(false), 1000);
         return () => clearTimeout(timeout);

@@ -98,7 +98,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
             groups.set(backlink.note.id, existing);
         }
 
-        return Array.from(groups.entries()).map(([_noteId, links]) => ({
+        return Array.from(groups.values()).map(links => ({
             note: links[0].note,
             links,
         }));

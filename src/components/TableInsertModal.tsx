@@ -20,6 +20,7 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
 
     useEffect(() => {
         if (isOpen) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRows(3);
             setCols(3);
             setTimeout(() => rowsInputRef.current?.focus(), 0);

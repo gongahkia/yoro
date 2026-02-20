@@ -19,7 +19,7 @@ import type { KeyBinding } from '@codemirror/view';
 import type { EditorView } from '@codemirror/view';
 
 // Simple kill ring implementation
-let killRing: string[] = [];
+const killRing: string[] = [];
 let lastKillPos: number | null = null;
 
 const killToLineEnd = (view: EditorView): boolean => {

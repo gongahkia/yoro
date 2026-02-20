@@ -1,7 +1,7 @@
 import { hoverTooltip } from '@codemirror/view';
 import type { Note } from '../types';
 
-export const createWikilinkPreview = (notes: Note[], _onNavigate: (id: string) => void) => {
+export const createWikilinkPreview = (notes: Note[]) => {
     return hoverTooltip((view, pos) => {
         const { state } = view;
         const doc = state.doc.toString();

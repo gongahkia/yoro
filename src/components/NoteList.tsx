@@ -23,7 +23,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     onDuplicateNote,
     searchQuery,
     selectedTag,
-    onTagChange: _onTagChange,
     viewMode = '3d-carousel',
     sortOrder = 'updated'
 }) => {
@@ -43,6 +42,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Handle view mode transitions with animation
     useEffect(() => {
         if (prevViewMode.current !== viewMode) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsTransitioning(true);
             // Wait for exit animation, then switch mode
             const timer = setTimeout(() => {
@@ -77,6 +77,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     // Reset activeIndex if it goes out of bounds (e.g., notes filtered/deleted)
     useEffect(() => {
         if (count > 0 && activeIndex >= count) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveIndex(count - 1);
         }
     }, [count, activeIndex]);

@@ -35,6 +35,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                     initial[param.name] = '';
                 }
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setValues(initial);
             setTimeout(() => firstInputRef.current?.focus(), 0);
         }

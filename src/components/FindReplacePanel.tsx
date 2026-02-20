@@ -19,6 +19,7 @@ const clearSearch = StateEffect.define<null>();
 const searchMatchDecoration = Decoration.mark({ class: 'cm-search-match' });
 
 // Create search highlight extension
+// eslint-disable-next-line react-refresh/only-export-components
 export function createSearchHighlightExtension(): Extension {
     const searchState = StateField.define<{ query: string; caseSensitive: boolean; regex: boolean; currentIndex: number }>({
         create() {

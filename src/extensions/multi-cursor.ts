@@ -7,10 +7,6 @@ function selectNextOccurrence(view: EditorView): boolean {
     const { state } = view;
     const { main } = state.selection;
 
-    // Get the word or selection to search for
-    let searchText: string;
-    let searchFrom: number;
-
     if (main.empty) {
         // No selection, select the word at cursor
         const word = state.wordAt(main.head);
@@ -24,13 +20,13 @@ function selectNextOccurrence(view: EditorView): boolean {
     }
 
     // Get the selected text
-    searchText = state.sliceDoc(main.from, main.to);
+    const searchText = state.sliceDoc(main.from, main.to);
     if (!searchText) return false;
 
     // Find the last selection to know where to search from
     const ranges = state.selection.ranges;
     const lastRange = ranges[ranges.length - 1];
-    searchFrom = lastRange.to;
+    const searchFrom = lastRange.to;
 
     // Search for the next occurrence
     const docText = state.doc.toString();
