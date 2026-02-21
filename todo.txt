@@ -1,18 +1,20 @@
+allow users to set their own background/make it as configurable as possible
 replace current functionality to one-click any image or drawing to open/re-open it as an image or drawing with a double click being necessary since single clickw ill have the existing below functionality
 add literal drag and drop image resizing via diagonals and sides and centering/uncentering/formatting and other image options that are enabled by a single click on an image/drawing
 better integrate knowledge graph into main value prop loop
 provide a split-screen markdown view as most editors do
 fix how links are rendered in current live editor view
 fix how images are rendered in current live editor view
-add a donation link if possible
 
 # --- STRETCH GOALs (DONT DO FIRST) ---
 
 notice to users that if they're trying to access yoro on a mobile devive they cant use it there, pleaase use it on a proper device for now with actual keyboard support since it is primiarly a keyboard based editor for power users
-generate logo with nanobanana
+generate logo with nanobanana, aim to be as ios looking as possible
 do an audit of existing features and make sure everything makes sense
 move all archived feature files into a literal folder called archive in repo root
 add auth and make sure security is airtight
 add basic user accounting and a profile page
 add syncthing and other free syncing options as file storage
 if sufficiently good, consider packing with tauri or redeveloping in swift for native macos support but then make it as good as notion
+then add a donation link and use the license key approach that most macos apps do
+add a donation link for a buy me a coffee if possible
