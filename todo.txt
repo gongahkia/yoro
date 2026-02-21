@@ -1,13 +1,7 @@
-remove autosaving and instead have :w manually save a file
-on the top of the all notes screen, add the cmd + shift + p or ctrl + shift + p to open command palette (depending on macos or windows detected)
-notice to users that if they're trying to access yoro on a mobile devive they cant use it there, pleaase use it on a proper device for now with actual keyboard support since it is primiarly a keyboard based editor for power users
-allow users to set their own background/make it as configurable as possible
-replace current functionality to one-click any image or drawing to open/re-open it as an image or drawing with a double click being necessary since single clickw ill have the existing below functionality
-add literal drag and drop image resizing via diagonals and sides and centering/uncentering/formatting and other image options that are enabled by a single click on an image/drawing
-better integrate knowledge graph into main value prop loop
-provide a split-screen markdown view as most editors do
-fix how links are rendered in current live editor view
+provide a split-screen markdown view as most editors do, markdown syntax one side, the rendered document the other side AND make it callable via command palette
+fix how links are rendered in current live editor view where 
 fix how images are rendered in current live editor view
+
 generate logo with nanobanana, aim to be as ios looking as possible
 do an audit of existing features and make sure everything makes sense
 move all archived feature files into a literal folder called archive in repo root
