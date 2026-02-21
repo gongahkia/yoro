@@ -17,10 +17,17 @@ html[data-custom-bg] .note-list-container {
   background-repeat: no-repeat !important;
 }
 
-/* inner list panels keep theme bg — bg shows through only around them */
+/* inner list panels become an opaque panel over the bg */
 html[data-custom-bg] .docs-list-container,
 html[data-custom-bg] .notion-grid-container {
   background: var(--bg-app) !important;
+  width: calc(100% - 80px) !important;
+  min-height: calc(100% - 80px) !important;
+  height: auto !important;
+  margin: 40px auto !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25) !important;
+  box-sizing: border-box !important;
 }
 
 /* global keybind chip style (used across components) */
