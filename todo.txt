@@ -1,6 +1,3 @@
-remove import md import zip buttons from home screen and amke them callabal only via command palette
-rename drawing canvas "insert drawing"
-remove emojis from drawing canvas editor
 provide 5 default drawing options, which include pencil, pen, highlighter, marker and fountain pen/crayon
 allow user to store up to 10 default colours for each drawing option
 provide easy to use and intuitive keybinds to swap between drawing options, undo, color, and width
@@ -8,7 +5,7 @@ provide a way for users to drag and drop images or copy and paste them from thei
 make it so that clicking a completed saved drwaing will bring it back into edit mode and make it still editable. how are drawings currently being stored? if svg or a more efficient method, then this should allow for easy reloading and editing right
 for each drawing, allow it to be exported to any relevant format as necessary
 allow any image that is copied/pasted into the editor when clicked on to be edited as well
-allow all drawings/images to be resized easily 
+allow all drawings/images to be resized easily
 refactor how the homescreen currently shows notes to be something more intuitive and useful like notion or google docs
 harden all security entry and endpoints
 alllow all drawings/images/tables/diagrams to be centered/resized easily
@@ -16,6 +13,7 @@ remove the font family font type and font size optiosn from command palette for 
 
 # --- STRETCH GOALs (DONT DO FIRST) ---
 
+notice to users that if they're trying to access yoro on a mobile devive they cant use it there, pleaase use it on a proper device for now with actual keyboard support since it is primiarly a keyboard based editor for power users
 generate logo with nanobanana
 do an audit of existing features and make sure everything makes sense
 move all archived feature files into a literal folder called archive in repo root
