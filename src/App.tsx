@@ -356,7 +356,6 @@ function App() {
         handleDuplicateNote,
         handleUpdatePreferences,
         handleImportNotes,
-        setIsHelpOpen,
         setIsAboutOpen,
         setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen,

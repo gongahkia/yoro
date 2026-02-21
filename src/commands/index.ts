@@ -57,7 +57,6 @@ export interface CommandFactoryArgs {
     handleDuplicateNote: (id: string, e?: { stopPropagation: () => void }) => void;
     handleUpdatePreferences: (updates: Partial<UserPreferences>) => void;
     handleImportNotes: (notes: Note[]) => void;
-    setIsHelpOpen: (open: boolean) => void;
     setIsAboutOpen: (open: boolean) => void;
     setIsKnowledgeGraphOpen: (open: boolean) => void;
     setIsFindReplaceOpen: (open: boolean) => void;
@@ -72,7 +71,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         handleCreateNote, handleSelectNote, handleUpdateNote,
         handleDeleteNote, handleDuplicateNote,
         handleUpdatePreferences, handleImportNotes,
-        setIsHelpOpen, setIsAboutOpen, setIsKnowledgeGraphOpen,
+        setIsAboutOpen, setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen, setIsBacklinksPanelOpen, setIsOutlineOpen,
         setTableModalOpen,
     } = args;
