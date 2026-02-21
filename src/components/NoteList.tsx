@@ -269,15 +269,6 @@ export const NoteList: React.FC<NoteListProps> = ({
                     </span>
                     <span className="search-hint-text">{sl ? 'to open command palette lah.' : 'to open the command palette.'}</span>
                     {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
-                    {onOpenGraph && (
-                        <button className="graph-hint-btn" onClick={onOpenGraph} title="Open Knowledge Graph">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/>
-                                <line x1="12" y1="8" x2="5.5" y2="16.5"/><line x1="12" y1="8" x2="18.5" y2="16.5"/>
-                            </svg>
-                            Graph
-                        </button>
-                    )}
                 </div>
             )}
             {isLoading ? (

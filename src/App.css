@@ -10,12 +10,17 @@
 
 /* custom background support */
 html[data-custom-bg] body,
-html[data-custom-bg] .note-list-container,
-html[data-custom-bg] .editor-container {
+html[data-custom-bg] .note-list-container {
   background: var(--custom-bg) !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+}
+
+/* inner list panels keep theme bg — bg shows through only around them */
+html[data-custom-bg] .docs-list-container,
+html[data-custom-bg] .notion-grid-container {
+  background: var(--bg-app) !important;
 }
 
 /* global keybind chip style (used across components) */
