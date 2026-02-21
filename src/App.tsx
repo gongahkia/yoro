@@ -235,7 +235,7 @@ function App() {
                         .map((t: string) => t.slice(0, 100)) as string[];
                     const VALID_FORMATS = ['markdown', 'canvas'] as const;
                     const format = VALID_FORMATS.includes(parsed.format) ? parsed.format : 'markdown';
-                    const VALID_VIEW_MODES = ['editor', 'mindmap', 'flowchart', 'state'] as const;
+                    const VALID_VIEW_MODES = ['editor', 'mindmap', 'flowchart', 'state', 'drawing'] as const;
                     const viewMode = VALID_VIEW_MODES.includes(parsed.viewMode) ? parsed.viewMode : undefined;
                     const isFavorite = parsed.isFavorite === true;
                     // Merge existing tags with 'shared' tag

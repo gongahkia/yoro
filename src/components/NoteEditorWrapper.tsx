@@ -4,6 +4,7 @@ import { Editor } from './Editor';
 import { MindMap } from './MindMap';
 import { FlowchartBuilder } from './FlowchartBuilder';
 import { StateDiagramBuilder } from './StateDiagramBuilder';
+import { DrawingCanvas } from './DrawingCanvas';
 import { ErrorBoundary } from './ErrorBoundary';
 
 interface NoteEditorWrapperProps {
@@ -62,6 +63,17 @@ export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
         return (
             <ErrorBoundary>
                 <StateDiagramBuilder
+                    note={note}
+                    onUpdateNote={onUpdateNote}
+                />
+            </ErrorBoundary>
+        );
+    }
+
+    if (note.viewMode === 'drawing') {
+        return (
+            <ErrorBoundary>
+                <DrawingCanvas
                     note={note}
                     onUpdateNote={onUpdateNote}
                 />

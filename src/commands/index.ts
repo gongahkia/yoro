@@ -657,6 +657,17 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 context: 'editor' as const,
                 groupId: 'editor-settings'
             },
+            {
+                id: 'open-drawing-canvas',
+                label: 'Open Drawing Canvas',
+                action: () => {
+                    const id = getCurrentNoteId();
+                    if (id) handleUpdateNote(id, { viewMode: 'drawing' });
+                },
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings'
+            },
         ] : []),
     ];
 }
