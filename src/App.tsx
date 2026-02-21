@@ -388,6 +388,7 @@ function App() {
         handleDeleteNote,
         handleDuplicateNote,
         handleUpdatePreferences,
+        handleImportNotes,
         handleOpenConfig,
         setIsHelpOpen,
         setIsAboutOpen,
@@ -397,7 +398,7 @@ function App() {
         setIsOutlineOpen,
         setIsQuickCaptureOpen,
         setTableModalOpen,
-    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleUpdateNote, navigate, handleOpenConfig]);
+    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleImportNotes, handleUpdateNote, navigate, handleOpenConfig]);
 
 
     const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
@@ -550,7 +551,6 @@ function App() {
                         onDuplicateNote={handleDuplicateNote}
                         onPinNote={handlePinNote}
                         onReorderNotes={handleReorderNotes}
-                        onImportNotes={handleImportNotes}
                         isLoading={isHydrating}
                         searchQuery={searchQuery}
                         selectedTag={selectedTag}

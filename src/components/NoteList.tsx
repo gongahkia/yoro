@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect, useState, useRef } from 'react';
-import JSZip from 'jszip';
 import type { Note } from '../types';
 import { NoteCard } from './NoteCard';
 import { useSinglish } from '../contexts/SinglishContext';
@@ -12,7 +11,6 @@ interface NoteListProps {
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
     onPinNote?: (id: string) => void;
     onReorderNotes?: (orderedIds: string[]) => void;
-    onImportNotes: (notes: Note[]) => void;
     isLoading?: boolean;
     searchQuery: string;
     selectedTag: string | null;
@@ -28,7 +26,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     onDuplicateNote,
     onPinNote,
     onReorderNotes,
-    onImportNotes,
     isLoading = false,
     searchQuery,
     selectedTag,
@@ -36,67 +33,6 @@ export const NoteList: React.FC<NoteListProps> = ({
     sortOrder = 'updated'
 }) => {
     const sl = useSinglish();
-
-    // Import refs
-    const mdInputRef = useRef<HTMLInputElement>(null);
-    const zipInputRef = useRef<HTMLInputElement>(null);
-
-    const mdFileFromContent = (filename: string, content: string): Note => {
-        const now = Date.now();
-        const title = filename.replace(/\.md$/i, '');
-        return {
-            id: crypto.randomUUID(),
-            title,
-            content,
-            format: 'markdown',
-            tags: [],
-            createdAt: now,
-            updatedAt: now,
-            isFavorite: false,
-        };
-    };
-
-    const handleMdImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files ?? []);
-        if (files.length === 0) return;
-        const readers = files.map(file => new Promise<Note>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(mdFileFromContent(file.name, reader.result as string));
-            reader.readAsText(file);
-        }));
-        Promise.all(readers).then(importedNotes => {
-            onImportNotes(importedNotes);
-        });
-        e.target.value = '';
-    };
-
-    const handleZipImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async () => {
-            try {
-                const zip = await JSZip.loadAsync(reader.result as ArrayBuffer);
-                const mdEntries = Object.entries(zip.files).filter(
-                    ([name, entry]) => !entry.dir && name.toLowerCase().endsWith('.md')
-                );
-                const importedNotes = await Promise.all(
-                    mdEntries.map(async ([name, entry]) => {
-                        const content = await entry.async('string');
-                        const filename = name.split('/').pop() ?? name;
-                        return mdFileFromContent(filename, content);
-                    })
-                );
-                onImportNotes(importedNotes);
-            } catch {
-                window.dispatchEvent(new CustomEvent('yoro-toast', {
-                    detail: { message: 'Failed to read ZIP file', type: 'error' }
-                }));
-            }
-        };
-        reader.readAsArrayBuffer(file);
-        e.target.value = '';
-    };
 
     // Circular Deck State (3D)
     const [rotation, setRotation] = useState(0);
@@ -443,41 +379,9 @@ export const NoteList: React.FC<NoteListProps> = ({
 
     return (
         <div className="note-list-container">
-            {/* Hidden file inputs */}
-            <input
-                ref={mdInputRef}
-                type="file"
-                accept=".md"
-                multiple
-                style={{ display: 'none' }}
-                onChange={handleMdImport}
-            />
-            <input
-                ref={zipInputRef}
-                type="file"
-                accept=".zip"
-                style={{ display: 'none' }}
-                onChange={handleZipImport}
-            />
             <div className="search-hint">
                 Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
                 {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
-                <span className="import-actions">
-                    <button
-                        className="import-btn"
-                        title={sl ? 'Import .md files lah' : 'Import .md files'}
-                        onClick={() => mdInputRef.current?.click()}
-                    >
-                        Import .md
-                    </button>
-                    <button
-                        className="import-btn"
-                        title={sl ? 'Import .zip of .md files lah' : 'Import .zip of .md files'}
-                        onClick={() => zipInputRef.current?.click()}
-                    >
-                        Import .zip
-                    </button>
-                </span>
             </div>
             <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
                 {isLoading ? (

@@ -56,6 +56,7 @@ export interface CommandFactoryArgs {
     handleDeleteNote: (id: string, e?: { stopPropagation: () => void }) => void;
     handleDuplicateNote: (id: string, e?: { stopPropagation: () => void }) => void;
     handleUpdatePreferences: (updates: Partial<UserPreferences>) => void;
+    handleImportNotes: (notes: Note[]) => void;
     handleOpenConfig: () => void;
     setIsHelpOpen: (open: boolean) => void;
     setIsAboutOpen: (open: boolean) => void;
@@ -72,7 +73,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         notes, preferences, navigate, getCurrentNoteId,
         handleCreateNote, handleSelectNote, handleUpdateNote,
         handleDeleteNote, handleDuplicateNote,
-        handleUpdatePreferences, handleOpenConfig,
+        handleUpdatePreferences, handleImportNotes, handleOpenConfig,
         setIsHelpOpen, setIsAboutOpen, setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen, setIsBacklinksPanelOpen, setIsOutlineOpen,
         setIsQuickCaptureOpen, setTableModalOpen,
@@ -471,6 +472,83 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => handleDeleteNote(note.id),
             category: 'Note Operations'
         })),
+        // Global Import
+        {
+            id: 'import-md',
+            label: 'Import Markdown (.md)',
+            action: () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.md';
+                input.multiple = true;
+                input.onchange = () => {
+                    const files = Array.from(input.files ?? []);
+                    if (files.length === 0) return;
+                    const readers = files.map(file => new Promise<Note>((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const now = Date.now();
+                            resolve({
+                                id: crypto.randomUUID(),
+                                title: file.name.replace(/\.md$/i, ''),
+                                content: reader.result as string,
+                                format: 'markdown',
+                                tags: [],
+                                createdAt: now,
+                                updatedAt: now,
+                                isFavorite: false,
+                            });
+                        };
+                        reader.readAsText(file);
+                    }));
+                    Promise.all(readers).then(imported => handleImportNotes(imported));
+                };
+                input.click();
+            },
+            category: 'Import'
+        },
+        {
+            id: 'import-zip',
+            label: 'Import ZIP of Markdown files',
+            action: () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.zip';
+                input.onchange = async () => {
+                    const file = input.files?.[0];
+                    if (!file) return;
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const zip = await JSZip.loadAsync(arrayBuffer);
+                        const mdEntries = Object.entries(zip.files).filter(
+                            ([name, entry]) => !entry.dir && name.toLowerCase().endsWith('.md')
+                        );
+                        const imported = await Promise.all(
+                            mdEntries.map(async ([name, entry]) => {
+                                const content = await entry.async('string');
+                                const filename = name.split('/').pop() ?? name;
+                                const now = Date.now();
+                                return {
+                                    id: crypto.randomUUID(),
+                                    title: filename.replace(/\.md$/i, ''),
+                                    content,
+                                    format: 'markdown' as const,
+                                    tags: [],
+                                    createdAt: now,
+                                    updatedAt: now,
+                                    isFavorite: false,
+                                };
+                            })
+                        );
+                        handleImportNotes(imported);
+                    } catch {
+                        showToast(sl ? 'Cannot read ZIP lah' : 'Failed to read ZIP file', 'error');
+                    }
+                };
+                input.click();
+            },
+            category: 'Import'
+        },
         // Global Export
         {
             id: 'export-all',
