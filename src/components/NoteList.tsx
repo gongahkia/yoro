@@ -231,6 +231,22 @@ export const NoteList: React.FC<NoteListProps> = ({
         return visible;
     }, [count, rotation]);
 
+    const EmptyState = () => (
+        <div className="empty-state">
+            <svg className="empty-state-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="12" y="8" width="44" height="56" rx="4" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 3"/>
+                <line x1="22" y1="24" x2="46" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="22" y1="33" x2="46" y2="33" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="22" y1="42" x2="36" y2="42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="58" cy="58" r="13" fill="var(--bg-primary)" stroke="currentColor" strokeWidth="2"/>
+                <line x1="54" y1="58" x2="62" y2="58" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="58" y1="54" x2="58" y2="62" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <p className="empty-state-text">{sl ? 'No notes leh' : 'No notes yet'}</p>
+            <p className="empty-state-sub">{sl ? 'Press Cmd+K to create one lah' : 'Press Cmd+K to create your first note'}</p>
+        </div>
+    );
+
     const render3DCarousel = () => (
         <div className="circular-deck-container" ref={deckRef}>
             {filteredNotes.length > 0 ? (
@@ -279,7 +295,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     })}
                 </div>
             ) : (
-                <div className="empty-state">{sl ? 'No notes leh' : 'No notes found'}</div>
+                <EmptyState />
             )}
         </div>
     );
@@ -362,7 +378,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                         </div>
                     </>
                 ) : (
-                    <div className="empty-state">{sl ? 'No notes leh' : 'No notes found'}</div>
+                    <EmptyState />
                 )}
             </div>
         );
