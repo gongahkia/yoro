@@ -8,26 +8,35 @@
   height: 100vh;
 }
 
-/* custom background support */
-html[data-custom-bg] body,
-html[data-custom-bg] .note-list-container {
+/* custom background support — bg on body, note-list panel stays themed */
+html[data-custom-bg] body {
   background: var(--custom-bg) !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
-/* inner list panels become an opaque panel over the bg */
+/* narrow the landing panel so the bg shows on left/right */
+html[data-custom-bg] .note-list-container {
+  background: var(--bg-app) !important;
+  width: 60vw !important;
+  min-width: 560px !important;
+  max-width: 960px !important;
+  margin: 0 auto !important;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* inner containers go back to transparent — inherit from note-list-container */
 html[data-custom-bg] .docs-list-container,
 html[data-custom-bg] .notion-grid-container {
-  background: var(--bg-app) !important;
-  width: calc(100% - 80px) !important;
-  min-height: calc(100% - 80px) !important;
-  height: auto !important;
-  margin: 40px auto !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.25) !important;
-  box-sizing: border-box !important;
+  background: transparent !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: unset !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 /* global keybind chip style (used across components) */
