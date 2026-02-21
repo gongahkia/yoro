@@ -1,7 +1,3 @@
-refactor how the homescreen currently shows notes to be something more intuitive and useful like notion or google docs
-harden all security entry and endpoints
-alllow all drawings/images/tables/diagrams to be centered/resized easily
-
 # --- STRETCH GOALs (DONT DO FIRST) ---
 
 notice to users that if they're trying to access yoro on a mobile devive they cant use it there, pleaase use it on a proper device for now with actual keyboard support since it is primiarly a keyboard based editor for power users
