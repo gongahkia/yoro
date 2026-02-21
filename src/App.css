@@ -27,14 +27,14 @@ html[data-custom-bg] .note-list-container {
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* editor panel — same treatment */
+/* editor panel — wide with just a sliver of bg on each side */
 html[data-custom-bg] .editor-container {
   background-color: var(--bg-primary) !important;
-  width: 60vw !important;
+  width: calc(100vw - 100px) !important;
   min-width: 560px !important;
-  max-width: 960px !important;
-  margin: 0 auto !important;
-  box-shadow: 0 0 80px rgba(0, 0, 0, 0.4) !important;
+  max-width: unset !important;
+  margin: 0 50px !important;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.35) !important;
   flex: unset !important;
 }
 
