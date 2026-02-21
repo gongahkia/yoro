@@ -242,7 +242,7 @@ export const HelpManual: React.FC<HelpManualProps> = ({ isOpen, onClose, vimMode
     const featuresMarkdown = getFeaturesMarkdown(sl);
 
     return (
-        <div className="help-manual-overlay" onClick={onClose}>
+        <div className="modal-overlay help-manual-overlay" onClick={onClose}>
             <div className="help-manual-modal" onClick={e => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="help-manual-header">
                     <h2>{sl ? 'Help lah' : 'Help Manual'}</h2>

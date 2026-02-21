@@ -75,7 +75,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
     if (!isOpen || !command) return null;
 
     return (
-        <div className="param-modal-overlay" onClick={onClose}>
+        <div className="modal-overlay param-modal-overlay" onClick={onClose}>
             <div className="param-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="param-modal-header">
                     <h3>{command.label}</h3>

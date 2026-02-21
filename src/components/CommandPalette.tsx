@@ -276,7 +276,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="command-palette-overlay" onClick={onClose}>
+        <div className="modal-overlay command-palette-overlay" onClick={onClose}>
             <div className="command-palette-modal" onClick={e => e.stopPropagation()} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="command-palette-search">
                     <input

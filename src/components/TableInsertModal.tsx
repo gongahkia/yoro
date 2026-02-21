@@ -48,7 +48,7 @@ export const TableInsertModal: React.FC<TableInsertModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="table-modal-overlay" onClick={onClose}>
+        <div className="modal-overlay table-modal-overlay" onClick={onClose}>
             <div className="table-modal" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown} ref={trapRef as React.RefObject<HTMLDivElement>}>
                 <div className="table-modal-header">
                     <h3>Insert Table</h3>
