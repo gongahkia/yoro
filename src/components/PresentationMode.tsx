@@ -183,11 +183,11 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({ notes, theme
                 if (code) {
                     try {
                         const { svg } = await mermaid.render(`pres-mermaid-${currentSlide}-${i}`, code);
-                        block.innerHTML = svg;
+                        block.innerHTML = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
                         block.classList.remove('mermaid-placeholder');
                         block.classList.add('mermaid-rendered');
                     } catch {
-                        block.innerHTML = `<pre class="mermaid-error">${code}</pre>`;
+                        block.innerHTML = DOMPurify.sanitize(`<pre class="mermaid-error">${code}</pre>`);
                     }
                 }
             }

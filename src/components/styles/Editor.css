@@ -304,3 +304,35 @@
     max-height: 60vh;
     object-fit: contain;
 }
+/* ===== CENTER / RESIZE HELPERS FOR CONTENT BLOCKS ===== */
+
+/* Tables: center and make resizable */
+.cm-table-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    resize: horizontal;
+}
+
+/* Mermaid diagrams: center */
+.cm-mermaid-widget {
+    display: block;
+    margin: 1em auto;
+    max-width: 100%;
+    text-align: center;
+    resize: horizontal;
+    overflow: hidden;
+}
+
+/* Drawing / SVG images: block-centered */
+.cm-image-wrapper img[alt="drawing"],
+.cm-image-url-wrapper img[src^="data:image/svg"] {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Inline image wrappers that hold drawings get block display */
+.cm-image-wrapper:has(img[alt="drawing"]) {
+    display: block;
+    margin: 1em auto;
+    text-align: center;
+}

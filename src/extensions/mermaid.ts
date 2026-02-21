@@ -6,6 +6,7 @@ import {
 import type { DecorationSet } from '@codemirror/view';
 import { StateField, type Range } from '@codemirror/state';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 
 // Helper to get CSS variable value from current theme
 const getCSSVar = (name: string, fallback: string): string => {
@@ -167,7 +168,7 @@ class MermaidWidget extends WidgetType {
             const themeConfig = getMermaidThemeConfig();
             mermaid.initialize({
                 startOnLoad: false,
-                securityLevel: 'loose',
+                securityLevel: 'strict',
                 fontFamily: 'inherit',
                 ...themeConfig,
             });
@@ -175,7 +176,7 @@ class MermaidWidget extends WidgetType {
             // Use a unique ID for each render to avoid conflicts
             const uniqueId = `mermaid-render-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const { svg } = await mermaid.render(uniqueId, this.code);
-            container.innerHTML = svg;
+            container.innerHTML = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
         } catch (error) {
             const parsed = parseMermaidError(error, this.code);
 
@@ -200,15 +201,15 @@ class MermaidWidget extends WidgetType {
                 detail: { message: toastMessage, type: 'error', duration: 5000 }
             }));
 
-            // Show user-friendly error in the editor
+            // Show user-friendly error in the editor (sanitized)
             const errorHtml = `
                 <div class="cm-mermaid-error">
                     <strong>Mermaid Syntax Error</strong>
-                    ${parsed.details ? `<div style="margin-top: 4px; font-size: 0.9em;">${parsed.details}</div>` : ''}
+                    ${parsed.details ? `<div style="margin-top: 4px; font-size: 0.9em;">${DOMPurify.sanitize(parsed.details)}</div>` : ''}
                     <div style="margin-top: 8px; font-size: 0.85em; opacity: 0.8;">Check console for full details</div>
                 </div>
             `;
-            container.innerHTML = errorHtml;
+            container.innerHTML = DOMPurify.sanitize(errorHtml);
             container.classList.add('cm-mermaid-error-container');
         }
     }

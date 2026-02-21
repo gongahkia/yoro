@@ -15,7 +15,7 @@ interface NoteListProps {
     searchQuery: string;
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
-    viewMode?: '3d-carousel' | '2d-semicircle';
+    viewMode?: '3d-carousel' | '2d-semicircle' | 'notion-grid';
     sortOrder?: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
 }
 
@@ -29,7 +29,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     isLoading = false,
     searchQuery,
     selectedTag,
-    viewMode = '3d-carousel',
+    viewMode = 'notion-grid',
     sortOrder = 'updated'
 }) => {
     const sl = useSinglish();
@@ -377,21 +377,84 @@ export const NoteList: React.FC<NoteListProps> = ({
         );
     };
 
+    const renderNotionGrid = () => {
+        if (filteredNotes.length === 0) return <EmptyState />;
+        return (
+            <div className="notion-grid-container">
+                <div className="notion-grid-header">
+                    <span className="notion-grid-count">{filteredNotes.length} {filteredNotes.length === 1 ? 'note' : 'notes'}</span>
+                    {selectedTag && <span className="active-filter">{sl ? `#${selectedTag} leh` : `#${selectedTag}`}</span>}
+                </div>
+                <div className="notion-grid">
+                    {filteredNotes.map(note => {
+                        const date = new Date(note.updatedAt);
+                        const dateStr = date.toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric',
+                            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                        });
+                        const preview = note.content.replace(/!\[.*?\]\(.*?\)/g, '').replace(/[#*`>\-_[\]()]/g, '').trim().slice(0, 120);
+                        return (
+                            <div
+                                key={note.id}
+                                className="notion-card"
+                                onClick={() => onSelectNote(note.id)}
+                                style={note.accentColor ? { borderTop: `3px solid ${note.accentColor}` } : undefined}
+                                draggable={!!onReorderNotes}
+                                onDragStart={() => { dragSrcIdRef.current = note.id; }}
+                                onDragOver={(e) => { e.preventDefault(); setDragOverId(note.id); }}
+                                onDrop={() => handleDrop(note.id)}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <div className="notion-card-title-row">
+                                    {note.icon && <span className="notion-card-icon">{note.icon}</span>}
+                                    {note.isPinned && <span className="notion-card-pin" title="Pinned">📌</span>}
+                                    <span className="notion-card-title">{note.title || 'Untitled'}</span>
+                                </div>
+                                {preview && <p className="notion-card-preview">{preview}</p>}
+                                <div className="notion-card-footer">
+                                    <span className="notion-card-date">{dateStr}</span>
+                                    <div className="notion-card-tags">
+                                        {note.tags.slice(0, 3).map(tag => (
+                                            <span key={tag} className="notion-card-tag">#{tag}</span>
+                                        ))}
+                                    </div>
+                                    <div className="notion-card-actions" onClick={e => e.stopPropagation()}>
+                                        {onPinNote && (
+                                            <button className="notion-card-action-btn" onClick={() => onPinNote(note.id)} title="Pin">
+                                                {note.isPinned ? '◈' : '◇'}
+                                            </button>
+                                        )}
+                                        <button className="notion-card-action-btn" onClick={(e) => onDuplicateNote(note.id, e)} title="Duplicate">⊕</button>
+                                        <button className="notion-card-action-btn danger" onClick={(e) => onDeleteNote(note.id, e)} title="Delete">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="note-list-container">
-            <div className="search-hint">
-                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
-                {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
-            </div>
+            {displayMode !== 'notion-grid' && (
+                <div className="search-hint">
+                    Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+                    {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
+                </div>
+            )}
             <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
                 {isLoading ? (
                     <div className="skeleton-container" aria-label="Loading notes…">
-                        {Array.from({ length: 5 }, (_, i) => (
-                            <SkeletonCard key={i} style={{ animationDelay: `${i * 0.1}s` }} />
+                        {Array.from({ length: 8 }, (_, i) => (
+                            <SkeletonCard key={i} style={{ animationDelay: `${i * 0.05}s` }} />
                         ))}
                     </div>
                 ) : (
-                    displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()
+                    displayMode === '3d-carousel' ? render3DCarousel() :
+                    displayMode === 'notion-grid' ? renderNotionGrid() :
+                    render2DTimeline()
                 )}
             </div>
         </div>

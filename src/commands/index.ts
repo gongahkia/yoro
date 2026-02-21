@@ -330,14 +330,51 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         // Home View
         {
             id: 'toggle-home-view',
-            label: 'Switch Home View (2D/3D)',
-            action: () => handleUpdatePreferences({
-                homeViewMode: preferences.homeViewMode === '3d-carousel' ? '2d-semicircle' : '3d-carousel'
-            }),
+            label: 'Switch Home View (Grid/Timeline/3D)',
+            action: () => {
+                const cycle: ('notion-grid' | '2d-semicircle' | '3d-carousel')[] = ['notion-grid', '2d-semicircle', '3d-carousel'];
+                const current = preferences.homeViewMode || 'notion-grid';
+                const next = cycle[(cycle.indexOf(current as typeof cycle[number]) + 1) % cycle.length];
+                handleUpdatePreferences({ homeViewMode: next });
+            },
             category: 'View',
             context: 'home' as const,
             groupId: 'view-settings'
         },
+        {
+            id: 'home-view-grid',
+            label: 'Home View: Grid (Notion-style)',
+            action: () => handleUpdatePreferences({ homeViewMode: 'notion-grid' }),
+            category: 'View',
+            context: 'home' as const,
+            groupId: 'view-settings'
+        },
+        {
+            id: 'home-view-timeline',
+            label: 'Home View: Timeline',
+            action: () => handleUpdatePreferences({ homeViewMode: '2d-semicircle' }),
+            category: 'View',
+            context: 'home' as const,
+            groupId: 'view-settings'
+        },
+        {
+            id: 'home-view-3d',
+            label: 'Home View: 3D Carousel',
+            action: () => handleUpdatePreferences({ homeViewMode: '3d-carousel' }),
+            category: 'View',
+            context: 'home' as const,
+            groupId: 'view-settings'
+        },
+        // Content alignment helpers (editor context)
+        ...(currentNoteId ? [
+            {
+                id: 'center-selected-image',
+                label: 'Center Image/Drawing (wrap in <div align="center">)',
+                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'center-block' } })),
+                category: 'Format',
+                context: 'editor' as const,
+            },
+        ] : []),
         // Sort Commands
         {
             id: 'sort-updated',

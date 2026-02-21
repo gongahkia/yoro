@@ -38,7 +38,7 @@ function App() {
                 fontSize: loaded.preferences.fontSize || 16,
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
                 recentNoteIds: loaded.preferences.recentNoteIds || [],
-                homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
+                homeViewMode: loaded.preferences.homeViewMode || 'notion-grid',
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
                 focusModeBlur: loaded.preferences.focusModeBlur !== false,
