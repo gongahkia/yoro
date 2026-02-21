@@ -330,10 +330,10 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         // Home View
         {
             id: 'toggle-home-view',
-            label: 'Switch Home View (Grid/Timeline/3D)',
+            label: 'Switch Home View (Docs/Grid/Timeline/3D)',
             action: () => {
-                const cycle: ('notion-grid' | '2d-semicircle' | '3d-carousel')[] = ['notion-grid', '2d-semicircle', '3d-carousel'];
-                const current = preferences.homeViewMode || 'notion-grid';
+                const cycle: ('docs-list' | 'notion-grid' | '2d-semicircle' | '3d-carousel')[] = ['docs-list', 'notion-grid', '2d-semicircle', '3d-carousel'];
+                const current = preferences.homeViewMode || 'docs-list';
                 const next = cycle[(cycle.indexOf(current as typeof cycle[number]) + 1) % cycle.length];
                 handleUpdatePreferences({ homeViewMode: next });
             },

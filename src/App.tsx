@@ -38,7 +38,7 @@ function App() {
                 fontSize: loaded.preferences.fontSize || 16,
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
                 recentNoteIds: loaded.preferences.recentNoteIds || [],
-                homeViewMode: loaded.preferences.homeViewMode || 'notion-grid',
+                homeViewMode: loaded.preferences.homeViewMode || 'docs-list',
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
                 focusModeBlur: loaded.preferences.focusModeBlur !== false,
@@ -336,7 +336,7 @@ function App() {
                     if (isOneOf(parsed.editorAlignment, ['left', 'center', 'right'] as const) && parsed.editorAlignment !== data.preferences.editorAlignment) { updates.editorAlignment = parsed.editorAlignment; hasUpdates = true; }
                     if (isString(parsed.fontFamily) && parsed.fontFamily !== data.preferences.fontFamily) { updates.fontFamily = parsed.fontFamily; hasUpdates = true; }
                     if (isNum(parsed.fontSize) && parsed.fontSize >= 8 && parsed.fontSize <= 32 && parsed.fontSize !== data.preferences.fontSize) { updates.fontSize = parsed.fontSize; hasUpdates = true; }
-                    if (isOneOf(parsed.homeViewMode, ['3d-carousel', '2d-semicircle'] as const) && parsed.homeViewMode !== data.preferences.homeViewMode) { updates.homeViewMode = parsed.homeViewMode; hasUpdates = true; }
+                    if (isOneOf(parsed.homeViewMode, ['3d-carousel', '2d-semicircle', 'notion-grid', 'docs-list'] as const) && parsed.homeViewMode !== data.preferences.homeViewMode) { updates.homeViewMode = parsed.homeViewMode; hasUpdates = true; }
                     if (isOneOf(parsed.sortOrder, ['updated', 'created', 'alpha', 'alpha-reverse'] as const) && parsed.sortOrder !== data.preferences.sortOrder) { updates.sortOrder = parsed.sortOrder; hasUpdates = true; }
                     if (isBool(parsed.showDocumentStats) && parsed.showDocumentStats !== data.preferences.showDocumentStats) { updates.showDocumentStats = parsed.showDocumentStats; hasUpdates = true; }
                     if (isOneOf(parsed.cursorAnimations, ['none', 'subtle', 'particles'] as const) && parsed.cursorAnimations !== data.preferences.cursorAnimations) { updates.cursorAnimations = parsed.cursorAnimations; hasUpdates = true; }

@@ -15,7 +15,7 @@ interface NoteListProps {
     searchQuery: string;
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
-    viewMode?: '3d-carousel' | '2d-semicircle' | 'notion-grid';
+    viewMode?: '3d-carousel' | '2d-semicircle' | 'notion-grid' | 'docs-list';
     sortOrder?: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
 }
 
@@ -29,7 +29,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     isLoading = false,
     searchQuery,
     selectedTag,
-    viewMode = 'notion-grid',
+    viewMode = 'docs-list',
     sortOrder = 'updated'
 }) => {
     const sl = useSinglish();
@@ -436,9 +436,110 @@ export const NoteList: React.FC<NoteListProps> = ({
         );
     };
 
+    const renderDocsList = () => {
+        if (filteredNotes.length === 0) return <EmptyState />;
+
+        const now = Date.now();
+        const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+        const startOfYesterday = new Date(startOfToday); startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+        const sevenDaysAgo = new Date(startOfToday); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const thirtyDaysAgo = new Date(startOfToday); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        type GroupKey = 'Today' | 'Yesterday' | 'Previous 7 days' | 'Earlier this month' | 'Older';
+        const groups: { key: GroupKey; notes: typeof filteredNotes }[] = [
+            { key: 'Today', notes: [] },
+            { key: 'Yesterday', notes: [] },
+            { key: 'Previous 7 days', notes: [] },
+            { key: 'Earlier this month', notes: [] },
+            { key: 'Older', notes: [] },
+        ];
+
+        for (const note of filteredNotes) {
+            const ts = note.updatedAt;
+            if (ts >= startOfToday.getTime()) groups[0].notes.push(note);
+            else if (ts >= startOfYesterday.getTime()) groups[1].notes.push(note);
+            else if (ts >= sevenDaysAgo.getTime()) groups[2].notes.push(note);
+            else if (ts >= thirtyDaysAgo.getTime()) groups[3].notes.push(note);
+            else groups[4].notes.push(note);
+        }
+
+        const formatDate = (ts: number) => {
+            const d = new Date(ts);
+            const sameYear = d.getFullYear() === new Date().getFullYear();
+            return d.toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric',
+                year: sameYear ? undefined : 'numeric'
+            });
+        };
+
+        const DocIcon = () => (
+            <svg className="docs-list-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <line x1="8" y1="17" x2="13" y2="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+        );
+
+        return (
+            <div className="docs-list-container">
+                <div className="docs-list-toolbar">
+                    <span className="docs-list-count">{filteredNotes.length} {filteredNotes.length === 1 ? 'note' : 'notes'}</span>
+                    {selectedTag && <span className="active-filter">{sl ? `#${selectedTag} leh` : `#${selectedTag}`}</span>}
+                </div>
+                <div className="docs-list-table">
+                    <div className="docs-list-thead">
+                        <div className="docs-list-col docs-list-col-title">Title</div>
+                        <div className="docs-list-col docs-list-col-tags">Tags</div>
+                        <div className="docs-list-col docs-list-col-date">Last modified</div>
+                        <div className="docs-list-col docs-list-col-actions" />
+                    </div>
+                    {groups.map(group => group.notes.length > 0 && (
+                        <div key={group.key} className="docs-list-group">
+                            <div className="docs-list-group-label">{group.key}</div>
+                            {group.notes.map(note => (
+                                <div
+                                    key={note.id}
+                                    className="docs-list-row"
+                                    onClick={() => onSelectNote(note.id)}
+                                    draggable={!!onReorderNotes}
+                                    onDragStart={() => { dragSrcIdRef.current = note.id; }}
+                                    onDragOver={(e) => { e.preventDefault(); setDragOverId(note.id); }}
+                                    onDrop={() => handleDrop(note.id)}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <div className="docs-list-col docs-list-col-title">
+                                        <DocIcon />
+                                        {note.isPinned && <span className="docs-list-pin" title="Pinned" />}
+                                        <span className="docs-list-title">{note.title || 'Untitled'}</span>
+                                    </div>
+                                    <div className="docs-list-col docs-list-col-tags">
+                                        {note.tags.slice(0, 3).map(tag => (
+                                            <span key={tag} className="docs-list-tag">#{tag}</span>
+                                        ))}
+                                    </div>
+                                    <div className="docs-list-col docs-list-col-date">{formatDate(note.updatedAt)}</div>
+                                    <div className="docs-list-col docs-list-col-actions" onClick={e => e.stopPropagation()}>
+                                        {onPinNote && (
+                                            <button className="docs-list-action-btn" onClick={() => onPinNote(note.id)} title={note.isPinned ? 'Unpin' : 'Pin'}>
+                                                {note.isPinned ? 'unpin' : 'pin'}
+                                            </button>
+                                        )}
+                                        <button className="docs-list-action-btn" onClick={(e) => onDuplicateNote(note.id, e)} title="Duplicate">dup</button>
+                                        <button className="docs-list-action-btn danger" onClick={(e) => onDeleteNote(note.id, e)} title="Delete">del</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="note-list-container">
-            {displayMode !== 'notion-grid' && (
+            {displayMode !== 'notion-grid' && displayMode !== 'docs-list' && (
                 <div className="search-hint">
                     Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
                     {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
@@ -454,6 +555,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 ) : (
                     displayMode === '3d-carousel' ? render3DCarousel() :
                     displayMode === 'notion-grid' ? renderNotionGrid() :
+                    displayMode === 'docs-list' ? renderDocsList() :
                     render2DTimeline()
                 )}
             </div>

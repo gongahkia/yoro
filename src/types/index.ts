@@ -52,7 +52,7 @@ export interface UserPreferences {
     fontSize: number;
     recentCommandIds: string[];
     recentNoteIds: string[];
-    homeViewMode: '3d-carousel' | '2d-semicircle' | 'notion-grid';
+    homeViewMode: '3d-carousel' | '2d-semicircle' | 'notion-grid' | 'docs-list';
     sortOrder: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
     showDocumentStats: boolean;
     cursorAnimations: 'none' | 'subtle' | 'particles';
