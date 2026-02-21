@@ -107,6 +107,18 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => setIsAboutOpen(true),
             category: 'General'
         },
+        // Recent notes (last 5 opened)
+        ...(preferences.recentNoteIds || []).map(noteId => {
+            const recentNote = notes.find(n => n.id === noteId);
+            if (!recentNote) return null;
+            return {
+                id: `recent-note-${noteId}`,
+                label: `Recent: ${recentNote.icon ? recentNote.icon + ' ' : ''}${recentNote.title || 'Untitled'}`,
+                action: () => handleSelectNote(noteId),
+                category: 'Recent' as const,
+                groupId: 'recent-notes'
+            };
+        }).filter(Boolean) as Command[],
         {
             id: 'open-knowledge-graph',
             label: 'Open Knowledge Graph',

@@ -37,6 +37,7 @@ function App() {
                 fontFamily: loaded.preferences.fontFamily || "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
                 fontSize: loaded.preferences.fontSize || 16,
                 recentCommandIds: loaded.preferences.recentCommandIds || [],
+                recentNoteIds: loaded.preferences.recentNoteIds || [],
                 homeViewMode: loaded.preferences.homeViewMode || '3d-carousel',
                 emacsMode: loaded.preferences.emacsMode || false,
                 showDocumentStats: loaded.preferences.showDocumentStats !== false,
@@ -201,6 +202,10 @@ function App() {
     }, []);
 
     const handleSelectNote = useCallback((id: string) => {
+        setData(prev => {
+            const recent = [id, ...(prev.preferences.recentNoteIds || []).filter(r => r !== id)].slice(0, 5);
+            return { ...prev, preferences: { ...prev.preferences, recentNoteIds: recent } };
+        });
         navigate(`/note/${id}`);
     }, [navigate]);
 

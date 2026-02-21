@@ -24,6 +24,7 @@ const initialState: AppState = {
         fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace",
         fontSize: 16,
         recentCommandIds: [],
+        recentNoteIds: [],
         homeViewMode: '3d-carousel',
         sortOrder: 'updated',
         showDocumentStats: true,
