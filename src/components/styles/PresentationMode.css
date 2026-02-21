@@ -198,13 +198,13 @@
 .slide-content pre code .hljs-template-variable,
 .slide-content pre code .hljs-type,
 .slide-content pre code .hljs-addition {
-    color: #22863a;
+    color: var(--syntax-string);
 }
 
 .slide-content pre code .hljs-comment,
 .slide-content pre code .hljs-deletion,
 .slide-content pre code .hljs-meta {
-    color: var(--text-secondary);
+    color: var(--syntax-comment);
     font-style: italic;
 }
 
@@ -212,59 +212,27 @@
 .slide-content pre code .hljs-symbol,
 .slide-content pre code .hljs-bullet,
 .slide-content pre code .hljs-link {
-    color: #005cc5;
+    color: var(--syntax-constant);
 }
 
 .slide-content pre code .hljs-function {
-    color: #6f42c1;
+    color: var(--syntax-function);
 }
 
 .slide-content pre code .hljs-class .hljs-title {
-    color: #6f42c1;
+    color: var(--syntax-function);
     font-weight: 600;
 }
 
 .slide-content pre code .hljs-variable,
 .slide-content pre code .hljs-attr {
-    color: #e36209;
+    color: var(--syntax-variable);
 }
 
 .slide-content pre code .hljs-regexp,
 .slide-content pre code .hljs-selector-attr,
 .slide-content pre code .hljs-selector-pseudo {
-    color: #032f62;
-}
-
-/* Dark theme syntax highlighting overrides */
-[data-theme*="dark"] .slide-content pre code .hljs-string,
-[data-theme*="dark"] .slide-content pre code .hljs-addition {
-    color: #a5d6ff;
-}
-
-[data-theme*="dark"] .slide-content pre code .hljs-number,
-[data-theme*="dark"] .slide-content pre code .hljs-symbol,
-[data-theme*="dark"] .slide-content pre code .hljs-bullet,
-[data-theme*="dark"] .slide-content pre code .hljs-link {
-    color: #79c0ff;
-}
-
-[data-theme*="dark"] .slide-content pre code .hljs-function {
-    color: #d2a8ff;
-}
-
-[data-theme*="dark"] .slide-content pre code .hljs-class .hljs-title {
-    color: #d2a8ff;
-}
-
-[data-theme*="dark"] .slide-content pre code .hljs-variable,
-[data-theme*="dark"] .slide-content pre code .hljs-attr {
-    color: #ffa657;
-}
-
-[data-theme*="dark"] .slide-content pre code .hljs-regexp,
-[data-theme*="dark"] .slide-content pre code .hljs-selector-attr,
-[data-theme*="dark"] .slide-content pre code .hljs-selector-pseudo {
-    color: #7ee787;
+    color: var(--syntax-operator);
 }
 
 .slide-content blockquote {
