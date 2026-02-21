@@ -69,6 +69,8 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
+    const [saveStatus, setSaveStatus] = React.useState<'saved' | 'saving'>('saved');
+    const saveTimerRef = React.useRef<number | null>(null);
 
     // Extension to track cursor line
     const cursorLineTracker = React.useMemo(() =>
@@ -101,11 +103,14 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         [onPositionChange]
     );
 
-    // Clean up positionSaveTimeout on unmount
+    // Clean up positionSaveTimeout and saveTimer on unmount
     React.useEffect(() => {
         return () => {
             if (positionSaveTimeoutRef.current) {
                 clearTimeout(positionSaveTimeoutRef.current);
+            }
+            if (saveTimerRef.current) {
+                clearTimeout(saveTimerRef.current);
             }
         };
     }, []);
@@ -433,13 +438,18 @@ stateDiagram-v2
                 editorView={editorRef.current?.view || null}
             />
             <div className="editor-content">
-                <input
-                    type="text"
-                    className="editor-title"
-                    value={note.title}
-                    onChange={(e) => onTitleChange(e.target.value)}
-                    placeholder={sl ? 'No title...' : 'Untitled'}
-                />
+                <div className="editor-title-row">
+                    <input
+                        type="text"
+                        className="editor-title"
+                        value={note.title}
+                        onChange={(e) => onTitleChange(e.target.value)}
+                        placeholder={sl ? 'No title...' : 'Untitled'}
+                    />
+                    <span className={`autosave-indicator ${saveStatus}`} aria-live="polite" aria-label={saveStatus === 'saving' ? 'Saving…' : 'Saved'}>
+                        {saveStatus === 'saving' ? (sl ? 'Saving...' : 'Saving…') : (sl ? 'Saved liao' : 'Saved')}
+                    </span>
+                </div>
                 <HeadingBreadcrumb content={note.content} cursorLine={cursorLine} noteId={note.id} />
                 <CodeMirror
                     ref={editorRef}
@@ -447,7 +457,12 @@ stateDiagram-v2
                     height="100%"
                     theme="none"
                     extensions={editorExtensions}
-                    onChange={onChange}
+                    onChange={(value, viewUpdate) => {
+                        setSaveStatus('saving');
+                        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+                        saveTimerRef.current = window.setTimeout(() => setSaveStatus('saved'), 800);
+                        onChange(value, viewUpdate);
+                    }}
                     className="editor-cm-wrapper"
                     basicSetup={{
                         lineNumbers: showLineNumbers,

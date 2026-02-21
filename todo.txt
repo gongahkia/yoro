@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Add auto-save indicator in Editor toolbar showing "Saved" / "Saving..." status +feature
 (B) Add keyboard shortcut cheatsheet overlay accessible via Cmd+/ or from command palette +feature
 (B) Add drag-and-drop reordering of notes in NoteList 2D view +feature
 (B) Add note color/icon customization — per-note accent color or emoji icon shown on card +feature
