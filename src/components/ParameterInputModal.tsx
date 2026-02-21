@@ -59,7 +59,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
         const newErrors: Record<string, string> = {};
         for (const param of command.parameters ?? []) {
             const value = values[param.name];
-            if (param.type === 'text' || param.type === 'string') {
+            if (param.type === 'text') {
                 if (typeof value === 'string' && value.trim() === '' && !param.defaultValue) {
                     newErrors[param.name] = `${param.label} is required`;
                 }
