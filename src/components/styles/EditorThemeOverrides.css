@@ -496,3 +496,35 @@
         50% { opacity: 0; }
     }
 }
+
+/* Print-specific syntax highlight overrides */
+@media print {
+    .cm-editor,
+    .cm-scroller,
+    .cm-content,
+    .cm-line {
+        color: var(--text-primary) !important;
+        background: transparent !important;
+    }
+
+    .cm-keyword { color: var(--syntax-keyword) !important; }
+    .cm-variableName { color: var(--syntax-variable) !important; }
+    .cm-name { color: var(--syntax-function) !important; }
+    .cm-string { color: var(--syntax-string) !important; }
+    .cm-number { color: var(--syntax-constant) !important; }
+    .cm-typeName { color: var(--syntax-type) !important; }
+    .cm-comment { color: var(--syntax-comment) !important; }
+    .cm-operator { color: var(--syntax-operator) !important; }
+    .cm-link { color: var(--syntax-link) !important; }
+    .cm-heading { color: var(--syntax-heading) !important; }
+    .cm-invalid { color: var(--syntax-invalid) !important; }
+
+    /* Hide UI chrome not relevant to print */
+    .cm-gutters,
+    .cm-cursor,
+    .cm-selectionBackground,
+    .cm-activeLine,
+    .cm-activeLineGutter {
+        display: none !important;
+    }
+}
