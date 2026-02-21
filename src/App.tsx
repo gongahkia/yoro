@@ -172,6 +172,15 @@ function App() {
         navigate(`/note/${newId}`);
     }, [navigate]);
 
+    const handleReorderNotes = useCallback((orderedIds: string[]) => {
+        setData(prev => {
+            const idToNote = new Map(prev.notes.map(n => [n.id, n]));
+            const reordered = orderedIds.map(id => idToNote.get(id)!).filter(Boolean);
+            const untouched = prev.notes.filter(n => !orderedIds.includes(n.id));
+            return { ...prev, notes: [...reordered, ...untouched] };
+        });
+    }, []);
+
     const handlePinNote = useCallback((id: string) => {
         setData(prev => ({
             ...prev,
@@ -535,6 +544,7 @@ function App() {
                         onDeleteNote={handleDeleteNote}
                         onDuplicateNote={handleDuplicateNote}
                         onPinNote={handlePinNote}
+                        onReorderNotes={handleReorderNotes}
                         onImportNotes={handleImportNotes}
                         isLoading={isHydrating}
                         searchQuery={searchQuery}

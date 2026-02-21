@@ -11,6 +11,7 @@ interface NoteListProps {
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
     onPinNote?: (id: string) => void;
+    onReorderNotes?: (orderedIds: string[]) => void;
     onImportNotes: (notes: Note[]) => void;
     isLoading?: boolean;
     searchQuery: string;
@@ -26,6 +27,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     onDeleteNote,
     onDuplicateNote,
     onPinNote,
+    onReorderNotes,
     onImportNotes,
     isLoading = false,
     searchQuery,
@@ -238,6 +240,39 @@ export const NoteList: React.FC<NoteListProps> = ({
         return visible;
     }, [count, rotation]);
 
+    // Drag-and-drop state for 2D timeline
+    const dragSrcIdRef = useRef<string | null>(null);
+    const [dragOverId, setDragOverId] = useState<string | null>(null);
+
+    const handleDragStart = (id: string) => {
+        dragSrcIdRef.current = id;
+    };
+
+    const handleDragOver = (e: React.DragEvent, id: string) => {
+        e.preventDefault();
+        setDragOverId(id);
+    };
+
+    const handleDrop = (targetId: string) => {
+        const srcId = dragSrcIdRef.current;
+        if (!srcId || srcId === targetId || !onReorderNotes) return;
+        const ids = filteredNotes.map(n => n.id);
+        const srcIdx = ids.indexOf(srcId);
+        const tgtIdx = ids.indexOf(targetId);
+        if (srcIdx < 0 || tgtIdx < 0) return;
+        const reordered = [...ids];
+        reordered.splice(srcIdx, 1);
+        reordered.splice(tgtIdx, 0, srcId);
+        onReorderNotes(reordered);
+        dragSrcIdRef.current = null;
+        setDragOverId(null);
+    };
+
+    const handleDragEnd = () => {
+        dragSrcIdRef.current = null;
+        setDragOverId(null);
+    };
+
     const SkeletonCard = ({ style }: { style?: React.CSSProperties }) => (
         <div className="skeleton-card" style={style} aria-hidden="true">
             <div className="skeleton-line skeleton-title" />
@@ -366,12 +401,17 @@ export const NoteList: React.FC<NoteListProps> = ({
                                 return (
                                     <div
                                         key={note.id}
-                                        className={`timeline-card ${isActive ? 'timeline-card-active' : ''} ${isHovered ? 'timeline-card-hovered' : ''}`}
+                                        className={`timeline-card ${isActive ? 'timeline-card-active' : ''} ${isHovered ? 'timeline-card-hovered' : ''} ${dragOverId === note.id ? 'drag-over' : ''}`}
                                         style={{
                                             transform: `translateX(${translateX}px) scale(${scale})`,
-                                            opacity,
+                                            opacity: dragSrcIdRef.current === note.id ? 0.4 : opacity,
                                             zIndex,
                                         }}
+                                        draggable={!!onReorderNotes}
+                                        onDragStart={() => handleDragStart(note.id)}
+                                        onDragOver={(e) => handleDragOver(e, note.id)}
+                                        onDrop={() => handleDrop(note.id)}
+                                        onDragEnd={handleDragEnd}
                                         onMouseEnter={() => setHoveredId(note.id)}
                                         onMouseLeave={() => setHoveredId(null)}
                                         onClick={() => setActiveIndex(index)}
@@ -381,6 +421,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                                             onClick={onSelectNote}
                                             onDelete={(e) => onDeleteNote(note.id, e)}
                                             onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                                            onPin={onPinNote ? (e) => { e.stopPropagation(); onPinNote(note.id); } : undefined}
                                         />
 
                                         {/* Date marker below card */}

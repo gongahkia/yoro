@@ -277,6 +277,19 @@
         0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
+.timeline-card.drag-over .note-card {
+    outline: 2px dashed var(--primary, #007aff);
+    outline-offset: 4px;
+}
+
+.timeline-card[draggable="true"] {
+    cursor: grab;
+}
+
+.timeline-card[draggable="true"]:active {
+    cursor: grabbing;
+}
+
 /* Navigation controls */
 .timeline-nav {
     position: absolute;
