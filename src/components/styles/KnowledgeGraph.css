@@ -222,7 +222,7 @@
 }
 
 .tag-chip:hover {
-    background: color-mix(in srgb, var(--tag-color, var(--primary)) 15%, transparent);
+    background: var(--primary-light);
 }
 
 .tag-chip.selected {
