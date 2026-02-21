@@ -55,6 +55,28 @@
     font-size: 0.85em;
 }
 
+.search-hint .import-actions {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: 8px;
+}
+
+.import-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.import-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
 /* Circular Deck Styles */
 .circular-deck-container {
     width: 100%;

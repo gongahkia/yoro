@@ -164,6 +164,18 @@ function App() {
         navigate(`/note/${newId}`);
     }, [navigate]);
 
+    const handleImportNotes = useCallback((importedNotes: Note[]) => {
+        if (importedNotes.length === 0) return;
+        setData(prev => ({
+            ...prev,
+            notes: [...importedNotes, ...prev.notes]
+        }));
+        const msg = importedNotes.length === 1
+            ? `Imported "${importedNotes[0].title || 'Untitled'}"`
+            : `Imported ${importedNotes.length} notes`;
+        showToast(msg, 'success');
+    }, []);
+
     const handleSelectNote = useCallback((id: string) => {
         navigate(`/note/${id}`);
     }, [navigate]);
@@ -500,6 +512,7 @@ function App() {
                         onSelectNote={handleSelectNote}
                         onDeleteNote={handleDeleteNote}
                         onDuplicateNote={handleDuplicateNote}
+                        onImportNotes={handleImportNotes}
                         searchQuery={searchQuery}
                         selectedTag={selectedTag}
                         onTagChange={setSelectedTag}

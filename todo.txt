@@ -6,7 +6,6 @@
 
 # ─── USER-REQUESTED / CORE VISION (A) ────────────────────────────────────────
 
-(A) Create Yoro logo using Google Nanobanana tool and add generated assets to asset/logo/, public/ (favicon.ico, icon.svg, apple-touch-icon.png, icon-192.png, icon-512.png), and update index.html and vite.config.ts PWA manifest to reference them +logo +infra
 
 # ─── PERFORMANCE (B) ──────────────────────────────────────────────────────────
 
@@ -16,46 +15,24 @@
 
 # ─── CSS / THEMING FIXES (B) ──────────────────────────────────────────────────
 
-(B) Replace hardcoded syntax highlight colors in PresentationMode.css (lines 201-267) with CSS variables from theme +css
-(B) Replace hardcoded syntax highlight colors in EditorThemeOverrides.css print section with theme-aware vars +css
-(B) Remove color-mix() usage in KnowledgeGraph.css (line 225) — limited browser support (Safari <16.2), use pre-computed fallback +css
-(B) Extract duplicated modal overlay CSS pattern (repeated in ConfirmationModal, CommandPalette, HelpManual, About, ImageLightbox, ParameterInput, TableInsert, QuickCapture) into shared .modal-overlay class +css +refactor
-(B) Add @media (prefers-reduced-motion: reduce) to BacklinksPanel.css slide animations +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to ConfirmationModal.css fadeIn/scaleUp animations +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to ImageLightbox.css fadeIn animation +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to NoteList.css carousel/transition animations +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to PresentationMode.css slide transitions +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to Toast.css toast enter/exit animations +css +a11y
-(B) Add @media (prefers-reduced-motion: reduce) to Editor.css bracket-pulse and cursor particle animations +css +a11y
-(B) Add print-specific theme overrides in App.css that use theme vars instead of hardcoded black/white (lines 86-92) +css
 
-# -- DRAWING FEATURE --
 
-(B) In same contextual format as inserting existing mermaid diagrams, add a feature for users to write and draw (just take raw cursor input and export to SVG) to allow for inkscape like drawings natively within yoro
+
+
+
 
 # ─── ERROR HANDLING (B) ───────────────────────────────────────────────────────
 
-(B) Wrap KnowledgeGraph component with ErrorBoundary in App.tsx to catch layout/render failures +fix
-(B) Wrap PresentationMode component with ErrorBoundary in App.tsx Route to catch rendering errors +fix
-(B) Add try/catch around regex operations in BacklinksPanel.tsx (lines 54, 68) to handle malformed patterns +fix
-(B) Add error display UI for invalid regex in FindReplacePanel.tsx instead of silent failure +fix
-(B) Add fallback UI ("Note not found") with navigation back to home in NoteEditorWrapper when note is missing +fix
-(B) Add broken-image placeholder in src/extensions/live-preview.ts for failed image loads +fix
-(B) Add clipboard.writeText fallback using execCommand('copy') in code-block-enhancements.ts for older browsers +fix
+
 
 # ─── MEMORY LEAKS / CLEANUP (B) ───────────────────────────────────────────────
 
-(B) Add Lighthouse CI check to GitHub Actions to catch perf/a11y regressions +infra
-(B) Add runtime validation for CommandParameter values in ParameterInputModal.tsx before passing to action callback +refactor
-(B) Add runtime validation for parsed TOML config values in App.tsx config sync useEffect — validate types match UserPreferences interface +refactor
-(B) Add Zod or manual type guard for share link JSON parsing in App.tsx (line ~369) to prevent malformed data creating invalid Note objects +refactor +security
+
+
 
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
-(B) Add undo/redo support to FlowchartBuilder.tsx — maintain a history stack of node/edge states +feature
-(B) Add undo/redo support to StateDiagramBuilder.tsx — maintain a history stack of state/transition arrays +feature
-(B) Add note import from .md files — file input in NoteList that reads markdown files and creates Note objects +feature
-(B) Add batch import from .zip — extract multiple .md files from a ZIP and create Note objects for each +feature
+
 (B) Add Cmd+K shortcut to open command palette (currently only Cmd+Shift+P) — Cmd+K is more discoverable for VS Code users +feature
 (B) Add empty state illustration to NoteList when no notes exist — currently shows blank area +feature
 (B) Add loading skeleton to NoteList while data initializes from localStorage +feature
