@@ -387,7 +387,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 onChange={handleZipImport}
             />
             <div className="search-hint">
-                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+                Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
                 {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
                 <span className="import-actions">
                     <button

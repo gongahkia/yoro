@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Add Cmd+K shortcut to open command palette (currently only Cmd+Shift+P) — Cmd+K is more discoverable for VS Code users +feature
 (B) Add empty state illustration to NoteList when no notes exist — currently shows blank area +feature
 (B) Add loading skeleton to NoteList while data initializes from localStorage +feature
 (B) Add note pinning — pinned notes appear first regardless of sort order, add isPinned to Note type +feature
