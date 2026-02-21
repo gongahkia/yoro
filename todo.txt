@@ -1,19 +1,8 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# YORO AUDIT TODO — generated 2026-02-15, updated 2026-02-21
-# Priority: (A) = core vision/MVP/user-requested, (B) = audit-suggested improvement
-# Tags: +feature +refactor +security +infra +perf +a11y +theme +css +fix +logo +pwa
-# ═══════════════════════════════════════════════════════════════════════════════
-
+generate logo with nanobanana
 make it so that clicking a completed saved drwaing will bring it back into edit mode and make it still editable
 how are drawings currently being stored? if svg or a more efficient method, then this should allow for easy reloading and editing right
 for each drawing, allow it to be exported as necessary
 allow any image that is copied/pasted into the editor when clicked on to be edited as well
-
-# ─── PWA (STRETCH GOAL — BLOCKED on logo creation) ───────────────────────────
-
-(B) Create app logo first — all PWA icon tasks below require a logo source file +logo
-(B) After logo creation, generate PWA icon set from logo: icon-72.png, icon-96.png, icon-128.png, icon-144.png, icon-152.png, icon-192.png, icon-384.png, icon-512.png and place in public/ +pwa +logo
-(B) Update vite.config.ts PWA manifest icons array to reference all generated icon sizes with correct MIME types +pwa
-(B) Add offline fallback page to PWA service worker config — show cached version of app when network unavailable +pwa
-(B) Add "Add to Home Screen" prompt logic in App.tsx using beforeinstallprompt event +pwa
-(B) Test PWA install flow on Chrome, Safari, Firefox and fix any manifest validation errors +pwa
+refactor how the homescreen currently shows notes to be something more intuitive and useful like notion
+add basic user accounting and a profile page
+move all archived feature files into a literal folder called archive in repo root
