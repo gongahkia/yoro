@@ -16,6 +16,7 @@ interface NoteListProps {
     onTagChange: (tag: string | null) => void;
     viewMode?: 'notion-grid' | 'docs-list';
     sortOrder?: 'updated' | 'created' | 'alpha' | 'alpha-reverse';
+    onOpenGraph?: () => void;
 }
 
 export const NoteList: React.FC<NoteListProps> = ({
@@ -29,7 +30,8 @@ export const NoteList: React.FC<NoteListProps> = ({
     searchQuery,
     selectedTag,
     viewMode = 'docs-list',
-    sortOrder = 'updated'
+    sortOrder = 'updated',
+    onOpenGraph,
 }) => {
     const sl = useSinglish();
     const dragSrcIdRef = useRef<string | null>(null);
@@ -250,12 +252,32 @@ export const NoteList: React.FC<NoteListProps> = ({
         );
     };
 
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const modKey = isMac ? 'Cmd' : 'Ctrl';
+
     return (
         <div className="note-list-container">
             {(viewMode === 'notion-grid' || viewMode === 'docs-list') && (
                 <div className="search-hint">
-                    Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+                    <span className="search-hint-text">Press</span>
+                    <span className="keybind-combo">
+                        <kbd className="key-chip">{modKey}</kbd>
+                        <span className="key-sep">+</span>
+                        <kbd className="key-chip">Shift</kbd>
+                        <span className="key-sep">+</span>
+                        <kbd className="key-chip">P</kbd>
+                    </span>
+                    <span className="search-hint-text">{sl ? 'to open command palette lah.' : 'to open the command palette.'}</span>
                     {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
+                    {onOpenGraph && (
+                        <button className="graph-hint-btn" onClick={onOpenGraph} title="Open Knowledge Graph">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/>
+                                <line x1="12" y1="8" x2="5.5" y2="16.5"/><line x1="12" y1="8" x2="18.5" y2="16.5"/>
+                            </svg>
+                            Graph
+                        </button>
+                    )}
                 </div>
             )}
             {isLoading ? (

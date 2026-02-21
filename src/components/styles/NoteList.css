@@ -30,21 +30,78 @@
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.85rem;
+    gap: 6px;
+    font-size: 0.82rem;
     color: var(--text-secondary, #888);
-    opacity: 0.7;
+    opacity: 0.75;
     z-index: 100;
+    white-space: nowrap;
 }
 
-.search-hint kbd {
-    background: var(--bg-primary, #fff);
-    border: 1px solid rgba(128, 128, 128, 0.3);
-    border-radius: 4px;
-    padding: 2px 8px;
+.search-hint-text {
+    color: var(--text-tertiary, #aaa);
+}
+
+.keybind-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.key-sep {
+    color: var(--text-tertiary, #bbb);
+    font-size: 0.75em;
+    padding: 0 1px;
+}
+
+.key-chip {
+    background: var(--bg-secondary, #f5f5f5);
+    border: 1px solid var(--border-color, rgba(128, 128, 128, 0.3));
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 6px;
     font-family: monospace;
-    font-size: 0.9em;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.82em;
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+    line-height: 1.6;
+}
+
+/* legacy kbd in hints */
+.search-hint kbd {
+    background: var(--bg-secondary, #f5f5f5);
+    border: 1px solid var(--border-color, rgba(128, 128, 128, 0.3));
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 0.82em;
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+}
+
+.graph-hint-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    margin-left: 4px;
+    background: transparent;
+    border: 1px solid var(--border-color, rgba(128,128,128,0.3));
+    border-radius: 5px;
+    color: var(--text-secondary, #888);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    font-family: inherit;
+}
+
+.graph-hint-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--primary, #007aff);
+    border-color: var(--primary, #007aff);
 }
 
 .search-hint .active-filter {

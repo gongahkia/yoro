@@ -43,12 +43,12 @@ export const MobileWarning: React.FC = () => {
                         <path d="M2 12h3M19 12h3" strokeDasharray="2 2"/>
                     </svg>
                 </div>
-                <h1 className="mobile-warning-title">{sl ? 'Eh, use desktop lah' : 'Desktop Recommended'}</h1>
+                <h1 className="mobile-warning-title">{sl ? 'Eh, use desktop lah' : 'Mobile Not Supported'}</h1>
                 <p className="mobile-warning-message">
-                    <strong>Yoro</strong> {sl ? 'best on desktop one, got vim/emacs mode and all those power features.' : 'is a desktop-first text editor designed for focused writing with keyboard shortcuts, vim/emacs modes, and advanced editing features.'}
+                    <strong>Yoro</strong> {sl ? 'is a keyboard power tool — cannot use on mobile one lah.' : 'is a keyboard-first power editor. It requires a physical keyboard and cannot be used on mobile devices.'}
                 </p>
                 <p className="mobile-warning-submessage">
-                    {sl ? 'For best experience, use desktop or laptop with keyboard lah.' : 'For the best experience, please access Yoro from a desktop or laptop computer with a physical keyboard.'}
+                    {sl ? 'Please use a desktop or laptop with actual keyboard support lah.' : 'Please access Yoro from a desktop or laptop with a physical keyboard. Mobile browsers lack the keyboard support required for the core editing experience.'}
                 </p>
                 <div className="mobile-warning-features">
                     <div className="mobile-warning-feature">

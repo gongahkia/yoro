@@ -252,6 +252,53 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             },
             category: 'General',
         },
+        // Background customisation
+        {
+            id: 'set-bg-color',
+            label: 'Set Background Color',
+            action: (params) => {
+                const val = (params?.value as string || '').trim();
+                if (!val) return;
+                handleUpdatePreferences({ customBackground: val });
+                showToast(sl ? `Background set liao` : 'Background color set', 'success');
+            },
+            category: 'View',
+            parameters: [{ id: 'value', label: 'CSS color (e.g. #1a1a2e, oklch(30% 0.05 240))', type: 'text' as const, required: true }],
+        },
+        {
+            id: 'set-bg-image',
+            label: 'Set Background Image (URL)',
+            action: (params) => {
+                const val = (params?.value as string || '').trim();
+                if (!val) return;
+                const css = `url("${val}")`;
+                handleUpdatePreferences({ customBackground: css });
+                showToast(sl ? `Background image set liao` : 'Background image set', 'success');
+            },
+            category: 'View',
+            parameters: [{ id: 'value', label: 'Image URL', type: 'text' as const, required: true }],
+        },
+        {
+            id: 'set-bg-gradient',
+            label: 'Set Background Gradient',
+            action: (params) => {
+                const val = (params?.value as string || '').trim();
+                if (!val) return;
+                handleUpdatePreferences({ customBackground: val });
+                showToast(sl ? `Background gradient set liao` : 'Background gradient set', 'success');
+            },
+            category: 'View',
+            parameters: [{ id: 'value', label: 'CSS gradient (e.g. linear-gradient(135deg, #1a1a2e, #16213e))', type: 'text' as const, required: true }],
+        },
+        {
+            id: 'reset-bg',
+            label: 'Reset Background to Theme Default',
+            action: () => {
+                handleUpdatePreferences({ customBackground: '' });
+                showToast(sl ? `Background reset liao` : 'Background reset', 'info');
+            },
+            category: 'View',
+        },
         {
             id: 'fold-all',
             label: 'Fold All',

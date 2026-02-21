@@ -104,6 +104,17 @@ function App() {
         document.documentElement.style.setProperty('--editor-font-size', `${data.preferences.fontSize}px`);
     }, [data.preferences.fontFamily, data.preferences.fontSize]);
 
+    useEffect(() => {
+        const bg = data.preferences.customBackground;
+        if (bg) {
+            document.documentElement.style.setProperty('--custom-bg', bg);
+            document.documentElement.setAttribute('data-custom-bg', '1');
+        } else {
+            document.documentElement.style.removeProperty('--custom-bg');
+            document.documentElement.removeAttribute('data-custom-bg');
+        }
+    }, [data.preferences.customBackground]);
+
     // explicit save via yoro-save event (dispatched by :w / Ctrl+S)
     useEffect(() => {
         const handleSave = () => {
@@ -151,6 +162,16 @@ function App() {
             notes: prev.notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n)
         }));
         hasUnsavedRef.current = true;
+    }, []);
+
+    // position-only update: doesn't mark unsaved, doesn't change updatedAt
+    const handleUpdateNotePosition = useCallback((id: string, cursorPos: number, scrollPos: number) => {
+        setData(prev => ({
+            ...prev,
+            notes: prev.notes.map(n => n.id === id
+                ? { ...n, lastCursorPosition: cursorPos, lastScrollPosition: scrollPos }
+                : n)
+        }));
     }, []);
 
     const handleCreateNote = useCallback(() => {
@@ -487,12 +508,14 @@ function App() {
                         onTagChange={setSelectedTag}
                         viewMode={data.preferences.homeViewMode}
                         sortOrder={data.preferences.sortOrder}
+                        onOpenGraph={() => setIsKnowledgeGraphOpen(true)}
                     />
                 } />
                 <Route path="/note/:id" element={
                     <NoteEditorWrapper
                         notes={data.notes}
                         onUpdateNote={handleUpdateNote}
+                        onUpdateNotePosition={handleUpdateNotePosition}
                         onNavigate={handleSelectNote}
                         vimMode={data.preferences.vimMode}
                         emacsMode={data.preferences.emacsMode}

@@ -8,6 +8,45 @@
   height: 100vh;
 }
 
+/* custom background support */
+html[data-custom-bg] body,
+html[data-custom-bg] .note-list-container,
+html[data-custom-bg] .editor-container {
+  background: var(--custom-bg) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* global keybind chip style (used across components) */
+kbd.key-chip {
+  display: inline-block;
+  background: var(--bg-secondary, #f5f5f5);
+  border: 1px solid var(--border-color, rgba(128,128,128,0.3));
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: monospace;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text-secondary, #555);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+  line-height: 1.6;
+}
+
+/* keybind-combo utility */
+.keybind-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.key-sep {
+  color: var(--text-tertiary, #bbb);
+  font-size: 0.75em;
+  padding: 0 1px;
+}
+
 .skip-to-content {
   position: absolute;
   top: -40px;

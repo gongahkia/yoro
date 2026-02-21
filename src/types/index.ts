@@ -57,6 +57,7 @@ export interface UserPreferences {
     showDocumentStats: boolean;
     cursorAnimations: 'none' | 'subtle' | 'particles';
     singlish: boolean;
+    customBackground?: string; // css value: color, gradient, url(), or empty to reset
 }
 
 export interface AppState {

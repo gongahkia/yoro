@@ -10,6 +10,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 interface NoteEditorWrapperProps {
     notes: Note[];
     onUpdateNote: (id: string, updates: Partial<Note>) => void;
+    onUpdateNotePosition: (id: string, cursorPos: number, scrollPos: number) => void;
     onNavigate: (id: string) => void;
     vimMode: boolean;
     emacsMode: boolean;
@@ -25,7 +26,7 @@ interface NoteEditorWrapperProps {
 }
 
 export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
-    notes, onUpdateNote, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur,
+    notes, onUpdateNote, onUpdateNotePosition, onNavigate, vimMode, emacsMode, focusMode, focusModeBlur,
     lineWrapping, showLineNumbers, editorAlignment, showDocumentStats, cursorAnimations,
     findReplaceOpen, onCloseFindReplace
 }) => {
@@ -120,10 +121,7 @@ export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
                 onTitleChange={(title) => onUpdateNote(note.id, { title })}
                 onNavigate={onNavigate}
                 onPositionChange={(cursorPos, scrollPos) => {
-                    onUpdateNote(note.id, {
-                        lastCursorPosition: cursorPos,
-                        lastScrollPosition: scrollPos
-                    });
+                    onUpdateNotePosition(note.id, cursorPos, scrollPos);
                 }}
                 vimMode={vimMode}
                 emacsMode={emacsMode}
