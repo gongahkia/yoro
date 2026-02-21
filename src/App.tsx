@@ -1,14 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import LZString from 'lz-string';
-import { parse, stringify } from 'smol-toml';
 import { storage } from './utils/storage';
 import { analytics } from './utils/analytics';
-import { generateConfigTemplate } from './utils/configTemplate';
 import { createCommands } from './commands';
 import { SinglishContext } from './contexts/SinglishContext';
 import type { AppState, Note } from './types';
-import { CommandPalette, type Command, type CommandGroup } from './components/CommandPalette';
+import { CommandPalette, type Command } from './components/CommandPalette';
 import { ParameterInputModal } from './components/ParameterInputModal';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { OutlinePanel } from './components/OutlinePanel';
@@ -25,7 +23,17 @@ import { KnowledgeGraph } from './components/KnowledgeGraph';
 import { BacklinksPanel } from './components/BacklinksPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileWarning } from './components/MobileWarning';
+import { ImageToolbar, type SelectedImage } from './components/ImageToolbar';
 import './App.css';
+
+function parseAlt(alt: string) {
+    const parts = alt.split('|');
+    return {
+        baseAlt: parts[0] || '',
+        width: parts[1] ? parseInt(parts[1]) : undefined,
+        align: (parts[2] || 'left') as 'left' | 'center' | 'right',
+    };
+}
 
 function App() {
     const [data, setData] = useState<AppState>(() => {
@@ -58,6 +66,7 @@ function App() {
     const [isOutlineOpen, setIsOutlineOpen] = useState(false);
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
     const [lightboxState, setLightboxState] = useState<{ isOpen: boolean; src: string | null; alt?: string }>({ isOpen: false, src: null });
+    const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(null);
 
     const [isHydrating, setIsHydrating] = useState(true);
 
@@ -65,6 +74,13 @@ function App() {
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
+
+    // keep a ref to current data for event handlers without stale closures
+    const dataRef = useRef(data);
+    useEffect(() => { dataRef.current = data; }, [data]);
+
+    // track unsaved state (set true on note edit, false after yoro-save)
+    const hasUnsavedRef = useRef(false);
 
     // Compute all tags from notes
     const allTags = useMemo(() => {
@@ -74,11 +90,7 @@ function App() {
     }, [data.notes]);
 
     useEffect(() => {
-        storage.set(data);
-    }, [data]);
-
-    useEffect(() => {
-        // Flip off the hydration skeleton after the first paint
+        // flip off the hydration skeleton after the first paint
         const raf = requestAnimationFrame(() => setIsHydrating(false));
         return () => cancelAnimationFrame(raf);
     }, []);
@@ -92,54 +104,45 @@ function App() {
         document.documentElement.style.setProperty('--editor-font-size', `${data.preferences.fontSize}px`);
     }, [data.preferences.fontFamily, data.preferences.fontSize]);
 
+    // explicit save via yoro-save event (dispatched by :w / Ctrl+S)
+    useEffect(() => {
+        const handleSave = () => {
+            storage.set(dataRef.current);
+            hasUnsavedRef.current = false;
+            window.dispatchEvent(new Event('yoro-data-saved'));
+        };
+        window.addEventListener('yoro-save', handleSave);
+        return () => window.removeEventListener('yoro-save', handleSave);
+    }, []);
 
-    const handleUpdatePreferences = useCallback((updates: Partial<AppState['preferences']>, syncToConfig = true) => {
-        setData(prev => {
-            const newPrefs = { ...prev.preferences, ...updates };
-            let newNotes = prev.notes;
-
-            if (syncToConfig) {
-                const configIndex = newNotes.findIndex(n => n.title === 'config.toml');
-                if (configIndex >= 0) {
-                    try {
-                        // Only sync allowed keys
-                        const configObj = {
-                            theme: newPrefs.theme,
-                            vimMode: newPrefs.vimMode,
-                            emacsMode: newPrefs.emacsMode,
-                            showLineNumbers: newPrefs.showLineNumbers,
-                            focusMode: newPrefs.focusMode,
-                            focusModeBlur: newPrefs.focusModeBlur,
-                            lineWrapping: newPrefs.lineWrapping,
-                            editorAlignment: newPrefs.editorAlignment,
-                            fontFamily: newPrefs.fontFamily,
-                            fontSize: newPrefs.fontSize,
-                            homeViewMode: newPrefs.homeViewMode,
-                            sortOrder: newPrefs.sortOrder,
-                            showDocumentStats: newPrefs.showDocumentStats,
-                            cursorAnimations: newPrefs.cursorAnimations
-                        };
-                        const newContent = stringify(configObj);
-                        if (newNotes[configIndex].content.trim() !== newContent.trim()) {
-                            newNotes = [...newNotes];
-                            newNotes[configIndex] = {
-                                ...newNotes[configIndex],
-                                content: newContent,
-                                updatedAt: Date.now()
-                            };
-                        }
-                    } catch (e) {
-                        console.error('Failed to sync config to note:', e);
-                    }
-                }
+    // warn before unload if unsaved changes exist
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedRef.current) {
+                e.preventDefault();
+                e.returnValue = '';
             }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, []);
 
-            return {
-                ...prev,
-                notes: newNotes,
-                preferences: newPrefs
-            };
-        });
+    // close all panels when navigating home
+    useEffect(() => {
+        if (location.pathname === '/') {
+            setIsKnowledgeGraphOpen(false);
+            setIsBacklinksPanelOpen(false);
+            setIsOutlineOpen(false);
+            setIsFindReplaceOpen(false);
+            setSelectedImage(null);
+        }
+    }, [location.pathname]);
+
+    const handleUpdatePreferences = useCallback((updates: Partial<AppState['preferences']>) => {
+        setData(prev => ({
+            ...prev,
+            preferences: { ...prev.preferences, ...updates }
+        }));
     }, []);
 
     const handleUpdateNote = useCallback((id: string, updates: Partial<Note>) => {
@@ -147,6 +150,7 @@ function App() {
             ...prev,
             notes: prev.notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n)
         }));
+        hasUnsavedRef.current = true;
     }, []);
 
     const handleCreateNote = useCallback(() => {
@@ -163,10 +167,7 @@ function App() {
                 updatedAt: now,
                 isFavorite: false,
             };
-            return {
-                ...prev,
-                notes: [newNote, ...prev.notes]
-            };
+            return { ...prev, notes: [newNote, ...prev.notes] };
         });
         analytics.track('create_note');
         showToast(sl ? 'Note created liao' : 'Note created', 'success');
@@ -191,10 +192,7 @@ function App() {
 
     const handleImportNotes = useCallback((importedNotes: Note[]) => {
         if (importedNotes.length === 0) return;
-        setData(prev => ({
-            ...prev,
-            notes: [...importedNotes, ...prev.notes]
-        }));
+        setData(prev => ({ ...prev, notes: [...importedNotes, ...prev.notes] }));
         const msg = importedNotes.length === 1
             ? `Imported "${importedNotes[0].title || 'Untitled'}"`
             : `Imported ${importedNotes.length} notes`;
@@ -220,11 +218,7 @@ function App() {
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
             };
-
-            setData(prev => ({
-                ...prev,
-                notes: [newNote, ...prev.notes]
-            }));
+            setData(prev => ({ ...prev, notes: [newNote, ...prev.notes] }));
             analytics.track('duplicate_note');
             showToast(sl ? `"${noteToDuplicate.title || 'Untitled'}" copied liao` : `"${noteToDuplicate.title || 'Untitled'}" duplicated`, 'success');
         }
@@ -235,9 +229,6 @@ function App() {
     const [tableModalOpen, setTableModalOpen] = useState(false);
     const [paramModalOpen, setParamModalOpen] = useState(false);
     const [paramModalCommand, setParamModalCommand] = useState<Command | null>(null);
-
-    // Command groups for hierarchical palette
-    const commandGroups: CommandGroup[] = useMemo(() => [], []);
 
     const getCurrentNoteId = useCallback(() => {
         const match = location.pathname.match(/\/note\/(.+)/);
@@ -268,7 +259,6 @@ function App() {
                     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
                         throw new Error('Invalid share data');
                     }
-                    // Validate and sanitize individual fields to prevent prototype pollution
                     const title = typeof parsed.title === 'string' ? parsed.title.slice(0, 500) : 'Shared Note';
                     const content = typeof parsed.content === 'string' ? parsed.content.slice(0, 1_000_000) : '';
                     const rawTags = Array.isArray(parsed.tags) ? parsed.tags : [];
@@ -280,26 +270,17 @@ function App() {
                     const VALID_VIEW_MODES = ['editor', 'mindmap', 'flowchart', 'state', 'drawing'] as const;
                     const viewMode = VALID_VIEW_MODES.includes(parsed.viewMode) ? parsed.viewMode : undefined;
                     const isFavorite = parsed.isFavorite === true;
-                    // Merge existing tags with 'shared' tag
-                    const existingTags = tags;
-                    const mergedTags = existingTags.includes('shared') ? existingTags : [...existingTags, 'shared'];
+                    const mergedTags = tags.includes('shared') ? tags : [...tags, 'shared'];
                     const newNote: Note = {
                         id: crypto.randomUUID(),
-                        title,
-                        content,
-                        format,
+                        title, content, format,
                         tags: mergedTags,
                         createdAt: Date.now(),
                         updatedAt: Date.now(),
-                        isFavorite,
-                        viewMode,
+                        isFavorite, viewMode,
                     };
                     setTimeout(() => {
-                        setData(prev => ({
-                            ...prev,
-                            notes: [newNote, ...prev.notes]
-                        }));
-                        // Clean URL and navigate
+                        setData(prev => ({ ...prev, notes: [newNote, ...prev.notes] }));
                         navigate(`/note/${newNote.id}`, { replace: true });
                     }, 0);
                 }
@@ -310,72 +291,58 @@ function App() {
         }
     }, [location.search, navigate]);
 
-    // Sync from config.toml note to preferences (debounced 300ms)
+    // double-click on image: open lightbox or re-edit drawing
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const configNote = data.notes.find(n => n.title === 'config.toml');
-            if (configNote) {
-                try {
-                    const parsed = parse(configNote.content) as Record<string, unknown>;
-                    const updates: Partial<AppState['preferences']> = {};
-                    let hasUpdates = false;
-
-                    const VALID_THEMES = ['light', 'dark', 'sepia-light', 'sepia-dark', 'dracula-light', 'dracula-dark', 'nord-light', 'nord-dark', 'solarized-light', 'solarized-dark', 'gruvbox-light', 'gruvbox-dark', 'everforest-light', 'everforest-dark', 'catppuccin-light', 'catppuccin-dark', 'rose-pine-light', 'rose-pine-dark', 'tokyo-night-light', 'tokyo-night-dark', 'kanagawa-light', 'kanagawa-dark', 'monokai-light', 'monokai-dark', 'ayu-light', 'ayu-dark', 'one-light', 'one-dark', 'zenburn-light', 'zenburn-dark', 'palenight-light', 'palenight-dark', 'material-light', 'material-dark'];
-                    const isString = (v: unknown): v is string => typeof v === 'string';
-                    const isBool = (v: unknown): v is boolean => typeof v === 'boolean';
-                    const isNum = (v: unknown): v is number => typeof v === 'number' && !isNaN(v);
-                    const isOneOf = <T extends string>(v: unknown, options: readonly T[]): v is T => isString(v) && (options as readonly string[]).includes(v);
-
-                    if (isOneOf(parsed.theme, VALID_THEMES) && parsed.theme !== data.preferences.theme) { updates.theme = parsed.theme; hasUpdates = true; }
-                    if (isBool(parsed.vimMode) && parsed.vimMode !== data.preferences.vimMode) { updates.vimMode = parsed.vimMode; hasUpdates = true; }
-                    if (isBool(parsed.emacsMode) && parsed.emacsMode !== data.preferences.emacsMode) { updates.emacsMode = parsed.emacsMode; hasUpdates = true; }
-                    if (isBool(parsed.showLineNumbers) && parsed.showLineNumbers !== data.preferences.showLineNumbers) { updates.showLineNumbers = parsed.showLineNumbers; hasUpdates = true; }
-                    if (isBool(parsed.focusMode) && parsed.focusMode !== data.preferences.focusMode) { updates.focusMode = parsed.focusMode; hasUpdates = true; }
-                    if (isBool(parsed.focusModeBlur) && parsed.focusModeBlur !== data.preferences.focusModeBlur) { updates.focusModeBlur = parsed.focusModeBlur; hasUpdates = true; }
-                    if (isBool(parsed.lineWrapping) && parsed.lineWrapping !== data.preferences.lineWrapping) { updates.lineWrapping = parsed.lineWrapping; hasUpdates = true; }
-                    if (isOneOf(parsed.editorAlignment, ['left', 'center', 'right'] as const) && parsed.editorAlignment !== data.preferences.editorAlignment) { updates.editorAlignment = parsed.editorAlignment; hasUpdates = true; }
-                    if (isString(parsed.fontFamily) && parsed.fontFamily !== data.preferences.fontFamily) { updates.fontFamily = parsed.fontFamily; hasUpdates = true; }
-                    if (isNum(parsed.fontSize) && parsed.fontSize >= 8 && parsed.fontSize <= 32 && parsed.fontSize !== data.preferences.fontSize) { updates.fontSize = parsed.fontSize; hasUpdates = true; }
-                    if (isOneOf(parsed.homeViewMode, ['3d-carousel', '2d-semicircle', 'notion-grid', 'docs-list'] as const) && parsed.homeViewMode !== data.preferences.homeViewMode) { updates.homeViewMode = parsed.homeViewMode; hasUpdates = true; }
-                    if (isOneOf(parsed.sortOrder, ['updated', 'created', 'alpha', 'alpha-reverse'] as const) && parsed.sortOrder !== data.preferences.sortOrder) { updates.sortOrder = parsed.sortOrder; hasUpdates = true; }
-                    if (isBool(parsed.showDocumentStats) && parsed.showDocumentStats !== data.preferences.showDocumentStats) { updates.showDocumentStats = parsed.showDocumentStats; hasUpdates = true; }
-                    if (isOneOf(parsed.cursorAnimations, ['none', 'subtle', 'particles'] as const) && parsed.cursorAnimations !== data.preferences.cursorAnimations) { updates.cursorAnimations = parsed.cursorAnimations; hasUpdates = true; }
-
-                    if (hasUpdates) {
-                        handleUpdatePreferences(updates, false);
-                    }
-                } catch {
-                    // ignore parse errors while typing
+        const handleImageClick = (e: CustomEvent) => {
+            const { src, alt } = e.detail;
+            setSelectedImage(null); // close toolbar
+            const noteId = getCurrentNoteId();
+            const baseAlt = alt.split('|')[0];
+            if (baseAlt === 'drawing' && src && src.startsWith('data:image/svg+xml')) {
+                if (noteId) {
+                    handleUpdateNote(noteId, { viewMode: 'drawing', drawingEditSrc: src });
+                    return;
                 }
             }
-        }, 300);
+            setLightboxState({ isOpen: true, src, alt });
+        };
+        window.addEventListener('yoro-image-click', handleImageClick as EventListener);
+        return () => window.removeEventListener('yoro-image-click', handleImageClick as EventListener);
+    }, [getCurrentNoteId, handleUpdateNote]);
 
-        return () => clearTimeout(timer);
-    }, [data.notes, data.preferences, handleUpdatePreferences]);
+    // single-click on image: show inline toolbar
+    useEffect(() => {
+        const handleImageSelect = (e: CustomEvent) => {
+            const { src, alt, element } = e.detail;
+            setSelectedImage({ src, alt, element });
+        };
+        window.addEventListener('yoro-image-select', handleImageSelect as EventListener);
+        return () => window.removeEventListener('yoro-image-select', handleImageSelect as EventListener);
+    }, []);
 
-    const handleOpenConfig = useCallback(() => {
-        const existing = data.notes.find(n => n.title === 'config.toml');
-        if (existing) {
-            handleSelectNote(existing.id);
-        } else {
-            const newId = crypto.randomUUID();
-            setData(prev => {
-                const now = Date.now();
-                const newNote: Note = {
-                    id: newId,
-                    title: 'config.toml',
-                    content: generateConfigTemplate(prev.preferences),
-                    format: 'markdown',
-                    tags: ['config'],
-                    createdAt: now,
-                    updatedAt: now,
-                    isFavorite: false,
-                };
-                return { ...prev, notes: [newNote, ...prev.notes] };
-            });
-            handleSelectNote(newId);
-        }
-    }, [data.notes, handleSelectNote]);
+    const handleImageResize = useCallback((src: string, alt: string, width: number) => {
+        const noteId = getCurrentNoteId();
+        if (!noteId) return;
+        const { baseAlt, align } = parseAlt(alt);
+        const newAlt = `${baseAlt}|${width}|${align}`;
+        const note = dataRef.current.notes.find(n => n.id === noteId);
+        if (!note) return;
+        const newContent = note.content.split(`![${alt}](${src})`).join(`![${newAlt}](${src})`);
+        handleUpdateNote(noteId, { content: newContent });
+        setSelectedImage(prev => prev ? { ...prev, alt: newAlt } : null);
+    }, [getCurrentNoteId, handleUpdateNote]);
+
+    const handleImageAlign = useCallback((src: string, alt: string, align: 'left' | 'center' | 'right') => {
+        const noteId = getCurrentNoteId();
+        if (!noteId) return;
+        const { baseAlt, width } = parseAlt(alt);
+        const newAlt = `${baseAlt}|${width ?? ''}|${align}`;
+        const note = dataRef.current.notes.find(n => n.id === noteId);
+        if (!note) return;
+        const newContent = note.content.split(`![${alt}](${src})`).join(`![${newAlt}](${src})`);
+        handleUpdateNote(noteId, { content: newContent });
+        setSelectedImage(prev => prev ? { ...prev, alt: newAlt } : null);
+    }, [getCurrentNoteId, handleUpdateNote]);
 
     const commands: Command[] = useMemo(() => createCommands({
         notes: data.notes,
@@ -389,7 +356,6 @@ function App() {
         handleDuplicateNote,
         handleUpdatePreferences,
         handleImportNotes,
-        handleOpenConfig,
         setIsHelpOpen,
         setIsAboutOpen,
         setIsKnowledgeGraphOpen,
@@ -398,8 +364,7 @@ function App() {
         setIsOutlineOpen,
         setIsQuickCaptureOpen,
         setTableModalOpen,
-    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleImportNotes, handleUpdateNote, navigate, handleOpenConfig]);
-
+    }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleImportNotes, handleUpdateNote, navigate]);
 
     const matchShortcut = useCallback((e: KeyboardEvent, shortcut: string) => {
         const parts = shortcut.split('+');
@@ -407,7 +372,6 @@ function App() {
         const needsCmd = parts.includes('Cmd') || parts.includes('Ctrl');
         const needsShift = parts.includes('Shift');
         const needsAlt = parts.includes('Alt');
-
         return (
             e.key.toLowerCase() === key &&
             ((e.metaKey || e.ctrlKey) === needsCmd) &&
@@ -419,65 +383,36 @@ function App() {
     const handleQuickCapture = useCallback((text: string) => {
         const newId = crypto.randomUUID();
         const now = Date.now();
-        // Extract first line as title if possible
         const lines = text.split('\n');
         const title = lines[0]?.slice(0, 50) || 'Quick Capture';
-        
         const newNote: Note = {
             id: newId,
-            title: title,
-            content: text,
+            title, content: text,
             format: 'markdown',
             tags: ['inbox'],
-            createdAt: now,
-            updatedAt: now,
+            createdAt: now, updatedAt: now,
             isFavorite: false,
         };
-        
-        setData(prev => ({
-            ...prev,
-            notes: [newNote, ...prev.notes]
-        }));
+        setData(prev => ({ ...prev, notes: [newNote, ...prev.notes] }));
         analytics.track('quick_capture');
         showToast(sl ? 'Saved to inbox liao' : 'Saved to Inbox', 'success');
     }, []);
 
     useEffect(() => {
-        const handleImageClick = (e: CustomEvent) => {
-            const { src, alt } = e.detail;
-            const noteId = getCurrentNoteId();
-            // If this is an embedded drawing (SVG), open it for re-editing
-            if (alt === 'drawing' && src && src.startsWith('data:image/svg+xml')) {
-                if (noteId) {
-                    handleUpdateNote(noteId, { viewMode: 'drawing', drawingEditSrc: src });
-                    return;
-                }
-            }
-            // Other images: open lightbox (double-click or shift+click would open drawing canvas for annotation)
-            setLightboxState({ isOpen: true, src, alt });
-        };
-
-        window.addEventListener('yoro-image-click', handleImageClick as EventListener);
-        return () => window.removeEventListener('yoro-image-click', handleImageClick as EventListener);
-    }, [getCurrentNoteId, handleUpdateNote]);
-
-    useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Quick Capture: Cmd+Shift+I
+            // Cmd+Shift+I — quick capture
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'i' || e.key === 'I')) {
                 e.preventDefault();
                 setIsQuickCaptureOpen(true);
                 return;
             }
-
-            // Cmd+/ — open keyboard shortcut cheatsheet
+            // Cmd+/ — keyboard shortcut cheatsheet
             if ((e.metaKey || e.ctrlKey) && e.key === '/') {
                 e.preventDefault();
                 setIsHelpOpen(prev => !prev);
                 return;
             }
-
-            // Global shortcuts: Cmd+Shift+P or Cmd+K to open command palette
+            // Cmd+Shift+P or Cmd+K — command palette
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
                 e.preventDefault();
                 setIsPaletteOpen(prev => !prev);
@@ -488,17 +423,21 @@ function App() {
                 setIsPaletteOpen(prev => !prev);
                 return;
             }
-
-            // Cmd+H: Find and Replace (only in editor context)
-            if ((e.metaKey || e.ctrlKey) && (e.key === 'h' || e.key === 'H') && !e.shiftKey) {
+            // Ctrl+S — save
+            if ((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S') && !e.shiftKey && !e.altKey) {
+                e.preventDefault();
+                window.dispatchEvent(new Event('yoro-save'));
+                return;
+            }
+            // Cmd+Alt+F — find and replace (editor only)
+            if ((e.metaKey || e.ctrlKey) && e.altKey && (e.key === 'f' || e.key === 'F')) {
                 if (location.pathname.startsWith('/note/')) {
                     e.preventDefault();
                     setIsFindReplaceOpen(prev => !prev);
                     return;
                 }
             }
-
-            // Check commands
+            // check command shortcuts
             for (const cmd of commands) {
                 if (cmd.shortcut && matchShortcut(e, cmd.shortcut)) {
                     e.preventDefault();
@@ -507,7 +446,6 @@ function App() {
                 }
             }
         };
-
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [commands, isPaletteOpen, matchShortcut]);
@@ -516,11 +454,7 @@ function App() {
         if (deleteConfirmation.noteId) {
             const id = deleteConfirmation.noteId;
             const note = data.notes.find(n => n.id === id);
-            // Permanent delete
-            setData(prev => ({
-                ...prev,
-                notes: prev.notes.filter(n => n.id !== id)
-            }));
+            setData(prev => ({ ...prev, notes: prev.notes.filter(n => n.id !== id) }));
             analytics.track('delete_note');
             showToast(sl ? `"${note?.title || 'Untitled'}" delete liao` : `"${note?.title || 'Untitled'}" deleted`, 'info');
             if (getCurrentNoteId() === id) navigate('/');
@@ -535,13 +469,7 @@ function App() {
     const handleCommandExecuted = (id: string) => {
         setData(prev => {
             const recent = [id, ...(prev.preferences.recentCommandIds || []).filter(cid => cid !== id)].slice(0, 5);
-            return {
-                ...prev,
-                preferences: {
-                    ...prev.preferences,
-                    recentCommandIds: recent
-                }
-            };
+            return { ...prev, preferences: { ...prev.preferences, recentCommandIds: recent } };
         });
     };
 
@@ -604,7 +532,7 @@ function App() {
                 onTagSelect={setSelectedTag}
                 allTags={allTags}
                 currentContext={currentContext}
-                commandGroups={commandGroups}
+                commandGroups={[]}
                 onOpenParameterModal={(cmd) => {
                     setParamModalCommand(cmd);
                     setParamModalOpen(true);
@@ -627,10 +555,7 @@ function App() {
 
             <ParameterInputModal
                 isOpen={paramModalOpen}
-                onClose={() => {
-                    setParamModalOpen(false);
-                    setParamModalCommand(null);
-                }}
+                onClose={() => { setParamModalOpen(false); setParamModalCommand(null); }}
                 command={paramModalCommand}
                 onSubmit={(cmd, params) => {
                     cmd.action(params);
@@ -659,10 +584,7 @@ function App() {
                 <ErrorBoundary>
                     <KnowledgeGraph
                         notes={data.notes}
-                        onNavigate={(id) => {
-                            setIsKnowledgeGraphOpen(false);
-                            handleSelectNote(id);
-                        }}
+                        onNavigate={(id) => { setIsKnowledgeGraphOpen(false); handleSelectNote(id); }}
                         onClose={() => setIsKnowledgeGraphOpen(false)}
                     />
                 </ErrorBoundary>
@@ -673,10 +595,7 @@ function App() {
                 onClose={() => setIsBacklinksPanelOpen(false)}
                 currentNote={data.notes.find(n => n.id === getCurrentNoteId()) || null}
                 notes={data.notes}
-                onNavigate={(id) => {
-                    setIsBacklinksPanelOpen(false);
-                    handleSelectNote(id);
-                }}
+                onNavigate={(id) => { setIsBacklinksPanelOpen(false); handleSelectNote(id); }}
             />
 
             <OutlinePanel
@@ -689,6 +608,22 @@ function App() {
                 src={lightboxState.src}
                 alt={lightboxState.alt}
                 onClose={() => setLightboxState({ isOpen: false, src: null })}
+            />
+
+            <ImageToolbar
+                selected={selectedImage}
+                onClose={() => setSelectedImage(null)}
+                onResize={handleImageResize}
+                onAlign={handleImageAlign}
+                onEditDrawing={(src, alt) => {
+                    setSelectedImage(null);
+                    const noteId = getCurrentNoteId();
+                    if (noteId) handleUpdateNote(noteId, { viewMode: 'drawing', drawingEditSrc: src });
+                }}
+                onOpenLightbox={(src, alt) => {
+                    setSelectedImage(null);
+                    setLightboxState({ isOpen: true, src, alt });
+                }}
             />
         </div>
         </SinglishContext.Provider>
