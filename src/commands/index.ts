@@ -96,6 +96,12 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             category: 'General'
         },
         {
+            id: 'open-shortcuts-cheatsheet',
+            label: 'Keyboard Shortcut Cheatsheet (Cmd+/)',
+            action: () => setIsHelpOpen(true),
+            category: 'General'
+        },
+        {
             id: 'about-yoro',
             label: 'About Yoro',
             action: () => setIsAboutOpen(true),

@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Add keyboard shortcut cheatsheet overlay accessible via Cmd+/ or from command palette +feature
 (B) Add drag-and-drop reordering of notes in NoteList 2D view +feature
 (B) Add note color/icon customization — per-note accent color or emoji icon shown on card +feature
 (B) Add full-text search across all notes from the home view (currently search only filters by title/tag) +feature

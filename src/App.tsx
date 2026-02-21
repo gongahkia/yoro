@@ -446,6 +446,13 @@ function App() {
                 return;
             }
 
+            // Cmd+/ — open keyboard shortcut cheatsheet
+            if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+                e.preventDefault();
+                setIsHelpOpen(prev => !prev);
+                return;
+            }
+
             // Global shortcuts: Cmd+Shift+P or Cmd+K to open command palette
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
                 e.preventDefault();
