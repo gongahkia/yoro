@@ -1,3 +1,11 @@
+replace current functionality to one-click any image or drawing to open/re-open it as an image or drawing with a double click being necessary since single clickw ill have the existing below functionality
+add literal drag and drop image resizing via diagonals and sides and centering/uncentering/formatting and other image options that are enabled by a single click on an image/drawing
+better integrate knowledge graph into main value prop loop
+provide a split-screen markdown view as most editors do
+fix how links are rendered in current live editor view
+fix how images are rendered in current live editor view
+add a donation link if possible
+
 # --- STRETCH GOALs (DONT DO FIRST) ---
 
 notice to users that if they're trying to access yoro on a mobile devive they cant use it there, pleaase use it on a proper device for now with actual keyboard support since it is primiarly a keyboard based editor for power users
