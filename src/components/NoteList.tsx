@@ -88,7 +88,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 <line x1="58" y1="54" x2="58" y2="62" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <p className="empty-state-text">{sl ? 'No notes leh' : 'No notes yet'}</p>
-            <p className="empty-state-sub">{sl ? 'Press Cmd+K to create one lah' : 'Press Cmd+K to create your first note'}</p>
+            <p className="empty-state-sub">{sl ? 'Press Cmd+Shift+P to create one lah' : 'Press Cmd+Shift+P to create your first note'}</p>
         </div>
     );
 
@@ -254,7 +254,7 @@ export const NoteList: React.FC<NoteListProps> = ({
         <div className="note-list-container">
             {(viewMode === 'notion-grid' || viewMode === 'docs-list') && (
                 <div className="search-hint">
-                    Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+K</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
+                    Press <kbd>{navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Shift+P</kbd> {sl ? 'to open command palette lah.' : 'to open the command palette.'}
                     {selectedTag && <span className="active-filter">{sl ? `Filtering by #${selectedTag} leh` : `Filtering: #${selectedTag}`}</span>}
                 </div>
             )}

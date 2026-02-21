@@ -411,13 +411,8 @@ function App() {
                 setIsHelpOpen(prev => !prev);
                 return;
             }
-            // Cmd+Shift+P or Cmd+K — command palette
+            // Cmd+Shift+P — command palette
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
-                e.preventDefault();
-                setIsPaletteOpen(prev => !prev);
-                return;
-            }
-            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K') && !e.shiftKey) {
                 e.preventDefault();
                 setIsPaletteOpen(prev => !prev);
                 return;
