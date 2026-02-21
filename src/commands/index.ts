@@ -675,6 +675,52 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 groupId: 'editor-settings'
             },
             {
+                id: 'set-note-icon',
+                label: 'Set Note Icon (emoji)',
+                parameters: [
+                    {
+                        name: 'icon',
+                        label: 'Emoji icon (leave empty to clear)',
+                        type: 'text' as const,
+                        placeholder: '📝',
+                        defaultValue: ''
+                    }
+                ],
+                action: (_params?: Record<string, string | number | boolean>) => {
+                    const id = getCurrentNoteId();
+                    if (!id || !_params) return;
+                    const icon = String(_params['icon']).trim();
+                    handleUpdateNote(id, { icon: icon || undefined });
+                    showToast(icon ? `Icon set to ${icon}` : 'Icon cleared', 'success');
+                },
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings'
+            },
+            {
+                id: 'set-note-color',
+                label: 'Set Note Accent Color',
+                parameters: [
+                    {
+                        name: 'color',
+                        label: 'Accent color (hex/name, empty to clear)',
+                        type: 'text' as const,
+                        placeholder: '#007aff',
+                        defaultValue: ''
+                    }
+                ],
+                action: (_params?: Record<string, string | number | boolean>) => {
+                    const id = getCurrentNoteId();
+                    if (!id || !_params) return;
+                    const color = String(_params['color']).trim();
+                    handleUpdateNote(id, { accentColor: color || undefined });
+                    showToast(color ? `Accent color set` : 'Accent color cleared', 'success');
+                },
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings'
+            },
+            {
                 id: 'set-word-count-goal',
                 label: 'Set Word Count Goal',
                 parameters: [

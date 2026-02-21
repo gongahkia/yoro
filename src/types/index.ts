@@ -11,6 +11,8 @@ export interface Note {
     isFavorite: boolean;
     isPinned?: boolean;
     wordCountGoal?: number;
+    accentColor?: string;
+    icon?: string;
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state' | 'drawing';
     lastCursorPosition?: number;
     lastScrollPosition?: number;

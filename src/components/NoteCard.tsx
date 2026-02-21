@@ -13,8 +13,12 @@ interface NoteCardProps {
 
 export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate, onPin }) => {
     const sl = useSinglish();
+    const cardStyle: React.CSSProperties = note.accentColor
+        ? { borderTopColor: note.accentColor, borderTopWidth: 3 }
+        : {};
+
     return (
-        <div className={`note-card${note.isPinned ? ' pinned' : ''}`} onClick={() => onClick(note.id)}>
+        <div className={`note-card${note.isPinned ? ' pinned' : ''}`} style={cardStyle} onClick={() => onClick(note.id)}>
             {note.isPinned && <span className="pin-indicator" aria-label="Pinned" title="Pinned">📌</span>}
             <div className="note-card-actions">
                 {onPin && (
@@ -29,7 +33,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onD
                 <button className="action-btn" onClick={onDuplicate} title={sl ? 'Copy lah' : 'Duplicate'}>copy</button>
                 <button className="action-btn delete" onClick={onDelete} title={sl ? 'Delete lah' : 'Delete'}>del</button>
             </div>
-            <h3 className="note-title">{note.title || (sl ? 'No title' : 'Untitled')}</h3>
+            <h3 className="note-title">
+                {note.icon && <span className="note-icon" aria-hidden="true">{note.icon} </span>}
+                {note.title || (sl ? 'No title' : 'Untitled')}
+            </h3>
             <p className="note-preview">
                 {note.content.slice(0, 100).replace(/[#*`_]/g, '') || (sl ? 'Nothing here leh' : 'No content')}
             </p>

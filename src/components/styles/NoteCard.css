@@ -78,6 +78,10 @@
     color: var(--text-primary);
 }
 
+.note-icon {
+    font-style: normal;
+}
+
 .note-preview {
     margin: 0;
     font-size: 0.9rem;
