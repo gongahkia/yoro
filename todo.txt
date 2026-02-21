@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Implement the analytics.ts stub — add privacy-respecting local analytics (note count over time, words written per day) stored in localStorage +feature
 
 # ─── PWA (STRETCH GOAL) ──────────────────────────────────────────────────────
 
