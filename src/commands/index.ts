@@ -668,6 +668,31 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 context: 'editor' as const,
                 groupId: 'editor-settings'
             },
+            {
+                id: 'set-word-count-goal',
+                label: 'Set Word Count Goal',
+                parameters: [
+                    {
+                        name: 'goal',
+                        label: 'Target word count (0 to clear)',
+                        type: 'number' as const,
+                        min: 0,
+                        max: 1000000,
+                        defaultValue: 500,
+                        placeholder: '500'
+                    }
+                ],
+                action: (_params?: Record<string, string | number | boolean>) => {
+                    const id = getCurrentNoteId();
+                    if (!id || !_params) return;
+                    const goal = Number(_params['goal']);
+                    handleUpdateNote(id, { wordCountGoal: goal > 0 ? goal : undefined });
+                    showToast(goal > 0 ? `Word goal set to ${goal}` : 'Word goal cleared', 'success');
+                },
+                category: 'Editor',
+                context: 'editor' as const,
+                groupId: 'editor-settings'
+            },
         ] : []),
     ];
 }

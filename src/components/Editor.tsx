@@ -455,7 +455,7 @@ stateDiagram-v2
                     }}
                 />
             </div>
-            <DocumentStats content={note.content} visible={showDocumentStats} />
+            <DocumentStats content={note.content} visible={showDocumentStats} wordCountGoal={note.wordCountGoal} />
         </div>
     );
 };

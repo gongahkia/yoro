@@ -4,6 +4,7 @@ import './styles/DocumentStats.css';
 interface DocumentStatsProps {
     content: string;
     visible: boolean;
+    wordCountGoal?: number;
 }
 
 interface Stats {
@@ -37,7 +38,7 @@ function calculateStats(content: string): Stats {
     return { words, characters, paragraphs, readingTime };
 }
 
-export const DocumentStats: React.FC<DocumentStatsProps> = ({ content, visible }) => {
+export const DocumentStats: React.FC<DocumentStatsProps> = ({ content, visible, wordCountGoal }) => {
     const [stats, setStats] = useState<Stats>({ words: 0, characters: 0, paragraphs: 0, readingTime: 0 });
 
     useEffect(() => {
@@ -51,8 +52,25 @@ export const DocumentStats: React.FC<DocumentStatsProps> = ({ content, visible }
 
     if (!visible) return null;
 
+    const hasGoal = typeof wordCountGoal === 'number' && wordCountGoal > 0;
+    const pct = hasGoal ? Math.min(100, Math.round((stats.words / wordCountGoal!) * 100)) : 0;
+
     return (
         <div className="document-stats" role="status" aria-live="polite">
+            {hasGoal && (
+                <span className="document-stats-goal" title={`${pct}% of ${wordCountGoal} word goal`}>
+                    <span
+                        className="document-stats-goal-bar"
+                        style={{ width: `${pct}%` }}
+                        aria-valuenow={pct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        role="progressbar"
+                    />
+                    <span className="document-stats-goal-label">{stats.words}/{wordCountGoal}</span>
+                </span>
+            )}
+            {hasGoal && <span className="document-stats-separator">|</span>}
             <span className="document-stats-item">{stats.words} words</span>
             <span className="document-stats-separator">|</span>
             <span className="document-stats-item">{stats.characters} chars</span>

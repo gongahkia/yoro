@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Add word count goal indicator — optional target word count per note with progress bar in DocumentStats +feature
 (B) Add auto-save indicator in Editor toolbar showing "Saved" / "Saving..." status +feature
 (B) Add keyboard shortcut cheatsheet overlay accessible via Cmd+/ or from command palette +feature
 (B) Add drag-and-drop reordering of notes in NoteList 2D view +feature

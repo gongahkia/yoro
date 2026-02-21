@@ -28,3 +28,34 @@
     color: var(--text-tertiary, #888);
     opacity: 0.5;
 }
+
+.document-stats-goal {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-width: 80px;
+    height: 16px;
+    background: var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.document-stats-goal-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: var(--primary, #007aff);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    opacity: 0.4;
+}
+
+.document-stats-goal-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.75em;
+    padding: 0 6px;
+    white-space: nowrap;
+    color: var(--text-primary);
+}

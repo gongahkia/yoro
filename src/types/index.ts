@@ -10,6 +10,7 @@ export interface Note {
     updatedAt: number;
     isFavorite: boolean;
     isPinned?: boolean;
+    wordCountGoal?: number;
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state' | 'drawing';
     lastCursorPosition?: number;
     lastScrollPosition?: number;
