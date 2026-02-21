@@ -29,7 +29,7 @@ class CheckboxWidget extends WidgetType {
         input.onclick = () => {
             const pos = view.posAtDOM(input);
             if (pos === null) return;
-            const newChar = this.checked ? ' ' : 'x'; // Toggle
+            const newChar = this.checked ? ' ' : 'x';
             view.dispatch({
                 changes: { from: pos + 1, to: pos + 2, insert: newChar }
             });
@@ -39,6 +39,56 @@ class CheckboxWidget extends WidgetType {
     }
 
     ignoreEvent() { return false; }
+}
+
+// Parse alt text for embedded width/align annotations: "alt|width|align"
+function parseImageAlt(alt: string): { baseAlt: string; width?: number; align?: string } {
+    const parts = alt.split('|');
+    const baseAlt = parts[0] || '';
+    const width = parts[1] ? parseInt(parts[1]) : undefined;
+    const align = parts[2] || undefined;
+    return { baseAlt, width: isNaN(width!) ? undefined : width, align };
+}
+
+function applyImageStyles(img: HTMLImageElement, wrapper: HTMLDivElement, alt: string) {
+    const { width, align } = parseImageAlt(alt);
+    if (width) {
+        img.style.width = `${width}px`;
+        img.style.height = 'auto';
+    }
+    if (align === 'center') {
+        wrapper.style.textAlign = 'center';
+    } else if (align === 'right') {
+        wrapper.style.textAlign = 'right';
+    }
+}
+
+// Track pending single-click timers to detect double-clicks
+const pendingClickTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+function bindImageClicks(img: HTMLImageElement, src: string, alt: string) {
+    img.style.cursor = 'pointer';
+
+    img.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Debounce to distinguish single vs double click
+        if (pendingClickTimers.has(img)) {
+            clearTimeout(pendingClickTimers.get(img)!);
+            pendingClickTimers.delete(img);
+            // Double click — open drawing canvas or lightbox
+            window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src, alt } }));
+        } else {
+            const timer = setTimeout(() => {
+                pendingClickTimers.delete(img);
+                // Single click — show image toolbar
+                window.dispatchEvent(new CustomEvent('yoro-image-select', {
+                    detail: { src, alt, element: img }
+                }));
+            }, 220);
+            pendingClickTimers.set(img, timer);
+        }
+    };
 }
 
 class ImageWidget extends WidgetType {
@@ -60,23 +110,20 @@ class ImageWidget extends WidgetType {
         wrapper.className = 'cm-image-wrapper';
         const img = document.createElement('img');
         img.src = this.src;
-        img.alt = this.alt;
+        img.alt = parseImageAlt(this.alt).baseAlt;
         img.loading = 'lazy';
         img.className = 'cm-image-widget';
-        img.style.cursor = 'zoom-in';
         img.onerror = () => {
             img.style.cursor = 'default';
             img.removeAttribute('src');
-            img.alt = `⚠ Image not found: ${this.alt || this.src}`;
+            img.alt = `⚠ Image not found: ${parseImageAlt(this.alt).baseAlt || this.src}`;
             img.style.display = 'inline-block';
             img.style.padding = '4px 8px';
             img.style.fontSize = '0.85em';
             img.style.opacity = '0.6';
         };
-        img.onclick = (e) => {
-            e.preventDefault();
-            window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src, alt: this.alt } }));
-        };
+        applyImageStyles(img, wrapper, this.alt);
+        bindImageClicks(img, this.src, this.alt);
         wrapper.appendChild(img);
         return wrapper;
     }
@@ -110,7 +157,6 @@ class URLImageWidget extends WidgetType {
         img.alt = 'Image';
         img.loading = 'lazy';
         img.className = 'cm-image-url-widget';
-        img.style.cursor = 'zoom-in';
         img.onerror = () => {
             img.style.cursor = 'default';
             img.removeAttribute('src');
@@ -120,10 +166,7 @@ class URLImageWidget extends WidgetType {
             img.style.fontSize = '0.85em';
             img.style.opacity = '0.6';
         };
-        img.onclick = (e) => {
-            e.preventDefault();
-            window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src } }));
-        };
+        bindImageClicks(img, this.src, '');
         wrapper.appendChild(img);
         return wrapper;
     }
@@ -230,95 +273,63 @@ class LivePreviewPlugin {
                     }
 
                     if (node.name === 'Image') {
+                        if (this.isFocused(selection, node.from, node.to)) return;
+                        const text = state.sliceDoc(node.from, node.to);
+                        const match = text.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+                        if (match) {
+                            const alt = match[1];
+                            const src = match[2];
+                            if (src && !src.startsWith('http') && !src.startsWith('data:')) return;
+                            widgets.push(Decoration.replace({
+                                widget: new ImageWidget(src, alt),
+                                block: true,
+                            }).range(node.from, node.to));
+                        }
+                    }
+
+                    if (node.name === 'HorizontalRule') {
                         if (!this.isFocused(selection, node.from, node.to)) {
-                            const text = state.sliceDoc(node.from, node.to);
-                            const match = text.match(/!\[(.*?)\]\((.*?)\)/);
-                            if (match) {
-                                const alt = match[1];
-                                const src = match[2];
+                            widgets.push(Decoration.replace({
+                                widget: new HRWidget(),
+                                block: true,
+                            }).range(node.from, node.to));
+                        }
+                    }
+
+                    // Bare URL image auto-embed
+                    if (node.name === 'URL') {
+                        const url = state.sliceDoc(node.from, node.to);
+                        if (/\.(png|jpg|jpeg|gif|webp|svg|bmp)(\?.*)?$/i.test(url)) {
+                            if (!this.isFocused(selection, node.from, node.to)) {
                                 widgets.push(Decoration.replace({
-                                    widget: new ImageWidget(src, alt)
+                                    widget: new URLImageWidget(url),
+                                    block: true,
                                 }).range(node.from, node.to));
                             }
                         }
                     }
-
-                    if (node.name === 'LinkMark') {
-                        if (!this.isFocused(selection, node.from, node.to)) {
-                            widgets.push(Decoration.replace({}).range(node.from, node.to));
-                        } else {
-                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                        }
-                    }
-
-                    if (node.name === 'URL') {
-                        // Hide URL unless focused
-                        // Note: Image URLs might be covered by Image logic above if 'Image' node is used (it replaces children).
-                        // But if Image node logic fails or we are in a simple Link...
-                        if (!this.isFocused(selection, node.from, node.to)) {
-                            // If inside Image, we might double replace?
-                            // CM6 handles overlapping decorations gracefully usually (last one wins or merge?).
-                            // Or error.
-                            // But Image processing replaces parent node. So children are gone.
-                            // So we are safe.
-
-                            widgets.push(Decoration.replace({}).range(node.from, node.to));
-                        } else {
-                            widgets.push(Decoration.mark({ class: 'cm-formatting-visible' }).range(node.from, node.to));
-                        }
-                    }
-
-                    if (node.name === 'LinkText') {
-                        widgets.push(Decoration.mark({ class: 'cm-link' }).range(node.from, node.to));
-                    }
-
-                    if (node.name === 'HorizontalRule') {
-                        widgets.push(Decoration.replace({
-                            widget: new HRWidget()
-                        }).range(node.from, node.to));
-                    }
-
-                    if (node.name === 'FootnoteReference') {
-                        widgets.push(Decoration.mark({ class: 'cm-footnote-ref' }).range(node.from, node.to));
-                    }
-
-                    if (node.name === 'Footnote') {
-                         widgets.push(Decoration.mark({ class: 'cm-footnote-def' }).range(node.from, node.to));
-                    }
                 }
             });
-
-            // Check for bare image URLs (lines containing only an image URL)
-            const imageUrlPattern = /^https?:\/\/.*\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i;
-            const doc = state.doc;
-            for (let lineNum = 1; lineNum <= doc.lines; lineNum++) {
-                const line = doc.line(lineNum);
-                if (line.from < from || line.to > to) continue; // Skip lines outside visible range
-
-                const lineText = line.text.trim();
-                if (imageUrlPattern.test(lineText)) {
-                    // Check if cursor is on this line
-                    const isFocused = this.isFocused(selection, line.from, line.to);
-                    if (!isFocused) {
-                        widgets.push(Decoration.replace({
-                            widget: new URLImageWidget(lineText)
-                        }).range(line.from, line.to));
-                    }
-                }
-            }
         }
 
-        return Decoration.set(widgets, true);
+        try {
+            return Decoration.set(widgets, true);
+        } catch {
+            return Decoration.none;
+        }
     }
 
-    destroy() {}
-
-    isFocused(selection: { from: number, to: number }, from: number, to: number) {
-        return (selection.from >= from && selection.from <= to) ||
-            (selection.to >= from && selection.to <= to);
+    isFocused(selection: { from: number; to: number }, from: number, to: number) {
+        return selection.from <= to && selection.to >= from;
     }
 }
 
 export const livePreview = ViewPlugin.fromClass(LivePreviewPlugin, {
     decorations: (v) => v.decorations,
+    eventHandlers: {
+        mousedown(e) {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains('cm-task-checkbox')) return false;
+        }
+    }
 });

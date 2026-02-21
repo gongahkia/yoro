@@ -2,37 +2,34 @@ import { useState, useEffect } from 'react';
 import { useSinglish } from '../contexts/SinglishContext';
 import './styles/MobileWarning.css';
 
+const DISMISSED_KEY = 'yoro-mobile-warning-dismissed';
+
 const isMobileDevice = (): boolean => {
-    // Check user agent for mobile devices
     const userAgent = navigator.userAgent || navigator.vendor || (window as Window & { opera?: string }).opera || '';
     const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|tablet/i;
-
-    // Also check screen width as a fallback
     const isSmallScreen = window.innerWidth <= 768;
-
-    // Check for touch capability combined with small screen
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
     return mobileRegex.test(userAgent.toLowerCase()) || (isSmallScreen && isTouchDevice);
 };
 
 export const MobileWarning: React.FC = () => {
     const sl = useSinglish();
     const [isMobile, setIsMobile] = useState(false);
-    const [dismissed, setDismissed] = useState(false);
+    const [dismissed, setDismissed] = useState(() => {
+        try { return localStorage.getItem(DISMISSED_KEY) === '1'; } catch { return false; }
+    });
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMobile(isMobileDevice());
-
-        // Also listen for resize events
-        const handleResize = () => {
-            setIsMobile(isMobileDevice());
-        };
-
+        const handleResize = () => setIsMobile(isMobileDevice());
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const handleDismiss = () => {
+        try { localStorage.setItem(DISMISSED_KEY, '1'); } catch { /* ignore */ }
+        setDismissed(true);
+    };
 
     if (!isMobile || dismissed) return null;
 
@@ -46,17 +43,13 @@ export const MobileWarning: React.FC = () => {
                         <path d="M2 12h3M19 12h3" strokeDasharray="2 2"/>
                     </svg>
                 </div>
-
                 <h1 className="mobile-warning-title">{sl ? 'Eh, use desktop lah' : 'Desktop Recommended'}</h1>
-
                 <p className="mobile-warning-message">
                     <strong>Yoro</strong> {sl ? 'best on desktop one, got vim/emacs mode and all those power features.' : 'is a desktop-first text editor designed for focused writing with keyboard shortcuts, vim/emacs modes, and advanced editing features.'}
                 </p>
-
                 <p className="mobile-warning-submessage">
                     {sl ? 'For best experience, use desktop or laptop with keyboard lah.' : 'For the best experience, please access Yoro from a desktop or laptop computer with a physical keyboard.'}
                 </p>
-
                 <div className="mobile-warning-features">
                     <div className="mobile-warning-feature">
                         <svg className="feature-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -80,14 +73,9 @@ export const MobileWarning: React.FC = () => {
                         <span>Precise cursor control</span>
                     </div>
                 </div>
-
-                <button
-                    className="mobile-warning-dismiss"
-                    onClick={() => setDismissed(true)}
-                >
+                <button className="mobile-warning-dismiss" onClick={handleDismiss}>
                     {sl ? 'Nvm, go in lah' : 'Continue Anyway'}
                 </button>
-
                 <p className="mobile-warning-note">
                     {sl ? 'Mobile some things cannot work properly one lah.' : 'Some features may not work as expected on mobile devices.'}
                 </p>

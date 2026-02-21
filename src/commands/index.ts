@@ -57,7 +57,6 @@ export interface CommandFactoryArgs {
     handleDuplicateNote: (id: string, e?: { stopPropagation: () => void }) => void;
     handleUpdatePreferences: (updates: Partial<UserPreferences>) => void;
     handleImportNotes: (notes: Note[]) => void;
-    handleOpenConfig: () => void;
     setIsHelpOpen: (open: boolean) => void;
     setIsAboutOpen: (open: boolean) => void;
     setIsKnowledgeGraphOpen: (open: boolean) => void;
@@ -73,7 +72,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         notes, preferences, navigate, getCurrentNoteId,
         handleCreateNote, handleSelectNote, handleUpdateNote,
         handleDeleteNote, handleDuplicateNote,
-        handleUpdatePreferences, handleImportNotes, handleOpenConfig,
+        handleUpdatePreferences, handleImportNotes,
         setIsHelpOpen, setIsAboutOpen, setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen, setIsBacklinksPanelOpen, setIsOutlineOpen,
         setIsQuickCaptureOpen, setTableModalOpen,
@@ -91,14 +90,8 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             category: 'General'
         },
         {
-            id: 'open-help',
-            label: 'Open Help Manual',
-            action: () => setIsHelpOpen(true),
-            category: 'General'
-        },
-        {
             id: 'open-shortcuts-cheatsheet',
-            label: 'Keyboard Shortcut Cheatsheet (Cmd+/)',
+            label: 'Keyboard Shortcuts (Cmd+/)',
             action: () => setIsHelpOpen(true),
             category: 'General'
         },
@@ -125,7 +118,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: 'Open Knowledge Graph',
             action: () => setIsKnowledgeGraphOpen(true),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'open-backlinks',
@@ -133,7 +125,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => setIsBacklinksPanelOpen(true),
             category: 'View',
             context: 'editor' as const,
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-outline',
@@ -141,7 +132,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => setIsOutlineOpen(prev => !prev),
             category: 'View',
             context: 'editor' as const,
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-presentation',
@@ -152,13 +142,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             },
             category: 'View',
             context: 'editor' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'open-config',
-            label: 'Open Configuration (config.toml)',
-            action: handleOpenConfig,
-            category: 'General'
         },
         // View / Alignment
         {
@@ -172,28 +155,24 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 handleUpdatePreferences({ editorAlignment: map[current] || 'left' });
             },
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'align-left',
             label: 'Align Editor Left (Natural)',
             action: () => handleUpdatePreferences({ editorAlignment: 'left' }),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'align-center',
             label: 'Align Editor Center',
             action: () => handleUpdatePreferences({ editorAlignment: 'center' }),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'align-right',
             label: 'Align Editor Right',
             action: () => handleUpdatePreferences({ editorAlignment: 'right' }),
             category: 'View',
-            groupId: 'view-settings'
         },
         // Editor Settings
         {
@@ -208,7 +187,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 showToast(sl ? `Vim mode ${newVimMode ? 'on' : 'off'} liao` : `Vim mode ${newVimMode ? 'enabled' : 'disabled'}`, 'info');
             },
             category: 'Editor',
-            groupId: 'editor-settings'
         },
         {
             id: 'toggle-emacs',
@@ -222,14 +200,12 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 showToast(sl ? `Emacs mode ${newEmacsMode ? 'on' : 'off'} liao` : `Emacs mode ${newEmacsMode ? 'enabled' : 'disabled'}`, 'info');
             },
             category: 'Editor',
-            groupId: 'editor-settings'
         },
         {
             id: 'toggle-line-numbers',
             label: 'Toggle Line Numbers',
             action: () => handleUpdatePreferences({ showLineNumbers: !preferences.showLineNumbers }),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-mindmap',
@@ -245,7 +221,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             },
             category: 'View',
             context: 'editor' as const,
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-focus-mode',
@@ -256,32 +231,28 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 showToast(sl ? `Focus mode ${newFocusMode ? 'on' : 'off'} liao` : `Focus mode ${newFocusMode ? 'enabled' : 'disabled'}`, 'info');
             },
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-focus-mode-blur',
             label: 'Toggle Focus Mode Blur',
             action: () => handleUpdatePreferences({ focusModeBlur: !preferences.focusModeBlur }),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-line-wrapping',
             label: 'Toggle Line Wrapping (Soft)',
             action: () => handleUpdatePreferences({ lineWrapping: !preferences.lineWrapping }),
             category: 'View',
-            groupId: 'editor-settings'
         },
         {
             id: 'toggle-document-stats',
             label: 'Toggle Document Stats',
             action: () => handleUpdatePreferences({ showDocumentStats: !preferences.showDocumentStats }),
             category: 'View',
-            groupId: 'view-settings'
         },
         {
             id: 'toggle-singlish',
-            label: 'Toggle Singlish',
+            label: 'Toggle Singlish — UI language mode (Singaporean English)',
             action: () => {
                 const next = !preferences.singlish;
                 handleUpdatePreferences({ singlish: next });
@@ -295,7 +266,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'fold-all' } })),
             category: 'Editor',
             context: 'editor' as const,
-            groupId: 'editor-settings'
         },
         {
             id: 'unfold-all',
@@ -303,7 +273,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'unfold-all' } })),
             category: 'Editor',
             context: 'editor' as const,
-            groupId: 'editor-settings'
         },
         {
             id: 'hard-wrap',
@@ -311,7 +280,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'hard-wrap' } })),
             category: 'Editor',
             context: 'editor' as const,
-            groupId: 'editor-settings'
         },
         {
             id: 'cycle-cursor-animation',
@@ -325,32 +293,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 showToast(sl ? `Cursor now ${next} liao` : `Cursor animation: ${next}`, 'info');
             },
             category: 'Editor',
-            groupId: 'editor-settings'
         },
-        // Home View
-        {
-            id: 'toggle-home-view',
-            label: 'Switch Home View (Docs/Grid/Timeline/3D)',
-            action: () => {
-                const cycle: ('docs-list' | 'notion-grid' | '2d-semicircle' | '3d-carousel')[] = ['docs-list', 'notion-grid', '2d-semicircle', '3d-carousel'];
-                const current = preferences.homeViewMode || 'docs-list';
-                const next = cycle[(cycle.indexOf(current as typeof cycle[number]) + 1) % cycle.length];
-                handleUpdatePreferences({ homeViewMode: next });
-            },
-            category: 'View',
-            context: 'home' as const,
-            groupId: 'view-settings'
-        },
-        // Content alignment helpers (editor context)
-        ...(currentNoteId ? [
-            {
-                id: 'center-selected-image',
-                label: 'Center Image/Drawing (wrap in <div align="center">)',
-                action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'center-block' } })),
-                category: 'Format',
-                context: 'editor' as const,
-            },
-        ] : []),
         // Sort Commands
         {
             id: 'sort-updated',
@@ -386,38 +329,29 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             label: `Theme: ${label}`,
             action: () => handleUpdatePreferences({ theme: id }),
             category: 'Theme',
-            groupId: 'theme-settings'
         })),
         // Navigation
         {
             id: 'go-home',
             label: 'Go to Home',
-            action: () => {
-                setIsKnowledgeGraphOpen(false);
-                setIsHelpOpen(false);
-                setIsBacklinksPanelOpen(false);
-                setIsOutlineOpen(() => false);
-                setIsFindReplaceOpen(false);
-                setIsQuickCaptureOpen(false);
-                navigate('/');
-            },
+            action: () => navigate('/'),
             category: 'Navigation'
         },
         // Note Navigation
-        ...notes.filter(n => n.title !== 'config.toml').map(note => ({
+        ...notes.map(note => ({
             id: `open-note-${note.id}`,
             label: `Open Note: ${note.title || 'Untitled'}`,
             action: () => handleSelectNote(note.id),
             category: 'Navigation'
         })),
         // Note Operations
-        ...notes.filter(n => n.title !== 'config.toml').map(note => ({
+        ...notes.map(note => ({
             id: `duplicate-note-${note.id}`,
             label: `Duplicate Note: ${note.title || 'Untitled'}`,
             action: () => handleDuplicateNote(note.id),
             category: 'Note Operations'
         })),
-        ...notes.filter(n => n.title !== 'config.toml').map(note => ({
+        ...notes.map(note => ({
             id: `delete-note-${note.id}`,
             label: `Delete Note: ${note.title || 'Untitled'}`,
             action: () => handleDeleteNote(note.id),
@@ -635,8 +569,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 action: () => setIsFindReplaceOpen(true),
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings',
-                shortcut: 'Cmd+h'
+                shortcut: 'Cmd+Alt+F'
             },
             {
                 id: 'insert-table',
@@ -644,7 +577,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 action: () => setTableModalOpen(true),
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'insert-code-block',
@@ -652,7 +584,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-code-block' } })),
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'insert-hr',
@@ -660,7 +591,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-horizontal-rule' } })),
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'insert-heading-auto',
@@ -668,7 +598,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 action: () => window.dispatchEvent(new CustomEvent('yoro-editor-cmd', { detail: { command: 'insert-heading-auto' } })),
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             ...templates.map(t => ({
                 id: `insert-template-${t.id}`,
@@ -680,7 +609,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             })),
             {
                 id: 'insert-mermaid-flowchart',
@@ -691,7 +619,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'insert-mermaid-state-diagram',
@@ -702,7 +629,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'open-drawing-canvas',
@@ -713,7 +639,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'set-note-icon',
@@ -736,7 +661,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'set-note-color',
@@ -759,7 +683,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
             {
                 id: 'set-word-count-goal',
@@ -784,7 +707,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
                 },
                 category: 'Editor',
                 context: 'editor' as const,
-                groupId: 'editor-settings'
             },
         ] : []),
     ];

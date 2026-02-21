@@ -69,8 +69,7 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     const editorRef = React.useRef<ReactCodeMirrorRef>(null);
     const navigate = useNavigate();
     const [cursorLine, setCursorLine] = React.useState(1);
-    const [saveStatus, setSaveStatus] = React.useState<'saved' | 'saving'>('saved');
-    const saveTimerRef = React.useRef<number | null>(null);
+    const [saveStatus, setSaveStatus] = React.useState<'saved' | 'unsaved'>('saved');
 
     // Extension to track cursor line
     const cursorLineTracker = React.useMemo(() =>
@@ -103,14 +102,18 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
         [onPositionChange]
     );
 
-    // Clean up positionSaveTimeout and saveTimer on unmount
+    // Listen for explicit save confirmation to update saveStatus
+    React.useEffect(() => {
+        const handleSaved = () => setSaveStatus('saved');
+        window.addEventListener('yoro-data-saved', handleSaved);
+        return () => window.removeEventListener('yoro-data-saved', handleSaved);
+    }, []);
+
+    // Clean up positionSaveTimeout on unmount
     React.useEffect(() => {
         return () => {
             if (positionSaveTimeoutRef.current) {
                 clearTimeout(positionSaveTimeoutRef.current);
-            }
-            if (saveTimerRef.current) {
-                clearTimeout(saveTimerRef.current);
             }
         };
     }, []);
@@ -195,9 +198,11 @@ export const Editor: React.FC<EditorProps> = ({ note, notes, onChange, onTitleCh
     React.useEffect(() => {
         if (vimMode) {
             const goHome = () => navigate('/');
+            const save = () => window.dispatchEvent(new CustomEvent('yoro-save'));
             Vim.defineEx('q', 'q', goHome);
-            Vim.defineEx('wq', 'wq', goHome);
-            Vim.defineEx('x', 'x', goHome);
+            Vim.defineEx('wq', 'wq', () => { save(); goHome(); });
+            Vim.defineEx('x', 'x', () => { save(); goHome(); });
+            Vim.defineEx('w', 'w', save);
         }
     }, [vimMode, navigate]);
 
@@ -446,8 +451,8 @@ stateDiagram-v2
                         onChange={(e) => onTitleChange(e.target.value)}
                         placeholder={sl ? 'No title...' : 'Untitled'}
                     />
-                    <span className={`autosave-indicator ${saveStatus}`} aria-live="polite" aria-label={saveStatus === 'saving' ? 'Saving…' : 'Saved'}>
-                        {saveStatus === 'saving' ? (sl ? 'Saving...' : 'Saving…') : (sl ? 'Saved liao' : 'Saved')}
+                    <span className={`autosave-indicator ${saveStatus}`} aria-live="polite" aria-label={saveStatus === 'unsaved' ? 'Unsaved changes' : 'Saved'}>
+                        {saveStatus === 'unsaved' ? (sl ? '● Unsaved leh' : '● Unsaved') : (sl ? 'Saved liao' : 'Saved')}
                     </span>
                 </div>
                 <HeadingBreadcrumb content={note.content} cursorLine={cursorLine} noteId={note.id} />
@@ -458,9 +463,7 @@ stateDiagram-v2
                     theme="none"
                     extensions={editorExtensions}
                     onChange={(value, viewUpdate) => {
-                        setSaveStatus('saving');
-                        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-                        saveTimerRef.current = window.setTimeout(() => setSaveStatus('saved'), 800);
+                        setSaveStatus('unsaved');
                         onChange(value, viewUpdate);
                     }}
                     className="editor-cm-wrapper"

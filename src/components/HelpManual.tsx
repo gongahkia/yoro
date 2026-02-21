@@ -22,7 +22,8 @@ function getKeyboardShortcuts(sl: boolean) {
             { keys: 'Escape', description: sl ? 'Close modal / get out lah' : 'Close modal / Exit focus' },
         ],
         editor: [
-            { keys: 'Cmd/Ctrl + H', description: 'Find and replace' },
+            { keys: 'Cmd/Ctrl + Alt + F', description: 'Find and replace' },
+            { keys: 'Cmd/Ctrl + S', description: sl ? 'Save lah' : 'Save note' },
             { keys: 'Cmd/Ctrl + B', description: sl ? 'Bold lah' : 'Bold text' },
             { keys: 'Cmd/Ctrl + I', description: sl ? 'Italic lah' : 'Italic text' },
             { keys: 'Tab', description: sl ? 'Indent / add child node' : 'Indent / Add child node (in visual editors)' },

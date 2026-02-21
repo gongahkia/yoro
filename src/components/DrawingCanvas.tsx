@@ -2,10 +2,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import type { Note } from '../types';
 import './styles/DrawingCanvas.css';
 
-interface Point {
-    x: number;
-    y: number;
-}
+interface Point { x: number; y: number; }
 
 export type DrawTool = 'move' | 'pencil' | 'pen' | 'highlighter' | 'marker' | 'crayon' | 'eraser';
 
@@ -48,7 +45,6 @@ const TOOL_DEFAULTS: Record<DrawTool, { width: number; opacity: number; label: s
     eraser:      { width: 20, opacity: 1.0,  label: 'Eraser',      defaultColors: [] },
 };
 
-// Tool key: M=move, 1-5=draw tools, E=eraser
 const TOOL_KEYS: Record<string, DrawTool> = {
     'm': 'move', '1': 'pencil', '2': 'pen', '3': 'highlighter', '4': 'marker', '5': 'crayon', 'e': 'eraser',
 };
@@ -91,18 +87,24 @@ function elementsToSVG(elements: CanvasElement[], bgColor: string): string {
     </filter>
   </defs>`;
 
+    // explicit background rect (outside isolated group so destination-out reveals it)
+    const bgRect = `  <rect width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" fill="${bgColor}"/>`;
+
     const nodes = elements.map(el => {
         if (el.kind === 'image') {
             return `  <image href="${el.src}" x="${el.x.toFixed(0)}" y="${el.y.toFixed(0)}" width="${el.width.toFixed(0)}" height="${el.height.toFixed(0)}" preserveAspectRatio="xMidYMid meet"/>`;
         }
         const d = pointsToPathD(el.points);
         if (!d) return '';
-        const color = el.tool === 'eraser' ? bgColor : el.color;
+        if (el.tool === 'eraser') {
+            // true erase via destination-out inside isolated group
+            return `  <path d="${d}" fill="black" stroke="black" stroke-width="${el.width}" stroke-linecap="round" stroke-linejoin="round" style="mix-blend-mode: destination-out"/>`;
+        }
         const filter = el.tool === 'crayon' ? ` filter="url(#crayon-texture)"` : '';
-        return `  <path d="${d}" stroke="${color}" stroke-width="${el.width}" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="${el.opacity}"${filter}/>`;
+        return `  <path d="${d}" stroke="${el.color}" stroke-width="${el.width}" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="${el.opacity}"${filter}/>`;
     }).filter(Boolean).join('\n');
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" viewBox="0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}" style="background:${bgColor}">\n${defs}\n${nodes}\n</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" viewBox="0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}">\n${defs}\n${bgRect}\n<g style="isolation: isolate">\n${nodes}\n</g>\n</svg>`;
 }
 
 function parseSVGElements(svgString: string): CanvasElement[] {
@@ -122,6 +124,8 @@ function parseSVGElements(svgString: string): CanvasElement[] {
 
         doc.querySelectorAll('path').forEach(el => {
             const d = el.getAttribute('d') || '';
+            const style = el.getAttribute('style') || '';
+            const isEraser = style.includes('destination-out');
             const stroke = el.getAttribute('stroke') || '#000000';
             const width = parseFloat(el.getAttribute('stroke-width') || '3');
             const opacity = parseFloat(el.getAttribute('opacity') || '1');
@@ -132,22 +136,25 @@ function parseSVGElements(svgString: string): CanvasElement[] {
             for (let i = 0; i + 1 < coords.length; i += 2) {
                 points.push({ x: parseFloat(coords[i]), y: parseFloat(coords[i + 1]) });
             }
-            elements.push({ kind: 'path', points, color: stroke, width, tool: 'pen', opacity });
+            elements.push({
+                kind: 'path',
+                points,
+                color: isEraser ? '#000000' : stroke,
+                width,
+                tool: isEraser ? 'eraser' : 'pen',
+                opacity: isEraser ? 1 : opacity,
+            });
         });
 
         return elements;
-    } catch {
-        return [];
-    }
+    } catch { return []; }
 }
 
 function decodeSvgDataUri(uri: string): string {
     try {
         const b64 = uri.replace(/^data:image\/svg\+xml;base64,/, '');
         return decodeURIComponent(escape(atob(b64)));
-    } catch {
-        return '';
-    }
+    } catch { return ''; }
 }
 
 async function imageFileToDataUrl(file: File): Promise<string> {
@@ -177,20 +184,14 @@ function svgToPngDataUrl(svgString: string, width: number, height: number): Prom
     });
 }
 
-/** Return index of the topmost element that contains (px, py), or -1 if none */
 function hitTest(elements: CanvasElement[], px: number, py: number): number {
-    // Test in reverse order (topmost rendered last)
     for (let i = elements.length - 1; i >= 0; i--) {
         const el = elements[i];
         if (el.kind === 'image') {
-            if (px >= el.x && px <= el.x + el.width && py >= el.y && py <= el.y + el.height) {
-                return i;
-            }
+            if (px >= el.x && px <= el.x + el.width && py >= el.y && py <= el.y + el.height) return i;
         } else if (el.kind === 'path') {
-            // Check proximity to any point in the path
             const threshold = Math.max(el.width * 2, 12);
-            const hit = el.points.some(p => Math.hypot(p.x - px, p.y - py) < threshold);
-            if (hit) return i;
+            if (el.points.some(p => Math.hypot(p.x - px, p.y - py) < threshold)) return i;
         }
     }
     return -1;
@@ -199,9 +200,45 @@ function hitTest(elements: CanvasElement[], px: number, py: number): number {
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote, existingSvg }) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const [elements, setElements] = useState<CanvasElement[]>(() =>
-        existingSvg ? parseSVGElements(decodeSvgDataUri(existingSvg)) : []
-    );
+
+    // History-based undo/redo
+    const initElements = useRef<CanvasElement[]>(existingSvg ? parseSVGElements(decodeSvgDataUri(existingSvg)) : []);
+    const historyRef = useRef<CanvasElement[][]>([initElements.current]);
+    const historyIndexRef = useRef(0);
+    const [elements, setElementsRaw] = useState<CanvasElement[]>(initElements.current);
+    const [canUndo, setCanUndo] = useState(false);
+    const [canRedo, setCanRedo] = useState(false);
+
+    const updateHistoryFlags = () => {
+        setCanUndo(historyIndexRef.current > 0);
+        setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
+    };
+
+    const pushHistory = useCallback((newElements: CanvasElement[]) => {
+        // truncate future on new action
+        historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+        historyRef.current.push(newElements);
+        historyIndexRef.current = historyRef.current.length - 1;
+        setElementsRaw(newElements);
+        updateHistoryFlags();
+    }, []);
+
+    const handleUndo = useCallback(() => {
+        if (historyIndexRef.current <= 0) return;
+        historyIndexRef.current--;
+        setElementsRaw(historyRef.current[historyIndexRef.current]);
+        setSelectedIdx(null);
+        updateHistoryFlags();
+    }, []);
+
+    const handleRedo = useCallback(() => {
+        if (historyIndexRef.current >= historyRef.current.length - 1) return;
+        historyIndexRef.current++;
+        setElementsRaw(historyRef.current[historyIndexRef.current]);
+        setSelectedIdx(null);
+        updateHistoryFlags();
+    }, []);
+
     const [currentPath, setCurrentPath] = useState<DrawPath | null>(null);
     const [tool, setTool] = useState<DrawTool>('pen');
     const [toolColors, setToolColors] = useState<Record<DrawTool, string[]>>(() => {
@@ -214,10 +251,10 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
     const isDrawing = useRef(false);
-    // For move tool
     const moveRef = useRef<{ idx: number; startX: number; startY: number } | null>(null);
+    // snapshot of elements when move began (for single history entry per drag)
+    const moveStartElementsRef = useRef<CanvasElement[] | null>(null);
 
-    // Sync color/width when tool changes
     useEffect(() => {
         if (tool !== 'eraser' && tool !== 'move') {
             setColor(toolColors[tool][0] || TOOL_DEFAULTS[tool].defaultColors[0]);
@@ -226,33 +263,34 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         if (tool !== 'move') setSelectedIdx(null);
     }, [tool]);
 
-    // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
             const newTool = TOOL_KEYS[e.key.toLowerCase()];
             if (newTool) { setTool(newTool); return; }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
                 e.preventDefault();
-                setElements(prev => prev.slice(0, -1));
-                setSelectedIdx(null);
+                handleRedo();
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+                e.preventDefault();
+                handleUndo();
                 return;
             }
             if (e.key === '[') { setStrokeWidth(w => Math.max(1, w - 1)); return; }
             if (e.key === ']') { setStrokeWidth(w => Math.min(50, w + 1)); return; }
-            // Delete selected element
             if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIdx !== null) {
                 e.preventDefault();
-                setElements(prev => prev.filter((_, i) => i !== selectedIdx));
+                pushHistory(elements.filter((_, i) => i !== selectedIdx));
                 setSelectedIdx(null);
                 return;
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedIdx]);
+    }, [selectedIdx, elements, handleUndo, handleRedo, pushHistory]);
 
-    // Clipboard paste (images)
     useEffect(() => {
         const handlePaste = async (e: ClipboardEvent) => {
             const items = Array.from(e.clipboardData?.items ?? []);
@@ -265,7 +303,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                     img.onload = () => {
                         const maxW = Math.min(img.naturalWidth, CANVAS_WIDTH * 0.5);
                         const scale = maxW / img.naturalWidth;
-                        setElements(prev => [...prev, {
+                        pushHistory([...elements, {
                             kind: 'image',
                             src: dataUrl,
                             x: (CANVAS_WIDTH - maxW) / 2,
@@ -282,7 +320,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         };
         window.addEventListener('paste', handlePaste);
         return () => window.removeEventListener('paste', handlePaste);
-    }, []);
+    }, [elements, pushHistory]);
 
     const addImageFromFile = useCallback(async (file: File) => {
         if (!file.type.startsWith('image/')) return;
@@ -291,7 +329,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         img.onload = () => {
             const maxW = Math.min(img.naturalWidth, CANVAS_WIDTH * 0.5);
             const scale = maxW / img.naturalWidth;
-            setElements(prev => [...prev, {
+            pushHistory([...elements, {
                 kind: 'image',
                 src: dataUrl,
                 x: (CANVAS_WIDTH - maxW) / 2,
@@ -301,20 +339,14 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
             }]);
         };
         img.src = dataUrl;
-    }, []);
+    }, [elements, pushHistory]);
 
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragOver(true);
-    }, []);
-
+    const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragOver(true); }, []);
     const handleDragLeave = useCallback(() => setIsDragOver(false), []);
-
     const handleDrop = useCallback(async (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragOver(false);
-        const files = Array.from(e.dataTransfer.files);
-        for (const file of files) {
+        for (const file of Array.from(e.dataTransfer.files)) {
             await addImageFromFile(file);
         }
     }, [addImageFromFile]);
@@ -340,20 +372,20 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
             if (idx >= 0) {
                 setSelectedIdx(idx);
                 moveRef.current = { idx, startX: pt.x, startY: pt.y };
+                moveStartElementsRef.current = elements.map(el => ({ ...el }));
             } else {
                 setSelectedIdx(null);
                 moveRef.current = null;
+                moveStartElementsRef.current = null;
             }
             return;
         }
 
         isDrawing.current = true;
-        const bgColor = getComputedStyle(document.documentElement)
-            .getPropertyValue('--bg-primary').trim() || '#ffffff';
         const newPath: DrawPath = {
             kind: 'path',
             points: [pt],
-            color: tool === 'eraser' ? bgColor : color,
+            color: tool === 'eraser' ? '#000000' : color,
             width: strokeWidth,
             tool,
             opacity: TOOL_DEFAULTS[tool].opacity,
@@ -371,52 +403,46 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
             const dy = pt.y - startY;
             moveRef.current = { idx, startX: pt.x, startY: pt.y };
 
-            setElements(prev => prev.map((el, i) => {
+            setElementsRaw(prev => prev.map((el, i) => {
                 if (i !== idx) return el;
-                if (el.kind === 'image') {
-                    return { ...el, x: el.x + dx, y: el.y + dy };
-                }
-                return {
-                    ...el,
-                    points: el.points.map(p => ({ x: p.x + dx, y: p.y + dy }))
-                };
+                if (el.kind === 'image') return { ...el, x: el.x + dx, y: el.y + dy };
+                return { ...el, points: el.points.map(p => ({ x: p.x + dx, y: p.y + dy })) };
             }));
             return;
         }
 
         if (!isDrawing.current || !currentPath) return;
-        setCurrentPath(prev => {
-            if (!prev) return null;
-            return { ...prev, points: [...prev.points, pt] };
-        });
+        setCurrentPath(prev => prev ? { ...prev, points: [...prev.points, pt] } : null);
     }, [tool, currentPath, getSVGPoint]);
 
-    const handlePointerUp = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-        e.preventDefault();
-
+    const handlePointerUp = useCallback(() => {
         if (tool === 'move') {
+            if (moveRef.current !== null && moveStartElementsRef.current) {
+                // commit the move as a single history entry
+                // elements has been updated live via setElementsRaw; push to history
+                setElementsRaw(current => {
+                    pushHistory(current);
+                    return current;
+                });
+            }
             moveRef.current = null;
+            moveStartElementsRef.current = null;
             return;
         }
 
         if (!isDrawing.current) return;
         isDrawing.current = false;
         if (currentPath && currentPath.points.length > 0) {
-            setElements(prev => [...prev, currentPath]);
+            pushHistory([...elements, currentPath]);
         }
         setCurrentPath(null);
-    }, [tool, currentPath]);
-
-    const handleUndo = useCallback(() => {
-        setElements(prev => prev.slice(0, -1));
-        setSelectedIdx(null);
-    }, []);
+    }, [tool, currentPath, elements, pushHistory]);
 
     const handleClear = useCallback(() => {
-        setElements([]);
+        pushHistory([]);
         setCurrentPath(null);
         setSelectedIdx(null);
-    }, []);
+    }, [pushHistory]);
 
     const handleInsert = useCallback(() => {
         const bgColor = getComputedStyle(document.documentElement)
@@ -472,7 +498,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     }, [note.id, onUpdateNote]);
 
     const handleColorSelect = (selectedColor: string) => setColor(selectedColor);
-
     const handleColorEdit = (idx: number, newColor: string) => {
         setToolColors(prev => {
             const updated = [...prev[tool]];
@@ -482,7 +507,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         });
         setColor(newColor);
     };
-
     const handleAddColor = () => {
         setToolColors(prev => {
             const current = prev[tool];
@@ -492,7 +516,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
             return { ...prev, [tool]: updated };
         });
     };
-
     const handleRemoveColor = (idx: number) => {
         setToolColors(prev => {
             const updated = prev[tool].filter((_, i) => i !== idx);
@@ -511,18 +534,14 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         return 'crosshair';
     };
 
-    // Bounding box for selected element (for visual highlight)
     const getSelectionBounds = (el: CanvasElement) => {
-        if (el.kind === 'image') {
-            return { x: el.x, y: el.y, w: el.width, h: el.height };
-        }
+        if (el.kind === 'image') return { x: el.x, y: el.y, w: el.width, h: el.height };
         if (el.points.length === 0) return null;
         const xs = el.points.map(p => p.x);
         const ys = el.points.map(p => p.y);
         const pad = el.width / 2 + 4;
         return {
-            x: Math.min(...xs) - pad,
-            y: Math.min(...ys) - pad,
+            x: Math.min(...xs) - pad, y: Math.min(...ys) - pad,
             w: Math.max(...xs) - Math.min(...xs) + pad * 2,
             h: Math.max(...ys) - Math.min(...ys) + pad * 2,
         };
@@ -532,32 +551,25 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         <div className="drawing-canvas-container">
             <div className="drawing-toolbar">
                 <div className="drawing-toolbar-left">
-                    {/* Move tool first */}
                     <button
                         className={`drawing-tool-btn ${tool === 'move' ? 'active' : ''}`}
                         onClick={() => setTool('move')}
                         title="Move / Select (M)"
-                    >
-                        Move
-                    </button>
+                    >Move</button>
 
                     <div className="drawing-separator" />
 
-                    {/* Drawing tools */}
                     {(['pencil', 'pen', 'highlighter', 'marker', 'crayon', 'eraser'] as DrawTool[]).map((t, i) => (
                         <button
                             key={t}
                             className={`drawing-tool-btn ${tool === t ? 'active' : ''}`}
                             onClick={() => setTool(t)}
                             title={`${TOOL_DEFAULTS[t].label} (${t === 'eraser' ? 'E' : i + 1})`}
-                        >
-                            {TOOL_DEFAULTS[t].label}
-                        </button>
+                        >{TOOL_DEFAULTS[t].label}</button>
                     ))}
 
                     <div className="drawing-separator" />
 
-                    {/* Color palette (hidden for move/eraser) */}
                     {showColorControls && (
                         <div className="drawing-color-palette">
                             {currentColors.map((c, idx) => (
@@ -578,89 +590,42 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                                             autoFocus
                                         />
                                     )}
-                                    <button
-                                        className="drawing-color-edit-btn"
-                                        onClick={() => setEditingColorIdx(editingColorIdx === idx ? null : idx)}
-                                        title="Edit colour"
-                                    >
-                                        ...
-                                    </button>
-                                    <button
-                                        className="drawing-color-remove-btn"
-                                        onClick={() => handleRemoveColor(idx)}
-                                        title="Remove colour"
-                                    >
-                                        x
-                                    </button>
+                                    <button className="drawing-color-edit-btn" onClick={() => setEditingColorIdx(editingColorIdx === idx ? null : idx)} title="Edit colour">...</button>
+                                    <button className="drawing-color-remove-btn" onClick={() => handleRemoveColor(idx)} title="Remove colour">x</button>
                                 </div>
                             ))}
                             {currentColors.length < 10 && (
-                                <button
-                                    className="drawing-color-add-btn"
-                                    onClick={handleAddColor}
-                                    title="Save current colour"
-                                    style={{ borderColor: color }}
-                                >
-                                    +
-                                </button>
+                                <button className="drawing-color-add-btn" onClick={handleAddColor} title="Save current colour" style={{ borderColor: color }}>+</button>
                             )}
                             <label className="drawing-color-label" title="Pick colour">
-                                <input
-                                    type="color"
-                                    value={color}
-                                    onChange={e => setColor(e.target.value)}
-                                />
+                                <input type="color" value={color} onChange={e => setColor(e.target.value)} />
                             </label>
                         </div>
                     )}
 
                     {showColorControls && <div className="drawing-separator" />}
 
-                    {/* Width (hidden for move) */}
                     {tool !== 'move' && (
                         <label className="drawing-width-label">
                             <span>Width</span>
-                            <input
-                                type="range"
-                                min={1}
-                                max={50}
-                                value={strokeWidth}
-                                onChange={e => setStrokeWidth(Number(e.target.value))}
-                            />
+                            <input type="range" min={1} max={50} value={strokeWidth} onChange={e => setStrokeWidth(Number(e.target.value))} />
                             <span className="drawing-width-value">{strokeWidth}px</span>
                         </label>
                     )}
 
                     {tool !== 'move' && <div className="drawing-separator" />}
 
-                    <button
-                        className="drawing-action-btn"
-                        onClick={handleUndo}
-                        disabled={elements.length === 0}
-                        title="Undo (Ctrl+Z)"
-                    >
-                        Undo
-                    </button>
-                    <button
-                        className="drawing-action-btn drawing-clear-btn"
-                        onClick={handleClear}
-                        disabled={elements.length === 0 && !currentPath}
-                        title="Clear canvas"
-                    >
-                        Clear
-                    </button>
+                    <button className="drawing-action-btn" onClick={handleUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">Undo</button>
+                    <button className="drawing-action-btn" onClick={handleRedo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)">Redo</button>
+                    <button className="drawing-action-btn drawing-clear-btn" onClick={handleClear} disabled={elements.length === 0 && !currentPath} title="Clear canvas">Clear</button>
 
                     <div className="drawing-separator" />
 
-                    <button className="drawing-action-btn" onClick={handleExportSVG} title="Export as SVG">
-                        SVG
-                    </button>
-                    <button className="drawing-action-btn" onClick={handleExportPNG} title="Export as PNG">
-                        PNG
-                    </button>
+                    <button className="drawing-action-btn" onClick={handleExportSVG} title="Export as SVG">SVG</button>
+                    <button className="drawing-action-btn" onClick={handleExportPNG} title="Export as PNG">PNG</button>
                 </div>
                 <div className="drawing-toolbar-right">
-                    <div className="drawing-keybind-hint">M: move · 1-5: tools · E: eraser · [/]: width · Ctrl+Z: undo · Del: remove selected</div>
+                    <div className="drawing-keybind-hint">M: move · 1-5: tools · E: eraser · [/]: width · Ctrl+Z: undo · Ctrl+Shift+Z: redo · Del: remove</div>
                     <span className="drawing-note-title">{note.title}</span>
                     <button className="drawing-cancel-btn" onClick={handleCancel}>Cancel</button>
                     <button className="drawing-insert-btn" onClick={handleInsert}>
@@ -675,9 +640,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
             >
-                {isDragOver && (
-                    <div className="drawing-drop-overlay">Drop image here</div>
-                )}
+                {isDragOver && <div className="drawing-drop-overlay">Drop image here</div>}
                 <svg
                     ref={svgRef}
                     className="drawing-svg"
@@ -694,62 +657,48 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                             <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
                         </filter>
                     </defs>
-                    {allElements.map((el, i) => {
-                        const isSelected = tool === 'move' && selectedIdx === i;
-                        if (el.kind === 'image') {
+                    {/* explicit bg rect so destination-out has something to reveal */}
+                    <rect
+                        width={CANVAS_WIDTH}
+                        height={CANVAS_HEIGHT}
+                        fill={getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim() || '#ffffff'}
+                    />
+                    {/* isolated group so eraser destination-out is scoped */}
+                    <g style={{ isolation: 'isolate' }}>
+                        {allElements.map((el, i) => {
+                            const isSelected = tool === 'move' && selectedIdx === i;
+                            if (el.kind === 'image') {
+                                return (
+                                    <g key={i}>
+                                        <image href={el.src} x={el.x} y={el.y} width={el.width} height={el.height} preserveAspectRatio="xMidYMid meet" />
+                                        {isSelected && (
+                                            <rect x={el.x - 2} y={el.y - 2} width={el.width + 4} height={el.height + 4} fill="none" stroke="var(--primary, #0070f3)" strokeWidth={2} strokeDasharray="6 3" />
+                                        )}
+                                    </g>
+                                );
+                            }
+                            const bounds = isSelected ? getSelectionBounds(el) : null;
+                            const isEraser = el.tool === 'eraser';
                             return (
                                 <g key={i}>
-                                    <image
-                                        href={el.src}
-                                        x={el.x}
-                                        y={el.y}
-                                        width={el.width}
-                                        height={el.height}
-                                        preserveAspectRatio="xMidYMid meet"
+                                    <path
+                                        d={pointsToPathD(el.points)}
+                                        stroke={isEraser ? 'black' : el.color}
+                                        strokeWidth={el.width}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        fill={isEraser ? 'black' : 'none'}
+                                        opacity={isEraser ? 1 : el.opacity}
+                                        filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
+                                        style={isEraser ? { mixBlendMode: 'destination-out' } : undefined}
                                     />
-                                    {isSelected && (
-                                        <rect
-                                            x={el.x - 2}
-                                            y={el.y - 2}
-                                            width={el.width + 4}
-                                            height={el.height + 4}
-                                            fill="none"
-                                            stroke="var(--primary, #0070f3)"
-                                            strokeWidth={2}
-                                            strokeDasharray="6 3"
-                                        />
+                                    {isSelected && bounds && (
+                                        <rect x={bounds.x} y={bounds.y} width={bounds.w} height={bounds.h} fill="none" stroke="var(--primary, #0070f3)" strokeWidth={1.5} strokeDasharray="6 3" />
                                     )}
                                 </g>
                             );
-                        }
-                        const bounds = isSelected ? getSelectionBounds(el) : null;
-                        return (
-                            <g key={i}>
-                                <path
-                                    d={pointsToPathD(el.points)}
-                                    stroke={el.color}
-                                    strokeWidth={el.width}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    fill="none"
-                                    opacity={el.opacity}
-                                    filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
-                                />
-                                {isSelected && bounds && (
-                                    <rect
-                                        x={bounds.x}
-                                        y={bounds.y}
-                                        width={bounds.w}
-                                        height={bounds.h}
-                                        fill="none"
-                                        stroke="var(--primary, #0070f3)"
-                                        strokeWidth={1.5}
-                                        strokeDasharray="6 3"
-                                    />
-                                )}
-                            </g>
-                        );
-                    })}
+                        })}
+                    </g>
                 </svg>
             </div>
         </div>
