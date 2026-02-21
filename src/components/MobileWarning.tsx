@@ -59,15 +59,24 @@ export const MobileWarning: React.FC = () => {
 
                 <div className="mobile-warning-features">
                     <div className="mobile-warning-feature">
-                        <span className="feature-icon">⌨️</span>
+                        <svg className="feature-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="2" y="6" width="20" height="12" rx="2"/>
+                            <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/>
+                        </svg>
                         <span>{sl ? 'Keyboard shiok to use' : 'Keyboard-centric editing'}</span>
                     </div>
                     <div className="mobile-warning-feature">
-                        <span className="feature-icon">📐</span>
+                        <svg className="feature-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M3 9h18M9 21V9"/>
+                        </svg>
                         <span>Wide screen layout</span>
                     </div>
                     <div className="mobile-warning-feature">
-                        <span className="feature-icon">🎯</span>
+                        <svg className="feature-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
                         <span>Precise cursor control</span>
                     </div>
                 </div>

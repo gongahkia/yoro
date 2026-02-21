@@ -19,7 +19,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onD
 
     return (
         <div className={`note-card${note.isPinned ? ' pinned' : ''}`} style={cardStyle} onClick={() => onClick(note.id)}>
-            {note.isPinned && <span className="pin-indicator" aria-label="Pinned" title="Pinned">📌</span>}
+            {note.isPinned && <span className="pin-indicator" aria-label="Pinned" title="Pinned" />}
             <div className="note-card-actions">
                 {onPin && (
                     <button

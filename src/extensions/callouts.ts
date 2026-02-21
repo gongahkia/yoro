@@ -13,18 +13,18 @@ import type { CompletionContext, CompletionResult } from '@codemirror/autocomple
 const CALLOUT_REGEX = /^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DANGER|QUESTION|ABSTRACT|EXAMPLE|QUOTE)\]/i;
 
 const ICONS: Record<string, string> = {
-    NOTE: '📝',
-    TIP: '💡',
-    IMPORTANT: '🔥',
-    WARNING: '⚠️',
-    CAUTION: '🛑',
-    INFO: 'ℹ️',
-    SUCCESS: '✅',
-    DANGER: '⚡',
-    QUESTION: '❓',
-    ABSTRACT: '📋',
-    EXAMPLE: '🔍',
-    QUOTE: '❝'
+    NOTE: 'N',
+    TIP: 'T',
+    IMPORTANT: '!',
+    WARNING: '!',
+    CAUTION: '!',
+    INFO: 'i',
+    SUCCESS: '+',
+    DANGER: '!',
+    QUESTION: '?',
+    ABSTRACT: 'A',
+    EXAMPLE: 'E',
+    QUOTE: '"'
 };
 
 class CalloutHeaderWidget extends WidgetType {
@@ -44,8 +44,8 @@ class CalloutHeaderWidget extends WidgetType {
         div.className = `cm-callout-header cm-callout-header-${this.type.toLowerCase()}`;
         
         const icon = document.createElement('span');
-        icon.className = 'cm-callout-icon';
-        icon.textContent = ICONS[this.type] || '📝';
+        icon.className = `cm-callout-icon cm-callout-icon-${this.type.toLowerCase()}`;
+        icon.textContent = ICONS[this.type] || '!';
         
         const title = document.createElement('span');
         title.className = 'cm-callout-title';

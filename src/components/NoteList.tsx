@@ -407,7 +407,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                             >
                                 <div className="notion-card-title-row">
                                     {note.icon && <span className="notion-card-icon">{note.icon}</span>}
-                                    {note.isPinned && <span className="notion-card-pin" title="Pinned">📌</span>}
+                                    {note.isPinned && <span className="notion-card-pin" title="Pinned" />}
                                     <span className="notion-card-title">{note.title || 'Untitled'}</span>
                                 </div>
                                 {preview && <p className="notion-card-preview">{preview}</p>}
@@ -420,12 +420,12 @@ export const NoteList: React.FC<NoteListProps> = ({
                                     </div>
                                     <div className="notion-card-actions" onClick={e => e.stopPropagation()}>
                                         {onPinNote && (
-                                            <button className="notion-card-action-btn" onClick={() => onPinNote(note.id)} title="Pin">
-                                                {note.isPinned ? '◈' : '◇'}
+                                            <button className="notion-card-action-btn" onClick={() => onPinNote(note.id)} title={note.isPinned ? 'Unpin' : 'Pin'}>
+                                                {note.isPinned ? 'unpin' : 'pin'}
                                             </button>
                                         )}
-                                        <button className="notion-card-action-btn" onClick={(e) => onDuplicateNote(note.id, e)} title="Duplicate">⊕</button>
-                                        <button className="notion-card-action-btn danger" onClick={(e) => onDeleteNote(note.id, e)} title="Delete">✕</button>
+                                        <button className="notion-card-action-btn" onClick={(e) => onDuplicateNote(note.id, e)} title="Duplicate">dup</button>
+                                        <button className="notion-card-action-btn danger" onClick={(e) => onDeleteNote(note.id, e)} title="Delete">del</button>
                                     </div>
                                 </div>
                             </div>

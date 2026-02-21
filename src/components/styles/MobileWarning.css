@@ -100,9 +100,11 @@
 }
 
 .feature-icon {
-    font-size: 1.25rem;
-    width: 28px;
-    text-align: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--primary, #007aff);
+    display: block;
 }
 
 .mobile-warning-dismiss {

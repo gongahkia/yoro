@@ -502,9 +502,12 @@
 }
 
 .notion-card-pin {
-    font-size: 0.8em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary, #007aff);
     flex-shrink: 0;
-    opacity: 0.7;
+    display: inline-block;
 }
 
 .notion-card-title {

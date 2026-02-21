@@ -18,9 +18,12 @@
 
 .pin-indicator {
     position: absolute;
-    top: 6px;
+    top: 8px;
     left: 8px;
-    font-size: 0.75rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary, #007aff);
     pointer-events: none;
 }
 

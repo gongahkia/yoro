@@ -341,30 +341,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             context: 'home' as const,
             groupId: 'view-settings'
         },
-        {
-            id: 'home-view-grid',
-            label: 'Home View: Grid (Notion-style)',
-            action: () => handleUpdatePreferences({ homeViewMode: 'notion-grid' }),
-            category: 'View',
-            context: 'home' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'home-view-timeline',
-            label: 'Home View: Timeline',
-            action: () => handleUpdatePreferences({ homeViewMode: '2d-semicircle' }),
-            category: 'View',
-            context: 'home' as const,
-            groupId: 'view-settings'
-        },
-        {
-            id: 'home-view-3d',
-            label: 'Home View: 3D Carousel',
-            action: () => handleUpdatePreferences({ homeViewMode: '3d-carousel' }),
-            category: 'View',
-            context: 'home' as const,
-            groupId: 'view-settings'
-        },
         // Content alignment helpers (editor context)
         ...(currentNoteId ? [
             {
