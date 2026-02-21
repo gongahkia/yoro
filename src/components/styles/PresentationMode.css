@@ -520,3 +520,10 @@
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .slide-next .slide-content,
+    .slide-prev .slide-content {
+        animation: none;
+    }
+}

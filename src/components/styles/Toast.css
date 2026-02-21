@@ -179,3 +179,14 @@
         width: 0%;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        animation: none;
+        transition: none;
+    }
+
+    .toast-icon {
+        animation: none;
+    }
+}

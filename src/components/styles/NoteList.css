@@ -294,3 +294,21 @@
 .timeline-card:nth-child(3) { animation-delay: 0.2s; }
 .timeline-card:nth-child(4) { animation-delay: 0.25s; }
 .timeline-card:nth-child(5) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .view-transition-wrapper {
+        transition: none;
+    }
+
+    .circular-deck {
+        transition: none;
+    }
+
+    .circular-card-wrapper {
+        transition: none;
+    }
+
+    .timeline-card {
+        animation: none;
+    }
+}

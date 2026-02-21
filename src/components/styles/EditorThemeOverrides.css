@@ -495,6 +495,10 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
     }
+
+    .cm-bracket-match {
+        animation: none !important;
+    }
 }
 
 /* Print-specific syntax highlight overrides */

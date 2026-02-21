@@ -82,3 +82,10 @@
         opacity: 1;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-container {
+        animation: none;
+        transform: none;
+    }
+}
