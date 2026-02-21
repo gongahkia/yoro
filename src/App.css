@@ -27,6 +27,17 @@ html[data-custom-bg] .note-list-container {
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* editor panel — same treatment */
+html[data-custom-bg] .editor-container {
+  background-color: var(--bg-primary) !important;
+  width: 60vw !important;
+  min-width: 560px !important;
+  max-width: 960px !important;
+  margin: 0 auto !important;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.4) !important;
+  flex: unset !important;
+}
+
 /* inner containers go back to transparent — inherit from note-list-container */
 html[data-custom-bg] .docs-list-container,
 html[data-custom-bg] .notion-grid-container {
