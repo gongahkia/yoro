@@ -63,7 +63,6 @@ export interface CommandFactoryArgs {
     setIsFindReplaceOpen: (open: boolean) => void;
     setIsBacklinksPanelOpen: (open: boolean) => void;
     setIsOutlineOpen: (toggle: (prev: boolean) => boolean) => void;
-    setIsQuickCaptureOpen: (open: boolean) => void;
     setTableModalOpen: (open: boolean) => void;
 }
 
@@ -75,7 +74,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
         handleUpdatePreferences, handleImportNotes,
         setIsHelpOpen, setIsAboutOpen, setIsKnowledgeGraphOpen,
         setIsFindReplaceOpen, setIsBacklinksPanelOpen, setIsOutlineOpen,
-        setIsQuickCaptureOpen, setTableModalOpen,
+        setTableModalOpen,
     } = args;
 
     const sl = preferences.singlish ?? false;

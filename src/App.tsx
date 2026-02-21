@@ -362,7 +362,6 @@ function App() {
         setIsFindReplaceOpen,
         setIsBacklinksPanelOpen,
         setIsOutlineOpen,
-        setIsQuickCaptureOpen,
         setTableModalOpen,
     }), [data.notes, data.preferences, handleCreateNote, handleSelectNote, handleDuplicateNote, handleDeleteNote, getCurrentNoteId, handleUpdatePreferences, handleImportNotes, handleUpdateNote, navigate]);
 
@@ -615,7 +614,7 @@ function App() {
                 onClose={() => setSelectedImage(null)}
                 onResize={handleImageResize}
                 onAlign={handleImageAlign}
-                onEditDrawing={(src, alt) => {
+                onEditDrawing={(src, _alt) => {
                     setSelectedImage(null);
                     const noteId = getCurrentNoteId();
                     if (noteId) handleUpdateNote(noteId, { viewMode: 'drawing', drawingEditSrc: src });

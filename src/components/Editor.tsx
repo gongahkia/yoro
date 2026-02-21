@@ -462,9 +462,9 @@ stateDiagram-v2
                     height="100%"
                     theme="none"
                     extensions={editorExtensions}
-                    onChange={(value, viewUpdate) => {
+                    onChange={(value) => {
                         setSaveStatus('unsaved');
-                        onChange(value, viewUpdate);
+                        onChange(value);
                     }}
                     className="editor-cm-wrapper"
                     basicSetup={{

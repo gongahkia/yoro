@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react';
 import type { Note } from '../types';
-import { NoteCard } from './NoteCard';
 import { useSinglish } from '../contexts/SinglishContext';
 import './styles/NoteList.css';
 

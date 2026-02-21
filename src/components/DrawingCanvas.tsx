@@ -690,7 +690,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                                         fill={isEraser ? 'black' : 'none'}
                                         opacity={isEraser ? 1 : el.opacity}
                                         filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
-                                        style={isEraser ? { mixBlendMode: 'destination-out' } : undefined}
+                                        style={isEraser ? { mixBlendMode: 'destination-out' as React.CSSProperties['mixBlendMode'] } : undefined}
                                     />
                                     {isSelected && bounds && (
                                         <rect x={bounds.x} y={bounds.y} width={bounds.w} height={bounds.h} fill="none" stroke="var(--primary, #0070f3)" strokeWidth={1.5} strokeDasharray="6 3" />
