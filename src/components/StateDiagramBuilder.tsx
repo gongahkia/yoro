@@ -184,15 +184,49 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+    const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
+    const [future, setFuture] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
+    const nodesRef = useRef(nodes);
+    const edgesRef = useRef(edges);
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+
+    const pushToHistory = useCallback(() => {
+        setHistory(prev => [...prev.slice(-49), { nodes: nodesRef.current, edges: edgesRef.current }]);
+        setFuture([]);
+    }, []);
+
+    const handleUndo = useCallback(() => {
+        setHistory(prev => {
+            if (prev.length === 0) return prev;
+            const snapshot = prev[prev.length - 1];
+            setFuture(f => [{ nodes: nodesRef.current, edges: edgesRef.current }, ...f.slice(0, 49)]);
+            setNodes(snapshot.nodes);
+            setEdges(snapshot.edges);
+            return prev.slice(0, -1);
+        });
+    }, [setNodes, setEdges]);
+
+    const handleRedo = useCallback(() => {
+        setFuture(prev => {
+            if (prev.length === 0) return prev;
+            const snapshot = prev[0];
+            setHistory(h => [...h.slice(-49), { nodes: nodesRef.current, edges: edgesRef.current }]);
+            setNodes(snapshot.nodes);
+            setEdges(snapshot.edges);
+            return prev.slice(1);
+        });
+    }, [setNodes, setEdges]);
 
     const onLabelChange = useCallback((id: string, newLabel: string) => {
+        pushToHistory();
         setNodes((nds) => nds.map((node) => {
             if (node.id === id) {
                 return { ...node, data: { ...node.data, label: newLabel } };
             }
             return node;
         }));
-    }, [setNodes]);
+    }, [setNodes, pushToHistory]);
 
     const getInitialState = useCallback(() => {
         const startNode: Node = {
@@ -234,12 +268,14 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
                     return;
                 }
             }
+            pushToHistory();
             setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds));
         },
-        [setEdges, edges]
+        [setEdges, edges, pushToHistory]
     );
 
     const handleAddState = useCallback(() => {
+        pushToHistory();
         const newId = `state-${nodeIdCounter}`;
         setNodeIdCounter(prev => prev + 1);
 
@@ -271,9 +307,10 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
         const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes, newNode], newEdges);
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
-    }, [nodes, edges, nodeIdCounter, selectedNodes, setNodes, setEdges, onLabelChange]);
+    }, [nodes, edges, nodeIdCounter, selectedNodes, setNodes, setEdges, onLabelChange, pushToHistory]);
 
     const handleAddEndState = useCallback(() => {
+        pushToHistory();
         // Check if end state already exists
         const hasEndState = nodes.some(n => n.type === 'endState');
         if (hasEndState) return;
@@ -302,15 +339,16 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
         const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes, newNode], newEdges);
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
-    }, [nodes, edges, selectedNodes, setNodes, setEdges]);
+    }, [nodes, edges, selectedNodes, setNodes, setEdges, pushToHistory]);
 
     const handleDelete = useCallback(() => {
+        pushToHistory();
         const remainingNodes = nodes.filter(n => !selectedNodes.includes(n.id));
         const remainingEdges = edges.filter(e => !selectedNodes.includes(e.source) && !selectedNodes.includes(e.target));
         setNodes(remainingNodes);
         setEdges(remainingEdges);
         setSelectedNodes([]);
-    }, [nodes, edges, selectedNodes, setNodes, setEdges]);
+    }, [nodes, edges, selectedNodes, setNodes, setEdges, pushToHistory]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -325,11 +363,19 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
                 e.preventDefault();
                 handleDelete();
             }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                handleUndo();
+            }
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                e.preventDefault();
+                handleRedo();
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleAddState, handleDelete]);
+    }, [handleAddState, handleDelete, handleUndo, handleRedo]);
 
     const onSelectionChange = useCallback(({ nodes }: { nodes: Node[] }) => {
         setSelectedNodes(nodes.map(n => n.id));
@@ -500,7 +546,12 @@ export const StateDiagramBuilder: React.FC<StateDiagramBuilderProps> = React.mem
                         Double-click: Edit state label<br />
                         Tab: Add linked state<br />
                         Delete/Backspace: Remove state<br />
-                        Drag handles to connect
+                        Drag handles to connect<br />
+                        Ctrl+Z / Ctrl+Y: Undo/Redo
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <button onClick={handleUndo} disabled={history.length === 0} title="Undo (Ctrl+Z)" style={{ padding: '4px 10px', background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: history.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.85em', opacity: history.length === 0 ? 0.4 : 1 }}>↩ Undo</button>
+                        <button onClick={handleRedo} disabled={future.length === 0} title="Redo (Ctrl+Y)" style={{ padding: '4px 10px', background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: future.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.85em', opacity: future.length === 0 ? 0.4 : 1 }}>↪ Redo</button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
