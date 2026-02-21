@@ -1,47 +1,69 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# YORO AUDIT TODO — generated 2026-02-15
+# YORO AUDIT TODO — generated 2026-02-15, updated 2026-02-21
 # Priority: (A) = core vision/MVP/user-requested, (B) = audit-suggested improvement
 # Tags: +feature +refactor +security +infra +perf +a11y +theme +css +fix +logo +pwa
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# ─── USER-REQUESTED / CORE VISION (A) ────────────────────────────────────────
+# ─── PWA (STRETCH GOAL — BLOCKED on logo creation) ───────────────────────────
 
-
-# ─── PERFORMANCE (B) ──────────────────────────────────────────────────────────
-
-
-# ─── ACCESSIBILITY (B) ────────────────────────────────────────────────────────
-
-
-# ─── CSS / THEMING FIXES (B) ──────────────────────────────────────────────────
-
-
-
-
-
-
-
-# ─── ERROR HANDLING (B) ───────────────────────────────────────────────────────
-
-
-
-# ─── MEMORY LEAKS / CLEANUP (B) ───────────────────────────────────────────────
-
-
-
-
-# ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
-
-
-
-# ─── PWA (STRETCH GOAL) ──────────────────────────────────────────────────────
-
+(B) Create app logo first — all PWA icon tasks below require a logo source file +logo
 (B) After logo creation, generate PWA icon set from logo: icon-72.png, icon-96.png, icon-128.png, icon-144.png, icon-152.png, icon-192.png, icon-384.png, icon-512.png and place in public/ +pwa +logo
 (B) Update vite.config.ts PWA manifest icons array to reference all generated icon sizes with correct MIME types +pwa
 (B) Add offline fallback page to PWA service worker config — show cached version of app when network unavailable +pwa
 (B) Add "Add to Home Screen" prompt logic in App.tsx using beforeinstallprompt event +pwa
 (B) Test PWA install flow on Chrome, Safari, Firefox and fix any manifest validation errors +pwa
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COMPLETED (2026-02-21)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# CSS / THEMING
+# [x] Replace hardcoded hljs syntax colors in PresentationMode.css with CSS vars
+# [x] Add @media print section to EditorThemeOverrides.css using CSS vars
+# [x] Replace color-mix() with var(--primary-light) in KnowledgeGraph.css
+# [x] Extract shared .modal-overlay class; deduplicate from all modal CSS files
+# [x] Add prefers-reduced-motion to BacklinksPanel, ConfirmationModal, ImageLightbox, NoteList, Toast, EditorThemeOverrides
+# [x] Replace hardcoded black/white in App.css print section with CSS vars
+
+# DRAWING FEATURE
+# [x] Add 'drawing' viewMode to Note type
+# [x] Create DrawingCanvas.tsx (SVG freehand, pen/eraser, undo, export to markdown)
+# [x] Add 'open-drawing-canvas' command to command palette
+# [x] Wire DrawingCanvas into NoteEditorWrapper
+
+# ERROR HANDLING
+# [x] Wrap KnowledgeGraph and PresentationMode with ErrorBoundary
+# [x] Add try/catch for regex in BacklinksPanel
+# [x] Add regexError state and UI in FindReplacePanel
+# [x] Add "Note not found" fallback with Back button in NoteEditorWrapper
+# [x] Add onerror handler for broken images in live-preview.ts
+# [x] Add clipboard.writeText fallback (execCommand) in code-block-enhancements.ts
+
+# INFRA / CLEANUP
+# [x] Add Lighthouse CI to .github/workflows/ci.yml
+# [x] Add runtime type guards for TOML config sync in App.tsx
+# [x] Add input validation to ParameterInputModal (required fields, number min/max)
+
+# DIAGRAM UNDO/REDO
+# [x] Add undo/redo history stack to FlowchartBuilder (Ctrl+Z/Y, UI buttons)
+# [x] Add undo/redo history stack to StateDiagramBuilder (Ctrl+Z/Y, UI buttons)
+
+# FEATURE IMPROVEMENTS
+# [x] Add note import from .md files (file input, FileReader, multi-select)
+# [x] Add batch import from .zip (JSZip, extracts all .md entries)
+# [x] Cmd+K shortcut already wired; updated NoteList hint text
+# [x] Add illustrated empty state SVG to NoteList (both views)
+# [x] Add loading skeleton to NoteList (shimmer cards during hydration)
+# [x] Add note pinning (isPinned field, pin button on NoteCard, pinned-first sort)
+# [x] Add word count goal indicator with progress bar in DocumentStats
+# [x] Add auto-save indicator ("Saving…" / "Saved") in Editor title row
+# [x] Add Cmd+/ shortcut + command palette entry to open keyboard cheatsheet
+# [x] Add drag-and-drop reordering in NoteList 2D timeline view
+# [x] Add per-note accent color and emoji icon (NoteCard + command palette)
+# [x] Full-text search already implemented (title+content); no change needed
+# [x] Add recent notes list (last 5) in command palette under 'Recent' category
+# [x] Implement analytics.ts with local daily event/word counters in localStorage
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # END
