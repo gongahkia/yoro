@@ -11,6 +11,7 @@ interface NoteListProps {
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
     onImportNotes: (notes: Note[]) => void;
+    isLoading?: boolean;
     searchQuery: string;
     selectedTag: string | null;
     onTagChange: (tag: string | null) => void;
@@ -24,6 +25,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     onDeleteNote,
     onDuplicateNote,
     onImportNotes,
+    isLoading = false,
     searchQuery,
     selectedTag,
     viewMode = '3d-carousel',
@@ -231,6 +233,14 @@ export const NoteList: React.FC<NoteListProps> = ({
         return visible;
     }, [count, rotation]);
 
+    const SkeletonCard = ({ style }: { style?: React.CSSProperties }) => (
+        <div className="skeleton-card" style={style} aria-hidden="true">
+            <div className="skeleton-line skeleton-title" />
+            <div className="skeleton-line skeleton-body" />
+            <div className="skeleton-line skeleton-body short" />
+        </div>
+    );
+
     const EmptyState = () => (
         <div className="empty-state">
             <svg className="empty-state-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -423,7 +433,15 @@ export const NoteList: React.FC<NoteListProps> = ({
                 </span>
             </div>
             <div className={`view-transition-wrapper ${isTransitioning ? 'transitioning' : ''}`}>
-                {displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()}
+                {isLoading ? (
+                    <div className="skeleton-container" aria-label="Loading notes…">
+                        {Array.from({ length: 5 }, (_, i) => (
+                            <SkeletonCard key={i} style={{ animationDelay: `${i * 0.1}s` }} />
+                        ))}
+                    </div>
+                ) : (
+                    displayMode === '3d-carousel' ? render3DCarousel() : render2DTimeline()
+                )}
             </div>
         </div>
     );

@@ -58,6 +58,8 @@ function App() {
     const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
     const [lightboxState, setLightboxState] = useState<{ isOpen: boolean; src: string | null; alt?: string }>({ isOpen: false, src: null });
 
+    const [isHydrating, setIsHydrating] = useState(true);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -73,6 +75,12 @@ function App() {
     useEffect(() => {
         storage.set(data);
     }, [data]);
+
+    useEffect(() => {
+        // Flip off the hydration skeleton after the first paint
+        const raf = requestAnimationFrame(() => setIsHydrating(false));
+        return () => cancelAnimationFrame(raf);
+    }, []);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', data.preferences.theme);
@@ -513,6 +521,7 @@ function App() {
                         onDeleteNote={handleDeleteNote}
                         onDuplicateNote={handleDuplicateNote}
                         onImportNotes={handleImportNotes}
+                        isLoading={isHydrating}
                         searchQuery={searchQuery}
                         selectedTag={selectedTag}
                         onTagChange={setSelectedTag}
