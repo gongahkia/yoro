@@ -56,12 +56,13 @@ class ImageWidget extends WidgetType {
     }
 
     toDOM() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'cm-image-wrapper';
         const img = document.createElement('img');
         img.src = this.src;
         img.alt = this.alt;
         img.loading = 'lazy';
         img.className = 'cm-image-widget';
-        img.style.maxWidth = '100%';
         img.style.cursor = 'zoom-in';
         img.onerror = () => {
             img.style.cursor = 'default';
@@ -76,7 +77,8 @@ class ImageWidget extends WidgetType {
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src, alt: this.alt } }));
         };
-        return img;
+        wrapper.appendChild(img);
+        return wrapper;
     }
 }
 
@@ -101,16 +103,13 @@ class URLImageWidget extends WidgetType {
     }
 
     toDOM() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'cm-image-url-wrapper';
         const img = document.createElement('img');
         img.src = this.src;
         img.alt = 'Image';
         img.loading = 'lazy';
         img.className = 'cm-image-url-widget';
-        img.style.display = 'block';
-        img.style.margin = '1em auto';
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '60vh';
-        img.style.objectFit = 'contain';
         img.style.cursor = 'zoom-in';
         img.onerror = () => {
             img.style.cursor = 'default';
@@ -125,7 +124,8 @@ class URLImageWidget extends WidgetType {
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src } }));
         };
-        return img;
+        wrapper.appendChild(img);
+        return wrapper;
     }
 }
 

@@ -105,6 +105,7 @@ export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
                 <DrawingCanvas
                     note={note}
                     onUpdateNote={onUpdateNote}
+                    existingSvg={note.drawingEditSrc}
                 />
             </ErrorBoundary>
         );

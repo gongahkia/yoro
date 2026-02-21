@@ -10,6 +10,7 @@ interface Point {
 export type DrawTool = 'pencil' | 'pen' | 'highlighter' | 'marker' | 'crayon' | 'eraser';
 
 interface DrawPath {
+    kind: 'path';
     points: Point[];
     color: string;
     width: number;
@@ -17,17 +18,26 @@ interface DrawPath {
     opacity: number;
 }
 
+interface ImageElement {
+    kind: 'image';
+    src: string; // data URL
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+type CanvasElement = DrawPath | ImageElement;
+
 interface DrawingCanvasProps {
     note: Note;
     onUpdateNote: (id: string, updates: Partial<Note>) => void;
-    /** If provided, the canvas will be pre-loaded with this SVG content for editing */
     existingSvg?: string;
 }
 
 const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 
-// Tool characteristics
 const TOOL_DEFAULTS: Record<DrawTool, { width: number; opacity: number; label: string; defaultColors: string[] }> = {
     pencil:      { width: 2,  opacity: 0.75, label: 'Pencil',      defaultColors: ['#333333','#666666','#999999','#cccccc','#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dda0dd'] },
     pen:         { width: 3,  opacity: 1.0,  label: 'Pen',         defaultColors: ['#000000','#1a1a2e','#16213e','#0f3460','#533483','#e94560','#2c3e50','#27ae60','#e74c3c','#8e44ad'] },
@@ -71,17 +81,7 @@ function pointsToPathD(points: Point[]): string {
     return `M ${first.x.toFixed(1)} ${first.y.toFixed(1)} ${segments}`;
 }
 
-function pathsToSVG(paths: DrawPath[], bgColor: string): string {
-    const pathElements = paths.map(path => {
-        const d = pointsToPathD(path.points);
-        if (!d) return '';
-        const color = path.tool === 'eraser' ? bgColor : path.color;
-        const filter = path.tool === 'crayon'
-            ? ` filter="url(#crayon-texture)"`
-            : '';
-        return `  <path d="${d}" stroke="${color}" stroke-width="${path.width}" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="${path.opacity}"${filter}/>`;
-    }).filter(Boolean).join('\n');
-
+function elementsToSVG(elements: CanvasElement[], bgColor: string): string {
     const defs = `  <defs>
     <filter id="crayon-texture">
       <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
@@ -89,40 +89,98 @@ function pathsToSVG(paths: DrawPath[], bgColor: string): string {
     </filter>
   </defs>`;
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" viewBox="0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}" style="background:${bgColor}">\n${defs}\n${pathElements}\n</svg>`;
+    const nodes = elements.map(el => {
+        if (el.kind === 'image') {
+            return `  <image href="${el.src}" x="${el.x.toFixed(0)}" y="${el.y.toFixed(0)}" width="${el.width.toFixed(0)}" height="${el.height.toFixed(0)}" preserveAspectRatio="xMidYMid meet"/>`;
+        }
+        const d = pointsToPathD(el.points);
+        if (!d) return '';
+        const color = el.tool === 'eraser' ? bgColor : el.color;
+        const filter = el.tool === 'crayon' ? ` filter="url(#crayon-texture)"` : '';
+        return `  <path d="${d}" stroke="${color}" stroke-width="${el.width}" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="${el.opacity}"${filter}/>`;
+    }).filter(Boolean).join('\n');
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" viewBox="0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}" style="background:${bgColor}">\n${defs}\n${nodes}\n</svg>`;
 }
 
-/** Parse paths from an existing SVG data URI for re-editing */
-function parseSVGPaths(svgString: string): DrawPath[] {
+function parseSVGElements(svgString: string): CanvasElement[] {
     try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(svgString, 'image/svg+xml');
-        const pathEls = doc.querySelectorAll('path');
-        const paths: DrawPath[] = [];
-        pathEls.forEach(el => {
+        const elements: CanvasElement[] = [];
+
+        doc.querySelectorAll('image').forEach(el => {
+            const src = el.getAttribute('href') || el.getAttribute('xlink:href') || '';
+            const x = parseFloat(el.getAttribute('x') || '0');
+            const y = parseFloat(el.getAttribute('y') || '0');
+            const width = parseFloat(el.getAttribute('width') || '200');
+            const height = parseFloat(el.getAttribute('height') || '200');
+            if (src) elements.push({ kind: 'image', src, x, y, width, height });
+        });
+
+        doc.querySelectorAll('path').forEach(el => {
             const d = el.getAttribute('d') || '';
             const stroke = el.getAttribute('stroke') || '#000000';
             const width = parseFloat(el.getAttribute('stroke-width') || '3');
             const opacity = parseFloat(el.getAttribute('opacity') || '1');
             if (!d) return;
-            // Convert path d back to points (approximate: extract M/L coords)
             const coords = d.match(/-?\d+\.?\d*/g);
             if (!coords || coords.length < 2) return;
             const points: Point[] = [];
             for (let i = 0; i + 1 < coords.length; i += 2) {
                 points.push({ x: parseFloat(coords[i]), y: parseFloat(coords[i + 1]) });
             }
-            paths.push({ points, color: stroke, width, tool: 'pen', opacity });
+            elements.push({ kind: 'path', points, color: stroke, width, tool: 'pen', opacity });
         });
-        return paths;
+
+        return elements;
     } catch {
         return [];
     }
 }
 
+function decodeSvgDataUri(uri: string): string {
+    try {
+        const b64 = uri.replace(/^data:image\/svg\+xml;base64,/, '');
+        return decodeURIComponent(escape(atob(b64)));
+    } catch {
+        return '';
+    }
+}
+
+async function imageFileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function svgToPngDataUrl(svgString: string, width: number, height: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const encoded = btoa(unescape(encodeURIComponent(svgString)));
+        const dataUri = `data:image/svg+xml;base64,${encoded}`;
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d')!;
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = dataUri;
+    });
+}
+
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote, existingSvg }) => {
     const svgRef = useRef<SVGSVGElement>(null);
-    const [paths, setPaths] = useState<DrawPath[]>(() => existingSvg ? parseSVGPaths(existingSvg) : []);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const [elements, setElements] = useState<CanvasElement[]>(() =>
+        existingSvg ? parseSVGElements(decodeSvgDataUri(existingSvg)) : []
+    );
     const [currentPath, setCurrentPath] = useState<DrawPath | null>(null);
     const [tool, setTool] = useState<DrawTool>('pen');
     const [toolColors, setToolColors] = useState<Record<DrawTool, string[]>>(() => {
@@ -131,8 +189,8 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     });
     const [color, setColor] = useState(() => loadToolColors('pen')[0] || '#000000');
     const [strokeWidth, setStrokeWidth] = useState(TOOL_DEFAULTS['pen'].width);
-    const [showColorPicker, setShowColorPicker] = useState(false);
     const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);
+    const [isDragOver, setIsDragOver] = useState(false);
     const isDrawing = useRef(false);
 
     // Sync color/width when tool changes
@@ -147,24 +205,86 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-            // Tool switching: 1-5 + E
             const newTool = TOOL_KEYS[e.key.toLowerCase()];
             if (newTool) { setTool(newTool); return; }
-            // Undo: Ctrl/Cmd+Z
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
                 e.preventDefault();
-                setPaths(prev => prev.slice(0, -1));
+                setElements(prev => prev.slice(0, -1));
                 return;
             }
-            // Width: [ to decrease, ] to increase
             if (e.key === '[') { setStrokeWidth(w => Math.max(1, w - 1)); return; }
             if (e.key === ']') { setStrokeWidth(w => Math.min(50, w + 1)); return; }
-            // Color picker: C
-            if (e.key === 'c' || e.key === 'C') { setShowColorPicker(p => !p); return; }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
+
+    // Clipboard paste (images)
+    useEffect(() => {
+        const handlePaste = async (e: ClipboardEvent) => {
+            const items = Array.from(e.clipboardData?.items ?? []);
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (!file) continue;
+                    const dataUrl = await imageFileToDataUrl(file);
+                    const img = new Image();
+                    img.onload = () => {
+                        const maxW = Math.min(img.naturalWidth, CANVAS_WIDTH * 0.5);
+                        const scale = maxW / img.naturalWidth;
+                        setElements(prev => [...prev, {
+                            kind: 'image',
+                            src: dataUrl,
+                            x: (CANVAS_WIDTH - maxW) / 2,
+                            y: 50,
+                            width: maxW,
+                            height: img.naturalHeight * scale,
+                        }]);
+                    };
+                    img.src = dataUrl;
+                    e.preventDefault();
+                    break;
+                }
+            }
+        };
+        window.addEventListener('paste', handlePaste);
+        return () => window.removeEventListener('paste', handlePaste);
+    }, []);
+
+    const addImageFromFile = useCallback(async (file: File) => {
+        if (!file.type.startsWith('image/')) return;
+        const dataUrl = await imageFileToDataUrl(file);
+        const img = new Image();
+        img.onload = () => {
+            const maxW = Math.min(img.naturalWidth, CANVAS_WIDTH * 0.5);
+            const scale = maxW / img.naturalWidth;
+            setElements(prev => [...prev, {
+                kind: 'image',
+                src: dataUrl,
+                x: (CANVAS_WIDTH - maxW) / 2,
+                y: 50,
+                width: maxW,
+                height: img.naturalHeight * scale,
+            }]);
+        };
+        img.src = dataUrl;
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(true);
+    }, []);
+
+    const handleDragLeave = useCallback(() => setIsDragOver(false), []);
+
+    const handleDrop = useCallback(async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const files = Array.from(e.dataTransfer.files);
+        for (const file of files) {
+            await addImageFromFile(file);
+        }
+    }, [addImageFromFile]);
 
     const getSVGPoint = useCallback((e: React.PointerEvent<SVGSVGElement>): Point => {
         const svg = svgRef.current!;
@@ -184,9 +304,10 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         const bgColor = getComputedStyle(document.documentElement)
             .getPropertyValue('--bg-primary').trim() || '#ffffff';
         const newPath: DrawPath = {
+            kind: 'path',
             points: [getSVGPoint(e)],
             color: tool === 'eraser' ? bgColor : color,
-            width: tool === 'eraser' ? strokeWidth : strokeWidth,
+            width: strokeWidth,
             tool,
             opacity: TOOL_DEFAULTS[tool].opacity,
         };
@@ -207,41 +328,76 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         if (!isDrawing.current) return;
         isDrawing.current = false;
         if (currentPath && currentPath.points.length > 0) {
-            setPaths(prev => [...prev, currentPath]);
+            setElements(prev => [...prev, currentPath]);
         }
         setCurrentPath(null);
     }, [currentPath]);
 
     const handleUndo = useCallback(() => {
-        setPaths(prev => prev.slice(0, -1));
+        setElements(prev => prev.slice(0, -1));
     }, []);
 
     const handleClear = useCallback(() => {
-        setPaths([]);
+        setElements([]);
         setCurrentPath(null);
     }, []);
 
     const handleInsert = useCallback(() => {
         const bgColor = getComputedStyle(document.documentElement)
             .getPropertyValue('--bg-primary').trim() || '#ffffff';
-        const allPaths = currentPath ? [...paths, currentPath] : paths;
-        const svgString = pathsToSVG(allPaths, bgColor);
+        const allElements: CanvasElement[] = currentPath ? [...elements, currentPath] : elements;
+        const svgString = elementsToSVG(allElements, bgColor);
         const encoded = btoa(unescape(encodeURIComponent(svgString)));
         const dataUri = `data:image/svg+xml;base64,${encoded}`;
-        const insertion = `\n\n![drawing](${dataUri})\n\n`;
+        const insertion = `![drawing](${dataUri})`;
+
+        let newContent: string;
+        if (existingSvg && note.content.includes(existingSvg)) {
+            // Replace the original drawing in the content
+            newContent = note.content.replace(`![drawing](${existingSvg})`, insertion);
+        } else {
+            newContent = note.content + `\n\n${insertion}\n\n`;
+        }
+
         onUpdateNote(note.id, {
-            content: note.content + insertion,
+            content: newContent,
             viewMode: 'editor',
+            drawingEditSrc: undefined,
         });
-    }, [paths, currentPath, note.id, note.content, onUpdateNote]);
+    }, [elements, currentPath, note.id, note.content, existingSvg, onUpdateNote]);
+
+    const handleExportSVG = useCallback(() => {
+        const bgColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--bg-primary').trim() || '#ffffff';
+        const allElements: CanvasElement[] = currentPath ? [...elements, currentPath] : elements;
+        const svgString = elementsToSVG(allElements, bgColor);
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${note.title || 'drawing'}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [elements, currentPath, note.title]);
+
+    const handleExportPNG = useCallback(async () => {
+        const bgColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--bg-primary').trim() || '#ffffff';
+        const allElements: CanvasElement[] = currentPath ? [...elements, currentPath] : elements;
+        const svgString = elementsToSVG(allElements, bgColor);
+        const pngUrl = await svgToPngDataUrl(svgString, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const a = document.createElement('a');
+        a.href = pngUrl;
+        a.download = `${note.title || 'drawing'}.png`;
+        a.click();
+    }, [elements, currentPath, note.title]);
 
     const handleCancel = useCallback(() => {
-        onUpdateNote(note.id, { viewMode: 'editor' });
+        onUpdateNote(note.id, { viewMode: 'editor', drawingEditSrc: undefined });
     }, [note.id, onUpdateNote]);
 
     const handleColorSelect = (selectedColor: string) => {
         setColor(selectedColor);
-        setShowColorPicker(false);
     };
 
     const handleColorEdit = (idx: number, newColor: string) => {
@@ -272,20 +428,13 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         });
     };
 
-    const allPaths = currentPath ? [...paths, currentPath] : paths;
+    const allElements: CanvasElement[] = currentPath ? [...elements, currentPath] : elements;
     const currentColors = tool !== 'eraser' ? toolColors[tool] : [];
-
-    const getCursor = () => {
-        if (tool === 'eraser') return 'cell';
-        if (tool === 'highlighter') return 'crosshair';
-        return 'crosshair';
-    };
 
     return (
         <div className="drawing-canvas-container">
             <div className="drawing-toolbar">
                 <div className="drawing-toolbar-left">
-                    {/* Tool buttons */}
                     {(Object.keys(TOOL_DEFAULTS) as DrawTool[]).map((t, i) => (
                         <button
                             key={t}
@@ -299,7 +448,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
 
                     <div className="drawing-separator" />
 
-                    {/* Color palette */}
                     {tool !== 'eraser' && (
                         <div className="drawing-color-palette">
                             {currentColors.map((c, idx) => (
@@ -340,13 +488,13 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                                 <button
                                     className="drawing-color-add-btn"
                                     onClick={handleAddColor}
-                                    title={`Add current colour (${color})`}
+                                    title={`Save current colour`}
                                     style={{ borderColor: color }}
                                 >
                                     +
                                 </button>
                             )}
-                            <label className="drawing-color-label" title="Pick colour (C)">
+                            <label className="drawing-color-label" title="Pick colour">
                                 <input
                                     type="color"
                                     value={color}
@@ -358,7 +506,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
 
                     <div className="drawing-separator" />
 
-                    {/* Width control */}
                     <label className="drawing-width-label">
                         <span>Width</span>
                         <input
@@ -376,7 +523,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                     <button
                         className="drawing-action-btn"
                         onClick={handleUndo}
-                        disabled={paths.length === 0}
+                        disabled={elements.length === 0}
                         title="Undo (Ctrl+Z)"
                     >
                         Undo
@@ -384,24 +531,42 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                     <button
                         className="drawing-action-btn drawing-clear-btn"
                         onClick={handleClear}
-                        disabled={paths.length === 0 && !currentPath}
+                        disabled={elements.length === 0 && !currentPath}
                         title="Clear canvas"
                     >
                         Clear
                     </button>
+
+                    <div className="drawing-separator" />
+
+                    <button className="drawing-action-btn" onClick={handleExportSVG} title="Export as SVG file">
+                        SVG
+                    </button>
+                    <button className="drawing-action-btn" onClick={handleExportPNG} title="Export as PNG file">
+                        PNG
+                    </button>
                 </div>
                 <div className="drawing-toolbar-right">
-                    <div className="drawing-keybind-hint">1-5: tools · E: eraser · [/]: width · C: colour · Ctrl+Z: undo</div>
+                    <div className="drawing-keybind-hint">1-5: tools · E: eraser · [/]: width · Ctrl+Z: undo · paste/drop: image</div>
                     <span className="drawing-note-title">{note.title}</span>
                     <button className="drawing-cancel-btn" onClick={handleCancel}>
                         Cancel
                     </button>
                     <button className="drawing-insert-btn" onClick={handleInsert}>
-                        Insert Drawing
+                        {existingSvg ? 'Update Drawing' : 'Insert Drawing'}
                     </button>
                 </div>
             </div>
-            <div className="drawing-svg-wrapper">
+            <div
+                ref={wrapperRef}
+                className={`drawing-svg-wrapper ${isDragOver ? 'drag-over' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
+                {isDragOver && (
+                    <div className="drawing-drop-overlay">Drop image here</div>
+                )}
                 <svg
                     ref={svgRef}
                     className="drawing-svg"
@@ -410,7 +575,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerUp}
-                    style={{ cursor: getCursor() }}
+                    style={{ cursor: tool === 'eraser' ? 'cell' : 'crosshair' }}
                 >
                     <defs>
                         <filter id="crayon-texture">
@@ -418,19 +583,34 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                             <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
                         </filter>
                     </defs>
-                    {allPaths.map((path, i) => (
-                        <path
-                            key={i}
-                            d={pointsToPathD(path.points)}
-                            stroke={path.color}
-                            strokeWidth={path.width}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            fill="none"
-                            opacity={path.opacity}
-                            filter={path.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
-                        />
-                    ))}
+                    {allElements.map((el, i) => {
+                        if (el.kind === 'image') {
+                            return (
+                                <image
+                                    key={i}
+                                    href={el.src}
+                                    x={el.x}
+                                    y={el.y}
+                                    width={el.width}
+                                    height={el.height}
+                                    preserveAspectRatio="xMidYMid meet"
+                                />
+                            );
+                        }
+                        return (
+                            <path
+                                key={i}
+                                d={pointsToPathD(el.points)}
+                                stroke={el.color}
+                                strokeWidth={el.width}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                fill="none"
+                                opacity={el.opacity}
+                                filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
+                            />
+                        );
+                    })}
                 </svg>
             </div>
         </div>

@@ -445,12 +445,21 @@ function App() {
     useEffect(() => {
         const handleImageClick = (e: CustomEvent) => {
             const { src, alt } = e.detail;
+            const noteId = getCurrentNoteId();
+            // If this is an embedded drawing (SVG), open it for re-editing
+            if (alt === 'drawing' && src && src.startsWith('data:image/svg+xml')) {
+                if (noteId) {
+                    handleUpdateNote(noteId, { viewMode: 'drawing', drawingEditSrc: src });
+                    return;
+                }
+            }
+            // Other images: open lightbox (double-click or shift+click would open drawing canvas for annotation)
             setLightboxState({ isOpen: true, src, alt });
         };
 
         window.addEventListener('yoro-image-click', handleImageClick as EventListener);
         return () => window.removeEventListener('yoro-image-click', handleImageClick as EventListener);
-    }, []);
+    }, [getCurrentNoteId, handleUpdateNote]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

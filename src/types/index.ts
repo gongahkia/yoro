@@ -16,6 +16,8 @@ export interface Note {
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state' | 'drawing';
     lastCursorPosition?: number;
     lastScrollPosition?: number;
+    /** Data URI of an existing drawing being edited; cleared after save */
+    drawingEditSrc?: string;
 }
 
 export type Theme =
