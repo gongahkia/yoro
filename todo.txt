@@ -1,6 +1,3 @@
-provide 5 default drawing options, which include pencil, pen, highlighter, marker and fountain pen/crayon
-allow user to store up to 10 default colours for each drawing option
-provide easy to use and intuitive keybinds to swap between drawing options, undo, color, and width
 provide a way for users to drag and drop images or copy and paste them from their clipboard straight into the drawing canvas
 make it so that clicking a completed saved drwaing will bring it back into edit mode and make it still editable. how are drawings currently being stored? if svg or a more efficient method, then this should allow for easy reloading and editing right
 for each drawing, allow it to be exported to any relevant format as necessary
@@ -19,3 +16,5 @@ do an audit of existing features and make sure everything makes sense
 move all archived feature files into a literal folder called archive in repo root
 add auth and make sure security is airtight
 add basic user accounting and a profile page
+add syncthing and other free syncing options as file storage
+if sufficiently good, consider packing with tauri or redeveloping in swift for native macos support but then make it as good as notion
