@@ -16,13 +16,15 @@
     border-bottom: 1px solid var(--border-color);
     gap: 8px;
     flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 .drawing-toolbar-left,
 .drawing-toolbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .drawing-separator {
@@ -30,17 +32,19 @@
     height: 24px;
     background: var(--border-color);
     margin: 0 4px;
+    flex-shrink: 0;
 }
 
 .drawing-tool-btn {
-    padding: 6px 12px;
+    padding: 5px 10px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     background: var(--bg-primary);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: background 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
 }
 
 .drawing-tool-btn:hover {
@@ -54,28 +58,125 @@
     border-color: var(--primary);
 }
 
-.drawing-color-label,
+/* Color palette */
+.drawing-color-palette {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+}
+
+.drawing-color-swatch-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.drawing-color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: transform 0.1s ease, border-color 0.1s ease;
+}
+
+.drawing-color-swatch:hover {
+    transform: scale(1.15);
+}
+
+.drawing-color-swatch.active {
+    border-color: var(--primary);
+    transform: scale(1.2);
+    box-shadow: 0 0 0 1px var(--bg-primary), 0 0 0 3px var(--primary);
+}
+
+.drawing-color-edit-btn,
+.drawing-color-remove-btn {
+    display: none;
+    position: absolute;
+    top: -8px;
+    font-size: 0.6rem;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 10;
+}
+
+.drawing-color-edit-btn { right: 14px; }
+.drawing-color-remove-btn { right: -2px; }
+
+.drawing-color-swatch-wrapper:hover .drawing-color-edit-btn,
+.drawing-color-swatch-wrapper:hover .drawing-color-remove-btn {
+    display: block;
+}
+
+.drawing-color-inline-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.drawing-color-add-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px dashed;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+    line-height: 1;
+}
+
+.drawing-color-add-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.drawing-color-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.drawing-color-label input[type="color"] {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 1px;
+    background: none;
+}
+
 .drawing-width-label {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     color: var(--text-primary);
-}
-
-.drawing-color-label input[type="color"] {
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 2px;
-    background: none;
-}
-
-.drawing-color-label input[type="color"]:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
 }
 
 .drawing-width-label input[type="range"] {
@@ -85,7 +186,7 @@
 
 .drawing-width-value {
     min-width: 28px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
 }
@@ -97,7 +198,7 @@
     background: var(--bg-primary);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     transition: background 0.15s ease;
 }
 
@@ -111,13 +212,20 @@
 }
 
 .drawing-clear-btn:hover:not(:disabled) {
-    background: rgba(var(--danger-color, 220, 38, 38), 0.1);
-    border-color: var(--danger-color);
-    color: var(--danger-color);
+    background: rgba(220, 38, 38, 0.1);
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.drawing-keybind-hint {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    white-space: nowrap;
 }
 
 .drawing-note-title {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
     max-width: 200px;
     overflow: hidden;
@@ -132,7 +240,7 @@
     background: var(--bg-primary);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     transition: background 0.15s ease;
 }
 
@@ -147,7 +255,7 @@
     background: var(--primary);
     color: #fff;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
     transition: opacity 0.15s ease;
 }
@@ -182,7 +290,8 @@
     .drawing-tool-btn,
     .drawing-action-btn,
     .drawing-cancel-btn,
-    .drawing-insert-btn {
+    .drawing-insert-btn,
+    .drawing-color-swatch {
         transition: none;
     }
 }

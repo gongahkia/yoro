@@ -160,68 +160,6 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             action: handleOpenConfig,
             category: 'General'
         },
-        // Font Settings
-        {
-            id: 'font-sans',
-            label: 'Font: Sans Serif',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' });
-                showToast(sl ? 'Sans Serif liao' : 'Font: Sans Serif', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-serif',
-            label: 'Font: Serif',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: 'Merriweather, Georgia, Cambria, "Times New Roman", serif' });
-                showToast(sl ? 'Serif liao' : 'Font: Serif', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-mono',
-            label: 'Font: Monospace',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: "'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace" });
-                showToast(sl ? 'Monospace liao' : 'Font: Monospace', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-comic',
-            label: 'Font: Comic Sans',
-            action: () => {
-                handleUpdatePreferences({ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" });
-                showToast(sl ? 'Comic Sans sia...' : 'Font: Comic Sans', 'info');
-            },
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-increase',
-            label: 'Font Size: Increase',
-            action: () => handleUpdatePreferences({ fontSize: Math.min(preferences.fontSize + 2, 32) }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-decrease',
-            label: 'Font Size: Decrease',
-            action: () => handleUpdatePreferences({ fontSize: Math.max(preferences.fontSize - 2, 10) }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
-        {
-            id: 'font-size-reset',
-            label: 'Font Size: Reset (16px)',
-            action: () => handleUpdatePreferences({ fontSize: 16 }),
-            category: 'Font',
-            groupId: 'font-settings'
-        },
         // View / Alignment
         {
             id: 'toggle-alignment',
