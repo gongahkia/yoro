@@ -7,7 +7,7 @@ interface Point {
     y: number;
 }
 
-export type DrawTool = 'pencil' | 'pen' | 'highlighter' | 'marker' | 'crayon' | 'eraser';
+export type DrawTool = 'move' | 'pencil' | 'pen' | 'highlighter' | 'marker' | 'crayon' | 'eraser';
 
 interface DrawPath {
     kind: 'path';
@@ -39,6 +39,7 @@ const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 
 const TOOL_DEFAULTS: Record<DrawTool, { width: number; opacity: number; label: string; defaultColors: string[] }> = {
+    move:        { width: 0,  opacity: 1.0,  label: 'Move',        defaultColors: [] },
     pencil:      { width: 2,  opacity: 0.75, label: 'Pencil',      defaultColors: ['#333333','#666666','#999999','#cccccc','#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dda0dd'] },
     pen:         { width: 3,  opacity: 1.0,  label: 'Pen',         defaultColors: ['#000000','#1a1a2e','#16213e','#0f3460','#533483','#e94560','#2c3e50','#27ae60','#e74c3c','#8e44ad'] },
     highlighter: { width: 20, opacity: 0.35, label: 'Highlighter', defaultColors: ['#ffff00','#ff9900','#00ff00','#ff69b4','#00ffff','#ff6347','#adff2f','#ffd700','#ff1493','#7fff00'] },
@@ -47,14 +48,15 @@ const TOOL_DEFAULTS: Record<DrawTool, { width: number; opacity: number; label: s
     eraser:      { width: 20, opacity: 1.0,  label: 'Eraser',      defaultColors: [] },
 };
 
+// Tool key: M=move, 1-5=draw tools, E=eraser
 const TOOL_KEYS: Record<string, DrawTool> = {
-    '1': 'pencil', '2': 'pen', '3': 'highlighter', '4': 'marker', '5': 'crayon', 'e': 'eraser',
+    'm': 'move', '1': 'pencil', '2': 'pen', '3': 'highlighter', '4': 'marker', '5': 'crayon', 'e': 'eraser',
 };
 
 const STORAGE_KEY_PREFIX = 'yoro-drawing-colors-';
 
 function loadToolColors(tool: DrawTool): string[] {
-    if (tool === 'eraser') return [];
+    if (tool === 'eraser' || tool === 'move') return [];
     try {
         const raw = localStorage.getItem(STORAGE_KEY_PREFIX + tool);
         if (raw) {
@@ -66,7 +68,7 @@ function loadToolColors(tool: DrawTool): string[] {
 }
 
 function saveToolColors(tool: DrawTool, colors: string[]) {
-    if (tool === 'eraser') return;
+    if (tool === 'eraser' || tool === 'move') return;
     localStorage.setItem(STORAGE_KEY_PREFIX + tool, JSON.stringify(colors.slice(0, 10)));
 }
 
@@ -175,6 +177,25 @@ function svgToPngDataUrl(svgString: string, width: number, height: number): Prom
     });
 }
 
+/** Return index of the topmost element that contains (px, py), or -1 if none */
+function hitTest(elements: CanvasElement[], px: number, py: number): number {
+    // Test in reverse order (topmost rendered last)
+    for (let i = elements.length - 1; i >= 0; i--) {
+        const el = elements[i];
+        if (el.kind === 'image') {
+            if (px >= el.x && px <= el.x + el.width && py >= el.y && py <= el.y + el.height) {
+                return i;
+            }
+        } else if (el.kind === 'path') {
+            // Check proximity to any point in the path
+            const threshold = Math.max(el.width * 2, 12);
+            const hit = el.points.some(p => Math.hypot(p.x - px, p.y - py) < threshold);
+            if (hit) return i;
+        }
+    }
+    return -1;
+}
+
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote, existingSvg }) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -184,21 +205,25 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     const [currentPath, setCurrentPath] = useState<DrawPath | null>(null);
     const [tool, setTool] = useState<DrawTool>('pen');
     const [toolColors, setToolColors] = useState<Record<DrawTool, string[]>>(() => {
-        const tools: DrawTool[] = ['pencil', 'pen', 'highlighter', 'marker', 'crayon', 'eraser'];
+        const tools: DrawTool[] = ['move', 'pencil', 'pen', 'highlighter', 'marker', 'crayon', 'eraser'];
         return Object.fromEntries(tools.map(t => [t, loadToolColors(t)])) as Record<DrawTool, string[]>;
     });
     const [color, setColor] = useState(() => loadToolColors('pen')[0] || '#000000');
     const [strokeWidth, setStrokeWidth] = useState(TOOL_DEFAULTS['pen'].width);
     const [editingColorIdx, setEditingColorIdx] = useState<number | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
+    const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
     const isDrawing = useRef(false);
+    // For move tool
+    const moveRef = useRef<{ idx: number; startX: number; startY: number } | null>(null);
 
     // Sync color/width when tool changes
     useEffect(() => {
-        if (tool !== 'eraser') {
+        if (tool !== 'eraser' && tool !== 'move') {
             setColor(toolColors[tool][0] || TOOL_DEFAULTS[tool].defaultColors[0]);
         }
         setStrokeWidth(TOOL_DEFAULTS[tool].width);
+        if (tool !== 'move') setSelectedIdx(null);
     }, [tool]);
 
     // Keyboard shortcuts
@@ -210,14 +235,22 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
                 e.preventDefault();
                 setElements(prev => prev.slice(0, -1));
+                setSelectedIdx(null);
                 return;
             }
             if (e.key === '[') { setStrokeWidth(w => Math.max(1, w - 1)); return; }
             if (e.key === ']') { setStrokeWidth(w => Math.min(50, w + 1)); return; }
+            // Delete selected element
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIdx !== null) {
+                e.preventDefault();
+                setElements(prev => prev.filter((_, i) => i !== selectedIdx));
+                setSelectedIdx(null);
+                return;
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [selectedIdx]);
 
     // Clipboard paste (images)
     useEffect(() => {
@@ -300,46 +333,89 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     const handlePointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
         e.preventDefault();
         (e.target as Element).setPointerCapture(e.pointerId);
+        const pt = getSVGPoint(e);
+
+        if (tool === 'move') {
+            const idx = hitTest(elements, pt.x, pt.y);
+            if (idx >= 0) {
+                setSelectedIdx(idx);
+                moveRef.current = { idx, startX: pt.x, startY: pt.y };
+            } else {
+                setSelectedIdx(null);
+                moveRef.current = null;
+            }
+            return;
+        }
+
         isDrawing.current = true;
         const bgColor = getComputedStyle(document.documentElement)
             .getPropertyValue('--bg-primary').trim() || '#ffffff';
         const newPath: DrawPath = {
             kind: 'path',
-            points: [getSVGPoint(e)],
+            points: [pt],
             color: tool === 'eraser' ? bgColor : color,
             width: strokeWidth,
             tool,
             opacity: TOOL_DEFAULTS[tool].opacity,
         };
         setCurrentPath(newPath);
-    }, [tool, color, strokeWidth, getSVGPoint]);
+    }, [tool, color, strokeWidth, getSVGPoint, elements]);
 
     const handlePointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-        if (!isDrawing.current || !currentPath) return;
         e.preventDefault();
+        const pt = getSVGPoint(e);
+
+        if (tool === 'move' && moveRef.current) {
+            const { idx, startX, startY } = moveRef.current;
+            const dx = pt.x - startX;
+            const dy = pt.y - startY;
+            moveRef.current = { idx, startX: pt.x, startY: pt.y };
+
+            setElements(prev => prev.map((el, i) => {
+                if (i !== idx) return el;
+                if (el.kind === 'image') {
+                    return { ...el, x: el.x + dx, y: el.y + dy };
+                }
+                return {
+                    ...el,
+                    points: el.points.map(p => ({ x: p.x + dx, y: p.y + dy }))
+                };
+            }));
+            return;
+        }
+
+        if (!isDrawing.current || !currentPath) return;
         setCurrentPath(prev => {
             if (!prev) return null;
-            return { ...prev, points: [...prev.points, getSVGPoint(e)] };
+            return { ...prev, points: [...prev.points, pt] };
         });
-    }, [currentPath, getSVGPoint]);
+    }, [tool, currentPath, getSVGPoint]);
 
     const handlePointerUp = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
         e.preventDefault();
+
+        if (tool === 'move') {
+            moveRef.current = null;
+            return;
+        }
+
         if (!isDrawing.current) return;
         isDrawing.current = false;
         if (currentPath && currentPath.points.length > 0) {
             setElements(prev => [...prev, currentPath]);
         }
         setCurrentPath(null);
-    }, [currentPath]);
+    }, [tool, currentPath]);
 
     const handleUndo = useCallback(() => {
         setElements(prev => prev.slice(0, -1));
+        setSelectedIdx(null);
     }, []);
 
     const handleClear = useCallback(() => {
         setElements([]);
         setCurrentPath(null);
+        setSelectedIdx(null);
     }, []);
 
     const handleInsert = useCallback(() => {
@@ -353,7 +429,6 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
 
         let newContent: string;
         if (existingSvg && note.content.includes(existingSvg)) {
-            // Replace the original drawing in the content
             newContent = note.content.replace(`![drawing](${existingSvg})`, insertion);
         } else {
             newContent = note.content + `\n\n${insertion}\n\n`;
@@ -396,9 +471,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
         onUpdateNote(note.id, { viewMode: 'editor', drawingEditSrc: undefined });
     }, [note.id, onUpdateNote]);
 
-    const handleColorSelect = (selectedColor: string) => {
-        setColor(selectedColor);
-    };
+    const handleColorSelect = (selectedColor: string) => setColor(selectedColor);
 
     const handleColorEdit = (idx: number, newColor: string) => {
         setToolColors(prev => {
@@ -429,13 +502,49 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
     };
 
     const allElements: CanvasElement[] = currentPath ? [...elements, currentPath] : elements;
-    const currentColors = tool !== 'eraser' ? toolColors[tool] : [];
+    const currentColors = (tool !== 'eraser' && tool !== 'move') ? toolColors[tool] : [];
+    const showColorControls = tool !== 'eraser' && tool !== 'move';
+
+    const getCursor = () => {
+        if (tool === 'move') return moveRef.current ? 'grabbing' : 'grab';
+        if (tool === 'eraser') return 'cell';
+        return 'crosshair';
+    };
+
+    // Bounding box for selected element (for visual highlight)
+    const getSelectionBounds = (el: CanvasElement) => {
+        if (el.kind === 'image') {
+            return { x: el.x, y: el.y, w: el.width, h: el.height };
+        }
+        if (el.points.length === 0) return null;
+        const xs = el.points.map(p => p.x);
+        const ys = el.points.map(p => p.y);
+        const pad = el.width / 2 + 4;
+        return {
+            x: Math.min(...xs) - pad,
+            y: Math.min(...ys) - pad,
+            w: Math.max(...xs) - Math.min(...xs) + pad * 2,
+            h: Math.max(...ys) - Math.min(...ys) + pad * 2,
+        };
+    };
 
     return (
         <div className="drawing-canvas-container">
             <div className="drawing-toolbar">
                 <div className="drawing-toolbar-left">
-                    {(Object.keys(TOOL_DEFAULTS) as DrawTool[]).map((t, i) => (
+                    {/* Move tool first */}
+                    <button
+                        className={`drawing-tool-btn ${tool === 'move' ? 'active' : ''}`}
+                        onClick={() => setTool('move')}
+                        title="Move / Select (M)"
+                    >
+                        Move
+                    </button>
+
+                    <div className="drawing-separator" />
+
+                    {/* Drawing tools */}
+                    {(['pencil', 'pen', 'highlighter', 'marker', 'crayon', 'eraser'] as DrawTool[]).map((t, i) => (
                         <button
                             key={t}
                             className={`drawing-tool-btn ${tool === t ? 'active' : ''}`}
@@ -448,7 +557,8 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
 
                     <div className="drawing-separator" />
 
-                    {tool !== 'eraser' && (
+                    {/* Color palette (hidden for move/eraser) */}
+                    {showColorControls && (
                         <div className="drawing-color-palette">
                             {currentColors.map((c, idx) => (
                                 <div key={idx} className="drawing-color-swatch-wrapper">
@@ -488,7 +598,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                                 <button
                                     className="drawing-color-add-btn"
                                     onClick={handleAddColor}
-                                    title={`Save current colour`}
+                                    title="Save current colour"
                                     style={{ borderColor: color }}
                                 >
                                     +
@@ -504,21 +614,24 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                         </div>
                     )}
 
-                    <div className="drawing-separator" />
+                    {showColorControls && <div className="drawing-separator" />}
 
-                    <label className="drawing-width-label">
-                        <span>Width</span>
-                        <input
-                            type="range"
-                            min={1}
-                            max={50}
-                            value={strokeWidth}
-                            onChange={e => setStrokeWidth(Number(e.target.value))}
-                        />
-                        <span className="drawing-width-value">{strokeWidth}px</span>
-                    </label>
+                    {/* Width (hidden for move) */}
+                    {tool !== 'move' && (
+                        <label className="drawing-width-label">
+                            <span>Width</span>
+                            <input
+                                type="range"
+                                min={1}
+                                max={50}
+                                value={strokeWidth}
+                                onChange={e => setStrokeWidth(Number(e.target.value))}
+                            />
+                            <span className="drawing-width-value">{strokeWidth}px</span>
+                        </label>
+                    )}
 
-                    <div className="drawing-separator" />
+                    {tool !== 'move' && <div className="drawing-separator" />}
 
                     <button
                         className="drawing-action-btn"
@@ -539,19 +652,17 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
 
                     <div className="drawing-separator" />
 
-                    <button className="drawing-action-btn" onClick={handleExportSVG} title="Export as SVG file">
+                    <button className="drawing-action-btn" onClick={handleExportSVG} title="Export as SVG">
                         SVG
                     </button>
-                    <button className="drawing-action-btn" onClick={handleExportPNG} title="Export as PNG file">
+                    <button className="drawing-action-btn" onClick={handleExportPNG} title="Export as PNG">
                         PNG
                     </button>
                 </div>
                 <div className="drawing-toolbar-right">
-                    <div className="drawing-keybind-hint">1-5: tools · E: eraser · [/]: width · Ctrl+Z: undo · paste/drop: image</div>
+                    <div className="drawing-keybind-hint">M: move · 1-5: tools · E: eraser · [/]: width · Ctrl+Z: undo · Del: remove selected</div>
                     <span className="drawing-note-title">{note.title}</span>
-                    <button className="drawing-cancel-btn" onClick={handleCancel}>
-                        Cancel
-                    </button>
+                    <button className="drawing-cancel-btn" onClick={handleCancel}>Cancel</button>
                     <button className="drawing-insert-btn" onClick={handleInsert}>
                         {existingSvg ? 'Update Drawing' : 'Insert Drawing'}
                     </button>
@@ -575,7 +686,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerUp}
-                    style={{ cursor: tool === 'eraser' ? 'cell' : 'crosshair' }}
+                    style={{ cursor: getCursor() }}
                 >
                     <defs>
                         <filter id="crayon-texture">
@@ -584,31 +695,59 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                         </filter>
                     </defs>
                     {allElements.map((el, i) => {
+                        const isSelected = tool === 'move' && selectedIdx === i;
                         if (el.kind === 'image') {
                             return (
-                                <image
-                                    key={i}
-                                    href={el.src}
-                                    x={el.x}
-                                    y={el.y}
-                                    width={el.width}
-                                    height={el.height}
-                                    preserveAspectRatio="xMidYMid meet"
-                                />
+                                <g key={i}>
+                                    <image
+                                        href={el.src}
+                                        x={el.x}
+                                        y={el.y}
+                                        width={el.width}
+                                        height={el.height}
+                                        preserveAspectRatio="xMidYMid meet"
+                                    />
+                                    {isSelected && (
+                                        <rect
+                                            x={el.x - 2}
+                                            y={el.y - 2}
+                                            width={el.width + 4}
+                                            height={el.height + 4}
+                                            fill="none"
+                                            stroke="var(--primary, #0070f3)"
+                                            strokeWidth={2}
+                                            strokeDasharray="6 3"
+                                        />
+                                    )}
+                                </g>
                             );
                         }
+                        const bounds = isSelected ? getSelectionBounds(el) : null;
                         return (
-                            <path
-                                key={i}
-                                d={pointsToPathD(el.points)}
-                                stroke={el.color}
-                                strokeWidth={el.width}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                fill="none"
-                                opacity={el.opacity}
-                                filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
-                            />
+                            <g key={i}>
+                                <path
+                                    d={pointsToPathD(el.points)}
+                                    stroke={el.color}
+                                    strokeWidth={el.width}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    fill="none"
+                                    opacity={el.opacity}
+                                    filter={el.tool === 'crayon' ? 'url(#crayon-texture)' : undefined}
+                                />
+                                {isSelected && bounds && (
+                                    <rect
+                                        x={bounds.x}
+                                        y={bounds.y}
+                                        width={bounds.w}
+                                        height={bounds.h}
+                                        fill="none"
+                                        stroke="var(--primary, #0070f3)"
+                                        strokeWidth={1.5}
+                                        strokeDasharray="6 3"
+                                    />
+                                )}
+                            </g>
                         );
                     })}
                 </svg>
