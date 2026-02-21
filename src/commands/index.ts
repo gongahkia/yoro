@@ -755,7 +755,7 @@ export function createCommands(args: CommandFactoryArgs): Command[] {
             },
             {
                 id: 'open-drawing-canvas',
-                label: 'Open Drawing Canvas',
+                label: 'Insert Drawing',
                 action: () => {
                     const id = getCurrentNoteId();
                     if (id) handleUpdateNote(id, { viewMode: 'drawing' });

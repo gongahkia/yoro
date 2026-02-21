@@ -143,14 +143,14 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                         onClick={() => setTool('pen')}
                         title="Pen (P)"
                     >
-                        ✏️ Pen
+                        Pen
                     </button>
                     <button
                         className={`drawing-tool-btn ${tool === 'eraser' ? 'active' : ''}`}
                         onClick={() => setTool('eraser')}
                         title="Eraser (E)"
                     >
-                        🧹 Eraser
+                        Eraser
                     </button>
                     <div className="drawing-separator" />
                     <label className="drawing-color-label">
@@ -180,7 +180,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                         disabled={paths.length === 0}
                         title="Undo (Ctrl+Z)"
                     >
-                        ↩ Undo
+                        Undo
                     </button>
                     <button
                         className="drawing-action-btn drawing-clear-btn"
@@ -188,7 +188,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ note, onUpdateNote
                         disabled={paths.length === 0 && !currentPath}
                         title="Clear canvas"
                     >
-                        🗑 Clear
+                        Clear
                     </button>
                 </div>
                 <div className="drawing-toolbar-right">
