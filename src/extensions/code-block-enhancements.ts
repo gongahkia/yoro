@@ -153,22 +153,41 @@ class CodeBlockHeaderWidget extends WidgetType {
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>`;
 
+        const showCopied = () => {
+            copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>`;
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+                copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>`;
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        };
+
+        const fallbackCopy = (text: string) => {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showCopied();
+        };
+
         copyBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            navigator.clipboard.writeText(this.code).then(() => {
-                copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>`;
-                copyBtn.classList.add('copied');
-                setTimeout(() => {
-                    copyBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                    </svg>`;
-                    copyBtn.classList.remove('copied');
-                }, 2000);
-            });
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(this.code).then(showCopied).catch(() => fallbackCopy(this.code));
+            } else {
+                fallbackCopy(this.code);
+            }
         });
 
         header.appendChild(copyBtn);

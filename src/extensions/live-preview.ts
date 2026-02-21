@@ -63,6 +63,15 @@ class ImageWidget extends WidgetType {
         img.className = 'cm-image-widget';
         img.style.maxWidth = '100%';
         img.style.cursor = 'zoom-in';
+        img.onerror = () => {
+            img.style.cursor = 'default';
+            img.removeAttribute('src');
+            img.alt = `⚠ Image not found: ${this.alt || this.src}`;
+            img.style.display = 'inline-block';
+            img.style.padding = '4px 8px';
+            img.style.fontSize = '0.85em';
+            img.style.opacity = '0.6';
+        };
         img.onclick = (e) => {
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src, alt: this.alt } }));
@@ -103,6 +112,15 @@ class URLImageWidget extends WidgetType {
         img.style.maxHeight = '60vh';
         img.style.objectFit = 'contain';
         img.style.cursor = 'zoom-in';
+        img.onerror = () => {
+            img.style.cursor = 'default';
+            img.removeAttribute('src');
+            img.alt = `⚠ Image not found: ${this.src}`;
+            img.style.display = 'inline-block';
+            img.style.padding = '4px 8px';
+            img.style.fontSize = '0.85em';
+            img.style.opacity = '0.6';
+        };
         img.onclick = (e) => {
             e.preventDefault();
             window.dispatchEvent(new CustomEvent('yoro-image-click', { detail: { src: this.src } }));

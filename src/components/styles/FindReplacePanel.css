@@ -199,3 +199,14 @@
 .find-replace-btn.primary:hover:not(:disabled) {
     filter: brightness(1.1);
 }
+
+.find-replace-regex-error {
+    font-size: 0.78rem;
+    color: var(--error-color, #dc2626);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    word-break: break-all;
+}

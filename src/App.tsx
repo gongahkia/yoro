@@ -23,6 +23,7 @@ import { ToastContainer, showToast } from './components/Toast';
 import { HelpManual } from './components/HelpManual';
 import { KnowledgeGraph } from './components/KnowledgeGraph';
 import { BacklinksPanel } from './components/BacklinksPanel';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileWarning } from './components/MobileWarning';
 import './App.css';
 
@@ -512,7 +513,9 @@ function App() {
                     />
                 } />
                 <Route path="/note/:id/presentation" element={
-                    <PresentationMode notes={data.notes} theme={data.preferences.theme} />
+                    <ErrorBoundary>
+                        <PresentationMode notes={data.notes} theme={data.preferences.theme} />
+                    </ErrorBoundary>
                 } />
             </Routes>
             </main>
@@ -579,14 +582,16 @@ function App() {
             />
 
             {isKnowledgeGraphOpen && (
-                <KnowledgeGraph
-                    notes={data.notes}
-                    onNavigate={(id) => {
-                        setIsKnowledgeGraphOpen(false);
-                        handleSelectNote(id);
-                    }}
-                    onClose={() => setIsKnowledgeGraphOpen(false)}
-                />
+                <ErrorBoundary>
+                    <KnowledgeGraph
+                        notes={data.notes}
+                        onNavigate={(id) => {
+                            setIsKnowledgeGraphOpen(false);
+                            handleSelectNote(id);
+                        }}
+                        onClose={() => setIsKnowledgeGraphOpen(false)}
+                    />
+                </ErrorBoundary>
             )}
 
             <BacklinksPanel

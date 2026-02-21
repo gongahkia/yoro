@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import type { Note } from '../types';
 import { Editor } from './Editor';
 import { MindMap } from './MindMap';
@@ -30,9 +30,38 @@ export const NoteEditorWrapper: React.FC<NoteEditorWrapperProps> = ({
     findReplaceOpen, onCloseFindReplace
 }) => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const note = notes.find(n => n.id === id);
 
-    if (!note) return <div>Note not found</div>;
+    if (!note) {
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                gap: '16px',
+                color: 'var(--text-primary)',
+            }}>
+                <p style={{ fontSize: '1.1rem', opacity: 0.7 }}>Note not found.</p>
+                <button
+                    onClick={() => navigate('/')}
+                    style={{
+                        padding: '8px 20px',
+                        background: 'var(--primary)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                    }}
+                >
+                    Back to Home
+                </button>
+            </div>
+        );
+    }
 
     if (note.viewMode === 'mindmap') {
         return (

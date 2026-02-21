@@ -108,6 +108,7 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
     const [useRegex, setUseRegex] = useState(false);
     const [matches, setMatches] = useState<{ from: number; to: number }[]>([]);
     const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+    const [regexError, setRegexError] = useState<string | null>(null);
     const findInputRef = useRef<HTMLInputElement>(null);
     const replaceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     useEffect(() => () => { if (replaceTimerRef.current !== null) clearTimeout(replaceTimerRef.current); }, []);
@@ -143,8 +144,9 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
                     results.push({ from: cursor.value.from, to: cursor.value.to });
                 }
             }
-        } catch {
-            // Invalid regex
+            setRegexError(null);
+        } catch (err) {
+            setRegexError(err instanceof Error ? err.message : 'Invalid regex');
         }
 
         setMatches(results);
@@ -334,9 +336,15 @@ export const FindReplacePanel: React.FC<FindReplacePanelProps> = ({ isOpen, onCl
                 </div>
             </div>
 
+            {regexError && useRegex && (
+                <div className="find-replace-regex-error" role="alert" aria-live="polite">
+                    Invalid regex: {regexError}
+                </div>
+            )}
+
             <div className="find-replace-row">
-                <span className={`find-replace-match-count ${findValue && matches.length === 0 ? 'no-matches' : ''}`} aria-live="polite">
-                    {findValue ? (
+                <span className={`find-replace-match-count ${findValue && matches.length === 0 && !regexError ? 'no-matches' : ''}`} aria-live="polite">
+                    {findValue && !regexError ? (
                         matches.length > 0
                             ? `${currentMatchIndex + 1} of ${matches.length}`
                             : 'No matches'

@@ -51,35 +51,39 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                 const line = lines[i];
                 const lineNumber = i + 1;
 
-                // Check for wikilinks: [[Note Title]] or [[Note Title|alias]]
-                const wikilinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
-                let match;
-                while ((match = wikilinkRegex.exec(line)) !== null) {
-                    const linkedTitle = match[1].trim().toLowerCase();
-                    if (linkedTitle === currentTitle) {
-                        results.push({
-                            note,
-                            lineNumber,
-                            lineContent: line.trim(),
-                            matchType: 'wikilink',
-                        });
-                        break; // Only count one match per line
+                try {
+                    // Check for wikilinks: [[Note Title]] or [[Note Title|alias]]
+                    const wikilinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+                    let match;
+                    while ((match = wikilinkRegex.exec(line)) !== null) {
+                        const linkedTitle = match[1].trim().toLowerCase();
+                        if (linkedTitle === currentTitle) {
+                            results.push({
+                                note,
+                                lineNumber,
+                                lineContent: line.trim(),
+                                matchType: 'wikilink',
+                            });
+                            break; // Only count one match per line
+                        }
                     }
-                }
 
-                // Check for @mentions: @note-title or @"note title"
-                const mentionRegex = /@(?:"([^"]+)"|(\S+))/g;
-                while ((match = mentionRegex.exec(line)) !== null) {
-                    const mentionedTitle = (match[1] || match[2]).trim().toLowerCase();
-                    if (mentionedTitle === currentTitle) {
-                        results.push({
-                            note,
-                            lineNumber,
-                            lineContent: line.trim(),
-                            matchType: 'mention',
-                        });
-                        break;
+                    // Check for @mentions: @note-title or @"note title"
+                    const mentionRegex = /@(?:"([^"]+)"|(\S+))/g;
+                    while ((match = mentionRegex.exec(line)) !== null) {
+                        const mentionedTitle = (match[1] || match[2]).trim().toLowerCase();
+                        if (mentionedTitle === currentTitle) {
+                            results.push({
+                                note,
+                                lineNumber,
+                                lineContent: line.trim(),
+                                matchType: 'mention',
+                            });
+                            break;
+                        }
                     }
+                } catch {
+                    // Skip malformed lines that cause regex failures
                 }
             }
         }
