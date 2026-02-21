@@ -98,13 +98,13 @@
 
   .editor-title {
     border: none !important;
-    color: black !important;
+    color: var(--text-primary) !important;
   }
 
-  /* Ensure text is black and background white */
+  /* Ensure readable text and background for print */
   body, .editor-container, .cm-editor, .cm-scroller, .cm-content {
-    background: white !important;
-    color: black !important;
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
   }
 
   /* Page margins */
