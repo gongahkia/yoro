@@ -17,6 +17,7 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
     onSubmit
 }) => {
     const [values, setValues] = useState<Record<string, string | number | boolean>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const firstInputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
     const trapRef = useFocusTrap(!!(isOpen && command));
 
@@ -54,10 +55,33 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
     };
 
     const handleSubmit = () => {
-        if (command) {
-            onSubmit(command, values);
-            onClose();
+        if (!command) return;
+        const newErrors: Record<string, string> = {};
+        for (const param of command.parameters ?? []) {
+            const value = values[param.name];
+            if (param.type === 'text' || param.type === 'string') {
+                if (typeof value === 'string' && value.trim() === '' && !param.defaultValue) {
+                    newErrors[param.name] = `${param.label} is required`;
+                }
+            }
+            if (param.type === 'number') {
+                const num = Number(value);
+                if (isNaN(num)) {
+                    newErrors[param.name] = `${param.label} must be a number`;
+                } else if (param.min !== undefined && num < param.min) {
+                    newErrors[param.name] = `${param.label} must be at least ${param.min}`;
+                } else if (param.max !== undefined && num > param.max) {
+                    newErrors[param.name] = `${param.label} must be at most ${param.max}`;
+                }
+            }
         }
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
+        onSubmit(command, values);
+        onClose();
     };
 
     const handleValueChange = (name: string, value: string | number | boolean, param: CommandParameter) => {
@@ -84,6 +108,9 @@ export const ParameterInputModal: React.FC<ParameterInputModalProps> = ({
                     {command.parameters?.map((param, index) => (
                         <div key={param.name} className="param-modal-field">
                             <label htmlFor={`param-${param.name}`}>{param.label}</label>
+                            {errors[param.name] && (
+                                <span className="param-modal-error" role="alert">{errors[param.name]}</span>
+                            )}
                             {param.type === 'select' ? (
                                 <select
                                     ref={index === 0 ? firstInputRef as React.RefObject<HTMLSelectElement> : undefined}

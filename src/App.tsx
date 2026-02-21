@@ -275,17 +275,30 @@ function App() {
             const configNote = data.notes.find(n => n.title === 'config.toml');
             if (configNote) {
                 try {
-                    const parsed = parse(configNote.content) as Partial<AppState['preferences']>;
+                    const parsed = parse(configNote.content) as Record<string, unknown>;
                     const updates: Partial<AppState['preferences']> = {};
                     let hasUpdates = false;
-                    const keys: (keyof AppState['preferences'])[] = ['theme', 'vimMode', 'emacsMode', 'showLineNumbers', 'focusMode', 'focusModeBlur', 'lineWrapping', 'editorAlignment', 'fontFamily', 'fontSize', 'homeViewMode', 'sortOrder', 'showDocumentStats', 'cursorAnimations'];
 
-                    for (const key of keys) {
-                        if (parsed[key] !== undefined && parsed[key] !== data.preferences[key]) {
-                            (updates as Record<string, unknown>)[key] = parsed[key];
-                            hasUpdates = true;
-                        }
-                    }
+                    const VALID_THEMES = ['light', 'dark', 'sepia-light', 'sepia-dark', 'dracula-light', 'dracula-dark', 'nord-light', 'nord-dark', 'solarized-light', 'solarized-dark', 'gruvbox-light', 'gruvbox-dark', 'everforest-light', 'everforest-dark', 'catppuccin-light', 'catppuccin-dark', 'rose-pine-light', 'rose-pine-dark', 'tokyo-night-light', 'tokyo-night-dark', 'kanagawa-light', 'kanagawa-dark', 'monokai-light', 'monokai-dark', 'ayu-light', 'ayu-dark', 'one-light', 'one-dark', 'zenburn-light', 'zenburn-dark', 'palenight-light', 'palenight-dark', 'material-light', 'material-dark'];
+                    const isString = (v: unknown): v is string => typeof v === 'string';
+                    const isBool = (v: unknown): v is boolean => typeof v === 'boolean';
+                    const isNum = (v: unknown): v is number => typeof v === 'number' && !isNaN(v);
+                    const isOneOf = <T extends string>(v: unknown, options: readonly T[]): v is T => isString(v) && (options as readonly string[]).includes(v);
+
+                    if (isOneOf(parsed.theme, VALID_THEMES) && parsed.theme !== data.preferences.theme) { updates.theme = parsed.theme; hasUpdates = true; }
+                    if (isBool(parsed.vimMode) && parsed.vimMode !== data.preferences.vimMode) { updates.vimMode = parsed.vimMode; hasUpdates = true; }
+                    if (isBool(parsed.emacsMode) && parsed.emacsMode !== data.preferences.emacsMode) { updates.emacsMode = parsed.emacsMode; hasUpdates = true; }
+                    if (isBool(parsed.showLineNumbers) && parsed.showLineNumbers !== data.preferences.showLineNumbers) { updates.showLineNumbers = parsed.showLineNumbers; hasUpdates = true; }
+                    if (isBool(parsed.focusMode) && parsed.focusMode !== data.preferences.focusMode) { updates.focusMode = parsed.focusMode; hasUpdates = true; }
+                    if (isBool(parsed.focusModeBlur) && parsed.focusModeBlur !== data.preferences.focusModeBlur) { updates.focusModeBlur = parsed.focusModeBlur; hasUpdates = true; }
+                    if (isBool(parsed.lineWrapping) && parsed.lineWrapping !== data.preferences.lineWrapping) { updates.lineWrapping = parsed.lineWrapping; hasUpdates = true; }
+                    if (isOneOf(parsed.editorAlignment, ['left', 'center', 'right'] as const) && parsed.editorAlignment !== data.preferences.editorAlignment) { updates.editorAlignment = parsed.editorAlignment; hasUpdates = true; }
+                    if (isString(parsed.fontFamily) && parsed.fontFamily !== data.preferences.fontFamily) { updates.fontFamily = parsed.fontFamily; hasUpdates = true; }
+                    if (isNum(parsed.fontSize) && parsed.fontSize >= 8 && parsed.fontSize <= 32 && parsed.fontSize !== data.preferences.fontSize) { updates.fontSize = parsed.fontSize; hasUpdates = true; }
+                    if (isOneOf(parsed.homeViewMode, ['3d-carousel', '2d-semicircle'] as const) && parsed.homeViewMode !== data.preferences.homeViewMode) { updates.homeViewMode = parsed.homeViewMode; hasUpdates = true; }
+                    if (isOneOf(parsed.sortOrder, ['updated', 'created', 'alpha', 'alpha-reverse'] as const) && parsed.sortOrder !== data.preferences.sortOrder) { updates.sortOrder = parsed.sortOrder; hasUpdates = true; }
+                    if (isBool(parsed.showDocumentStats) && parsed.showDocumentStats !== data.preferences.showDocumentStats) { updates.showDocumentStats = parsed.showDocumentStats; hasUpdates = true; }
+                    if (isOneOf(parsed.cursorAnimations, ['none', 'subtle', 'particles'] as const) && parsed.cursorAnimations !== data.preferences.cursorAnimations) { updates.cursorAnimations = parsed.cursorAnimations; hasUpdates = true; }
 
                     if (hasUpdates) {
                         handleUpdatePreferences(updates, false);

@@ -95,3 +95,8 @@
 .param-modal-btn.submit:hover {
     opacity: 0.9;
 }
+
+.param-modal-error {
+    font-size: 0.78rem;
+    color: var(--error-color, #dc2626);
+}
