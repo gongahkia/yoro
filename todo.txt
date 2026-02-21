@@ -33,7 +33,6 @@
 # ─── FEATURE IMPROVEMENTS (B) ─────────────────────────────────────────────────
 
 
-(B) Add full-text search across all notes from the home view (currently search only filters by title/tag) +feature
 (B) Add recent notes list (last 5 opened) accessible from command palette or sidebar +feature
 (B) Implement the analytics.ts stub — add privacy-respecting local analytics (note count over time, words written per day) stored in localStorage +feature
 
