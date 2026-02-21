@@ -11,6 +11,24 @@
     gap: 0.5rem;
 }
 
+.note-card.pinned {
+    border-color: var(--primary, #007aff);
+    box-shadow: 0 0 0 1px var(--primary, #007aff);
+}
+
+.pin-indicator {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.action-btn.pin.active {
+    color: var(--primary, #007aff);
+    border-color: var(--primary, #007aff);
+}
+
 .note-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

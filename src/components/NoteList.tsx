@@ -10,6 +10,7 @@ interface NoteListProps {
     onSelectNote: (id: string) => void;
     onDeleteNote: (id: string, e: React.MouseEvent) => void;
     onDuplicateNote: (id: string, e: React.MouseEvent) => void;
+    onPinNote?: (id: string) => void;
     onImportNotes: (notes: Note[]) => void;
     isLoading?: boolean;
     searchQuery: string;
@@ -24,6 +25,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     onSelectNote,
     onDeleteNote,
     onDuplicateNote,
+    onPinNote,
     onImportNotes,
     isLoading = false,
     searchQuery,
@@ -130,6 +132,9 @@ export const NoteList: React.FC<NoteListProps> = ({
 
             return matchesSearch && matchesTag;
         }).sort((a, b) => {
+            // Pinned notes always come first
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
             if (sortOrder === 'alpha') return a.title.localeCompare(b.title);
             if (sortOrder === 'alpha-reverse') return b.title.localeCompare(a.title);
             if (sortOrder === 'created') return b.createdAt - a.createdAt;
@@ -299,6 +304,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                                     onClick={onSelectNote}
                                     onDelete={(e) => onDeleteNote(note.id, e)}
                                     onDuplicate={(e) => onDuplicateNote(note.id, e)}
+                                    onPin={onPinNote ? (e) => { e.stopPropagation(); onPinNote(note.id); } : undefined}
                                 />
                             </div>
                         );

@@ -172,6 +172,13 @@ function App() {
         navigate(`/note/${newId}`);
     }, [navigate]);
 
+    const handlePinNote = useCallback((id: string) => {
+        setData(prev => ({
+            ...prev,
+            notes: prev.notes.map(n => n.id === id ? { ...n, isPinned: !n.isPinned } : n)
+        }));
+    }, []);
+
     const handleImportNotes = useCallback((importedNotes: Note[]) => {
         if (importedNotes.length === 0) return;
         setData(prev => ({
@@ -520,6 +527,7 @@ function App() {
                         onSelectNote={handleSelectNote}
                         onDeleteNote={handleDeleteNote}
                         onDuplicateNote={handleDuplicateNote}
+                        onPinNote={handlePinNote}
                         onImportNotes={handleImportNotes}
                         isLoading={isHydrating}
                         searchQuery={searchQuery}

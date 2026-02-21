@@ -9,6 +9,7 @@ export interface Note {
     createdAt: number;
     updatedAt: number;
     isFavorite: boolean;
+    isPinned?: boolean;
     viewMode?: 'editor' | 'mindmap' | 'flowchart' | 'state' | 'drawing';
     lastCursorPosition?: number;
     lastScrollPosition?: number;

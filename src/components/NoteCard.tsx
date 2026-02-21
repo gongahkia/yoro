@@ -8,13 +8,24 @@ interface NoteCardProps {
     onClick: (id: string) => void;
     onDelete: (e: React.MouseEvent) => void;
     onDuplicate: (e: React.MouseEvent) => void;
+    onPin?: (e: React.MouseEvent) => void;
 }
 
-export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate }) => {
+export const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onDelete, onDuplicate, onPin }) => {
     const sl = useSinglish();
     return (
-        <div className="note-card" onClick={() => onClick(note.id)}>
+        <div className={`note-card${note.isPinned ? ' pinned' : ''}`} onClick={() => onClick(note.id)}>
+            {note.isPinned && <span className="pin-indicator" aria-label="Pinned" title="Pinned">📌</span>}
             <div className="note-card-actions">
+                {onPin && (
+                    <button
+                        className={`action-btn pin${note.isPinned ? ' active' : ''}`}
+                        onClick={onPin}
+                        title={note.isPinned ? (sl ? 'Unpin lah' : 'Unpin') : (sl ? 'Pin lah' : 'Pin')}
+                    >
+                        {note.isPinned ? 'unpin' : 'pin'}
+                    </button>
+                )}
                 <button className="action-btn" onClick={onDuplicate} title={sl ? 'Copy lah' : 'Duplicate'}>copy</button>
                 <button className="action-btn delete" onClick={onDelete} title={sl ? 'Delete lah' : 'Delete'}>del</button>
             </div>
