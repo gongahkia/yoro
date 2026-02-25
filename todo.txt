@@ -1,13 +1,20 @@
-provide a split-screen markdown view as most editors do, markdown syntax one side, the rendered document the other side AND make it callable via command palette
-fix how links are rendered in current live editor view where 
+fix how links are rendered in current live editor view 
 fix how images are rendered in current live editor view
+if possible, allow code blocks to be in a runnable code environment
+
+add first-class support for reading handdrawn diagrams and rendering to mermaid 
+add first-class support for handwriting detection
+
+provide a split-screen markdown view as most editors do, markdown syntax one side, the rendered document the other side AND make it callable via command palette
 
 generate logo with nanobanana, aim to be as ios looking as possible
-do an audit of existing features and make sure everything makes sense
+do an audit of existing features and make sure everything makes senseq
 move all archived feature files into a literal folder called archive in repo root
+
 add auth and make sure security is airtight
 add basic user accounting and a profile page
 add syncthing and other free syncing options as file storage
 if sufficiently good, consider packing with tauri or redeveloping in swift for native macos support but then make it as good as notion
+
 then add a donation link and use the license key approach that most macos apps do
 add a donation link for a buy me a coffee if possible
