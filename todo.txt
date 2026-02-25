@@ -7,7 +7,7 @@ add first-class support for handwriting detection
 
 provide a split-screen markdown view as most editors do, markdown syntax one side, the rendered document the other side AND make it callable via command palette
 
-generate logo with nanobanana, aim to be as ios looking as possible
+generate logo with nanobanana that is just a black sphere (since yoro's technique makes a perfect sphere), aim to be as ios looking as possible
 do an audit of existing features and make sure everything makes senseq
 move all archived feature files into a literal folder called archive in repo root
 
